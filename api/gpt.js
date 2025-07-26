@@ -25,7 +25,8 @@ export default async function handler(req, res) {
           },
           {
             role: 'user',
-            content: `User data: ${JSON.stringify(stackscoreUserData)}. Return JSON with Plan A–D.`,
+            content: `User data: ${JSON.stringify(stackscoreUserData)}. Respond ONLY in raw JSON format with 4 top-level keys: planA, planB, planC, and planD. Do not include explanations or extra text.`,
+
           }
         ],
         temperature: 0.7,
