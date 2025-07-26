@@ -43,11 +43,13 @@ console.log('🔍 OpenAI response:', JSON.stringify(data, null, 2));
     }
 
     try {
-      const parsed = JSON.parse(reply);
-      return res.status(200).json(parsed);
-    } catch {
-      return res.status(200).json({ raw: reply });
-    }
+  const parsed = JSON.parse(reply);
+  return res.status(200).json(parsed);
+} catch (err) {
+  console.error('⚠️ Failed to parse GPT response as JSON:', reply);
+  return res.status(200).json({ raw: reply });
+}
+
 
   } catch (err) {
   console.error('❌ GPT API error:', err);
