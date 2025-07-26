@@ -33,6 +33,8 @@ export default async function handler(req, res) {
     });
 
     const data = await openaiRes.json();
+console.log('🔍 OpenAI response:', JSON.stringify(data, null, 2));
+
     const reply = data.choices?.[0]?.message?.content;
 
     if (!reply) {
@@ -47,7 +49,9 @@ export default async function handler(req, res) {
     }
 
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'GPT API failed' });
+  console.error('❌ GPT API error:', err);
+  return res.status(500).json({ error: err.message || 'GPT API failed' });
+}
+
   }
 }
