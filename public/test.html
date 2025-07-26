@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Test GPT API</title>
+</head>
+<body style="font-family: sans-serif; padding: 2rem;">
+  <h1>StackScore GPT Test</h1>
+  <button onclick="postToGPT()">Run GPT Plan Request</button>
+  <pre id="output" style="margin-top: 2rem; white-space: pre-wrap;"></pre>
+
+  <script>
+    async function postToGPT() {
+      const userData = {
+        credit_score: 520,
+        budget: "under $25/month",
+        lifestyle: ["gig worker", "homeowner"],
+        preferences: ["no hard pulls", "reports to all 3 bureaus"]
+      };
+
+      const output = document.getElementById('output');
+      output.textContent = 'Loading...';
+
+      try {
+        const response = await fetch('/api/gpt', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ stackscoreUserData: userData })
+        });
+
+        const result = await response.json();
+        output.textContent = JSON.stringify(result, null, 2);
+      } catch (err) {
+        output.textContent = '❌ Error: ' + err.message;
+      }
+    }
+  </script>
+</body>
+</html>
