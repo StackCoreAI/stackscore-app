@@ -27,6 +27,7 @@
         });
 
         const result = await response.json();
+        console.log('📦 GPT Response:', result);
         renderPlans(result);
       } catch (err) {
         output.innerHTML = `<p class="text-red-600">❌ Error: ${err.message}</p>`;
