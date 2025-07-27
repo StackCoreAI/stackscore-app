@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>StackScore – Your Personalized Credit Stack</title>
+
+  <!-- TailwindCSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <script>
+    /** Renders the four credit‑building plans once the page is ready */
+    function fetchAndRenderPlans() {
+      const plansContainer = document.getElementById('plans');
+
+      if (!window.result) {
+        plansContainer.innerHTML =
+          '<p class="text-red-600">❌ No plan data found.</p>';
+        return;
+      }
+
+      // 2‑column grid on md+, stacked on mobile
+      plansContainer.className = 'grid gap-6 md:grid-cols-2';
+
+      Object.keys(result).forEach(planName => {
+        const plan = result[planName];
+        if (!plan || !Array.isArray(plan.apps)) return;
+
+        // ----- Card -----
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-lg shadow p-6';
+
+        // Plan heading
+        const title = document.createElement('h2');
+        title.className = 'text-lg font-bold mb-4 tracking-wide';
+        title.textContent = planName.toUpperCase();
+        card.appendChild(title);
+
+        // Apps list
+        plan.apps.forEach(app => {
+          const appBlock = document.createElement('div');
+          appBlock.className = 'mb-4 last:mb-0';
+
+          const appName = document.createElement('h3');
+          appName.className = 'font-semibold';
+          appName.textContent = app.name;
+          appBlock.appendChild(appName);
+
+          const category = document.createElement('p');
+          category.className = 'text-gray-500 text-sm';
+          category.textContent = app.category;
+          appBlock.appendChild(category);
+
+          const reasoning = document.createElement('p');
+          reasoning.className = 'mt-1 text-sm leading-relaxed';
+          reasoning.textContent = app.reasoning;
+          appBlock.appendChild(reasoning);
+
+          card.appendChild(appBlock);
+        });
+
+        plansContainer.appendChild(card);
+      });
+    }
+
+    window.addEventListener('DOMContentLoaded', fetchAndRenderPlans);
+  </script>
+</head>
+
+<body class="bg-gray-100 font-sans antialiased">
+  <main class="max-w-7xl mx-auto px-6 py-12">
+    <!-- Hero Section -->
+    <section class="text-center mb-12">
+      <h1 class="text-3xl md:text-4xl font-bold">
+        Here’s Your Personalized Credit Stack
+      </h1>
+      <p class="text-gray-600 mt-2">
+        Based on your credit score, lifestyle, and preferences
+      </p>
+    </section>
+
+    <!-- Plans Grid -->
+    <section id="plans"></section>
+  </main>
+</body>
+</html>
