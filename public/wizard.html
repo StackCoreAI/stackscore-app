@@ -272,7 +272,7 @@
 </div>
 </div>
 <!-- ✅ Primary CTA -->
-<a class="inline-block px-6 py-3 bg-gradient-to-r from-lime-400 to-emerald-500 text-black font-semibold rounded-full hover:brightness-110 transition" href="/your-plan.html">🚀 View Your Plans</a>
+<a id="viewPlansBtn" class="inline-block px-6 py-3 bg-gradient-to-r from-lime-400 to-emerald-500 text-black font-semibold rounded-full hover:brightness-110 transition" href="#">🚀 View Your Plans</a>
 </div>
 </fieldset>
 </form>
@@ -305,15 +305,12 @@
   
     // --- Button Events ---
     form.addEventListener('click', e => {
-      if (e.target.matches('.next')) {
-        if (current === totalSteps - 1) {
-          collectAndSaveData();
-          window.location.href = '/preview.html';
-          return;
-        }
-        if (current < steps.length - 1) showStep(current + 1, 'next');
+      if (e.target.matches('.next') && current < steps.length - 1) {
+        showStep(current + 1, 'next');
       }
-      if (e.target.matches('.back') && current > 0) showStep(current - 1, 'back');
+      if (e.target.matches('.back') && current > 0) {
+        showStep(current - 1, 'back');
+      }
     });
   
     // --- Dots + Step Label ---
@@ -364,6 +361,13 @@
   
     range?.addEventListener('input', e => updateBudgetDisplay(e.target.value));
     range && updateBudgetDisplay(range.value);
+
+    const viewPlansBtn = document.getElementById('viewPlansBtn');
+    viewPlansBtn?.addEventListener('click', (e) => {
+      e.preventDefault();
+      collectAndSaveData();
+      window.location.href = '/preview.html';
+    });
   
     // --- Init ---
     updateIndicators();
