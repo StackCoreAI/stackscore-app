@@ -2,24 +2,22 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Test GPT API</title>
-</head>
-<body style="font-family: sans-serif; padding: 2rem;">
-  <h1>StackScore GPT Test</h1>
-  <button onclick="postToGPT()">Run GPT Plan Request</button>
-  <pre id="output" style="margin-top: 2rem; white-space: pre-wrap;"></pre>
+  <title>StackScore GPT Test</title>
+
+  <!-- TailwindCSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
 
   <script>
     async function postToGPT() {
       const userData = {
-        credit_score: 520,
+        credit_score: 510,
         budget: "under $25/month",
         lifestyle: ["gig worker", "homeowner"],
         preferences: ["no hard pulls", "reports to all 3 bureaus"]
       };
 
       const output = document.getElementById('output');
-      output.textContent = 'Loading...';
+      output.innerHTML = '<p class="text-gray-500">Loading…</p>';
 
       try {
         const response = await fetch('/api/gpt', {
@@ -29,11 +27,76 @@
         });
 
         const result = await response.json();
-        output.textContent = JSON.stringify(result, null, 2);
+        renderPlans(result);
       } catch (err) {
-        output.textContent = '❌ Error: ' + err.message;
+        output.innerHTML = `<p class="text-red-600">❌ Error: ${err.message}</p>`;
       }
     }
+
+    /** Render planA – planD into styled cards */
+    function renderPlans(result) {
+      const planKeys = ['planA', 'planB', 'planC', 'planD'];
+      const output = document.getElementById('output');
+
+      // 2‑column grid on md+, stacked on mobile
+      output.className = 'grid gap-6 md:grid-cols-2 mt-8';
+      output.innerHTML = ''; // clear “Loading…”
+
+      planKeys.forEach(key => {
+        const plan = result[key];
+        if (!plan) return;
+
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-lg shadow p-6';
+
+        // Plan title
+        const title = document.createElement('h2');
+        title.className = 'text-xl font-bold mb-4';
+        title.textContent = key.toUpperCase();
+        card.appendChild(title);
+
+        // Each app inside the plan
+        plan.apps.forEach(app => {
+          const appWrap = document.createElement('div');
+          appWrap.className = 'mb-4 last:mb-0';
+
+          const appName = document.createElement('h3');
+          appName.className = 'font-semibold';
+          appName.textContent = app.name;
+          appWrap.appendChild(appName);
+
+          const category = document.createElement('p');
+          category.className = 'text-gray-500 text-sm';
+          category.textContent = app.category;
+          appWrap.appendChild(category);
+
+          const reasoning = document.createElement('p');
+          reasoning.className = 'mt-1 text-sm';
+          reasoning.textContent = app.reasoning;
+          appWrap.appendChild(reasoning);
+
+          card.appendChild(appWrap);
+        });
+
+        output.appendChild(card);
+      });
+    }
   </script>
+</head>
+
+<body class="bg-gray-100 p-8 font-sans">
+  <div class="max-w-7xl mx-auto">
+    <h1 class="text-2xl font-bold mb-4">StackScore GPT Test</h1>
+
+    <button
+      onclick="postToGPT()"
+      class="px-4 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 transition"
+    >
+      Run GPT Plan Request
+    </button>
+
+    <!-- Rendered plans will appear here -->
+    <div id="output" class="mt-8"></div>
+  </div>
 </body>
 </html>
