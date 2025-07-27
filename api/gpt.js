@@ -17,15 +17,15 @@ module.exports = async function handler(req, res) {
         'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: 'gpt-4o',
+        model: 'gpt-4o', // fallback to 'gpt-3.5-turbo' if needed
         messages: [
           {
             role: 'system',
-            content: 'You are StackScore Planner GPT. Based on user input, return JSON plans A–D with credit-building apps, categories, and reasoning.',
+            content: 'You are StackScore Planner GPT. Your job is to return JSON plans A–D, each containing credit-building apps with categories and reasoning.',
           },
           {
             role: 'user',
-            content: `User data: ${JSON.stringify(stackscoreUserData)}. Respond ONLY in raw JSON format with 4 top-level keys: planA, planB, planC, and planD. Do not include explanations or extra text.`,
+            content: `User data: ${JSON.stringify(stackscoreUserData)}. Respond ONLY in raw JSON format with 4 top-level keys: planA, planB, planC, and planD. Do not include markdown or explanation. Return ONLY raw JSON.`,
           }
         ],
         temperature: 0.7,
@@ -33,12 +33,15 @@ module.exports = async function handler(req, res) {
     });
 
     const data = await openaiRes.json();
-    console.log('🔍 OpenAI response:', JSON.stringify(data, null, 2));
+    console.log('🔍 OpenAI FULL raw response:', JSON.stringify(data, null, 2));
 
     const reply = data.choices?.[0]?.message?.content;
 
     if (!reply) {
-      return res.status(500).json({ error: 'No GPT response' });
+      return res.status(500).json({
+        error: 'No GPT response',
+        openaiRaw: data,
+      });
     }
 
     try {
@@ -54,4 +57,6 @@ module.exports = async function handler(req, res) {
     return res.status(500).json({ error: err.message || 'GPT API failed' });
   }
 };
+
+
 
