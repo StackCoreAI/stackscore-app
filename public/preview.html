@@ -1,86 +1,239 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>StackScore – Your Personalized Credit Stack</title>
+<head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Personalized Stacks</title>
+<script defer src="https://unpkg.com/lucide@latest"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.tailwindcss.com"></script></head>
 
-  <!-- TailwindCSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
+<body class="bg-neutral-900 text-neutral-100 font-inter antialiased" style="scroll-behavior:smooth;">
+  <!-- HEADER -->
+  <header class="max-w-6xl mx-auto px-4 py-8 flex items-center justify-between">
+    <a href="/" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
+      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" class="text-lime-400">
+        <path d="M4 4h16v3H4z"></path>
+        <path d="M4 10.5h16v3H4z"></path>
+        <path d="M4 17h16v3H4z"></path>
+      </svg>
+      <span class="text-lg font-semibold tracking-tight">StackScore</span>
+    </a>
+
+    <nav class="flex gap-6 items-center text-sm">
+      <a href="#" class="hover:text-lime-300 transition">Dashboard</a>
+      <a href="#" class="hover:text-lime-300 transition">My Plans</a>
+      <a href="#" class="hover:text-lime-300 transition">Settings</a>
+    </nav>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 space-y-16">
+    <!-- ENHANCED STICKY PLAN NAVIGATION WITH LOGO -->
+    <nav id="planNav" class="sticky top-0 z-40 bg-neutral-900 border-b border-neutral-800 px-4 py-3 flex items-center justify-between text-sm font-medium">
+      <!-- Left: Logo -->
+      <a href="/" class="flex items-center gap-2 hover:opacity-80 transition-opacity text-lime-400">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path d="M4 4h16v3H4z"></path>
+          <path d="M4 10.5h16v3H4z"></path>
+          <path d="M4 17h16v3H4z"></path>
+        </svg>
+        <span class="text-base font-semibold tracking-tight">StackScore</span>
+      </a>
+
+      <!-- Right: Plan Links -->
+      <div class="flex gap-6 text-lime-400">
+        <a href="#planA" data-target="planA" class="nav-link hover:text-lime-300 transition-colors">Plan A</a>
+        <a href="#planB" data-target="planB" class="nav-link hover:text-lime-300 transition-colors">Plan B</a>
+        <a href="#planC" data-target="planC" class="nav-link hover:text-lime-300 transition-colors">Plan C</a>
+        <a href="#planD" data-target="planD" class="nav-link hover:text-lime-300 transition-colors">Plan D</a>
+      </div>
+    </nav>
+
+    <!-- PLAN TEMPLATE -->
+    <template id="plan-template">
+      <section class="space-y-6">
+        <div class="flex items-center justify-between">
+          <h2 class="text-xl md:text-2xl font-semibold tracking-tight flex items-center gap-2">
+            <span class="plan-label">Plan A</span>
+            <span class="rounded-md bg-neutral-800 px-2.5 py-0.5 text-xs font-medium text-neutral-400">AI-Generated</span>
+          </h2>
+          <button data-button="unlock" class="rounded-md bg-lime-400 text-black px-4 py-1.5 text-sm font-semibold hover:bg-lime-300 transition focus:outline-none">Unlock Plan A</button>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-4">
+          <div class="app-slot app-1 bg-neutral-800 p-5 rounded-lg space-y-2 fade-slide">
+            <div class="flex items-center gap-2">
+              <span class="w-7 h-7 flex items-center justify-center bg-lime-400 text-black font-bold rounded-full text-sm relative overflow-hidden">
+                1
+                <span class="absolute inset-0 border-2 border-white rounded-full border-t-transparent border-l-transparent"></span>
+              </span>
+              <h3 class="font-semibold">Loading…</h3>
+            </div>
+            <p class="text-sm text-neutral-300">Fetching a perfect match for you.</p>
+          </div>
+
+          <div class="app-slot app-2 bg-neutral-900 border border-dashed border-neutral-700 p-5 rounded-lg space-y-4 flex flex-col items-center justify-center">
+            <i data-lucide="lock" class="w-6 h-6 stroke-neutral-500"></i>
+            <p class="text-sm text-neutral-500 text-center">🔒 App 2 is locked. Finish onboarding to unlock.</p>
+          </div>
+
+          <div class="app-slot app-3 bg-neutral-900 border border-dashed border-neutral-700 p-5 rounded-lg space-y-4 flex flex-col items-center justify-center">
+            <i data-lucide="lock" class="w-6 h-6 stroke-neutral-500"></i>
+            <p class="text-sm text-neutral-500 text-center">🔒 App 3 is hidden until you unlock App 2.</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-4 pt-4 border-t border-neutral-800">
+          <button data-button="unlock" class="rounded-md bg-lime-400 text-black px-4 py-2 text-sm font-semibold hover:bg-lime-300 transition">Unlock Plan A</button>
+          <button class="rounded-md border border-neutral-700 px-4 py-2 text-sm hover:bg-neutral-800 transition">Feedback</button>
+        </div>
+      </section>
+    </template>
+
+    <!-- ACTUAL PLANS -->
+    <section id="planA"></section>
+    <section id="planB"></section>
+    <section id="planC"></section>
+    <section id="planD"></section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="max-w-6xl mx-auto px-4 py-10 text-xs text-neutral-500 border-t border-neutral-800 mt-16">
+    © 2024 StackScore — All rights reserved.
+  </footer>
 
   <script>
-    /** Renders the four credit‑building plans once the page is ready */
-    function fetchAndRenderPlans() {
-      const plansContainer = document.getElementById('plans');
+    /* ---------- 1. Clone & inject plan template ---------- */
+    ['A', 'B', 'C', 'D'].forEach(letter => {
+      const tmpl = document.getElementById('plan-template').content.cloneNode(true);
+      tmpl.querySelector('.plan-label').textContent = `Plan ${letter}`;
+      tmpl.querySelectorAll('[data-button="unlock"]').forEach(btn => {
+        btn.textContent = `Unlock Plan ${letter}`;
+      });
+      document.getElementById(`plan${letter}`).appendChild(tmpl);
+    });
 
-      if (!window.result) {
-        plansContainer.innerHTML =
-          '<p class="text-red-600">❌ No plan data found.</p>';
+    /* ---------- Helper: fade-in / slide-up ---------- */
+    function animateIn() {
+      document.querySelectorAll('.fade-slide').forEach((el, i) => {
+        el.style.transition = 'opacity .5s ease, transform .5s ease';
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(12px)';
+        setTimeout(() => {
+          el.style.opacity = '1';
+          el.style.transform = 'translateY(0)';
+        }, 150 + i * 120);
+      });
+    }
+    animateIn();
+
+    /* ---------- Card generator ---------- */
+    function generateAppCard(app, index = 1) {
+      return `
+        <div class="bg-neutral-800 p-5 rounded-lg space-y-2 fade-slide">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-1.5">
+              <span class="w-7 h-7 flex items-center justify-center bg-lime-400 text-black font-bold rounded-full text-sm relative overflow-hidden">
+                ${index}
+                <span class="absolute inset-0 border-2 border-white rounded-full border-t-transparent border-l-transparent"></span>
+              </span>
+              <h3 class="font-semibold">${app.app_name}</h3>
+            </div>
+            <span class="text-xs bg-neutral-700 rounded-full px-2 py-0.5">${app.app_category}</span>
+          </div>
+          <p class="text-sm text-neutral-300">${app.app_description}</p>
+          <p class="text-sm italic text-neutral-500">Cost: ${app.app_cost}</p>
+          <a href="${app.app_url}" class="text-lime-400 underline text-sm">Visit App</a>
+          ${app.substitute ? `
+            <div class="mt-3 bg-neutral-900 p-3 rounded-lg border-l-4 border-lime-400 space-y-1">
+              <p class="text-sm"><strong>Substitute: ${app.substitute.app_name}</strong></p>
+              <p class="text-sm text-neutral-300">${app.substitute.app_description}</p>
+              <p class="text-xs italic text-neutral-500">Cost: ${app.substitute.app_cost}</p>
+              <a href="${app.substitute.app_url}" class="text-lime-300 underline text-xs">Try Substitute</a>
+            </div>` : ''}
+        </div>
+      `;
+    }
+
+    /* ---------- Replace placeholder with GPT recommendation ---------- */
+    function updatePlanUI(planId, app) {
+      const section  = document.querySelector(`#${planId}`);
+      const appCard  = section.querySelector('.app-1');
+      if (!app || !appCard) return;
+      const wrapper  = document.createElement('div');
+      wrapper.innerHTML = generateAppCard(app);
+      const cardEl   = wrapper.firstElementChild;
+      cardEl.classList.add('fade-slide');
+      appCard.replaceWith(cardEl);
+    }
+
+    /* ---------- Main flow ---------- */
+    document.addEventListener('DOMContentLoaded', async () => {
+      const userData = JSON.parse(localStorage.getItem('stackscoreUserData')) || {};
+
+      let plans;
+      try {
+        const res = await fetch('/api/gpt', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(userData),
+        });
+        if (!res.ok) throw new Error('Bad response');
+        plans = await res.json();
+      } catch (e) {
+        plans = null;
+      }
+
+      if (!plans) {
+        ['A', 'B', 'C', 'D'].forEach(letter => {
+          const slot = document.querySelector(`#plan${letter} .app-1`);
+          if (slot) {
+            slot.innerHTML = `
+              <div class="bg-neutral-800 p-5 rounded-lg space-y-2 text-yellow-400">
+                <h3 class="font-semibold">⚠️ GPT failed to load</h3>
+                <p class="text-sm">Please refresh or try again later.</p>
+              </div>`;
+          }
+        });
+        lucide.createIcons();
+        animateIn();
         return;
       }
 
-      // 2‑column grid on md+, stacked on mobile
-      plansContainer.className = 'grid gap-6 md:grid-cols-2';
+      updatePlanUI('planA', plans.planA?.apps?.[0]);
+      updatePlanUI('planB', plans.planB?.apps?.[0]);
+      updatePlanUI('planC', plans.planC?.apps?.[0]);
+      updatePlanUI('planD', plans.planD?.apps?.[0]);
 
-      Object.keys(result).forEach(planName => {
-        const plan = result[planName];
-        if (!plan || !Array.isArray(plan.apps)) return;
+      lucide.createIcons();
+      animateIn();
+    });
 
-        // ----- Card -----
-        const card = document.createElement('div');
-        card.className = 'bg-white rounded-lg shadow p-6';
-
-        // Plan heading
-        const title = document.createElement('h2');
-        title.className = 'text-lg font-bold mb-4 tracking-wide';
-        title.textContent = planName.toUpperCase();
-        card.appendChild(title);
-
-        // Apps list
-        plan.apps.forEach(app => {
-          const appBlock = document.createElement('div');
-          appBlock.className = 'mb-4 last:mb-0';
-
-          const appName = document.createElement('h3');
-          appName.className = 'font-semibold';
-          appName.textContent = app.name;
-          appBlock.appendChild(appName);
-
-          const category = document.createElement('p');
-          category.className = 'text-gray-500 text-sm';
-          category.textContent = app.category;
-          appBlock.appendChild(category);
-
-          const reasoning = document.createElement('p');
-          reasoning.className = 'mt-1 text-sm leading-relaxed';
-          reasoning.textContent = app.reasoning;
-          appBlock.appendChild(reasoning);
-
-          card.appendChild(appBlock);
+    /* ---------- Sticky nav: highlight active section ---------- */
+    const observer = new IntersectionObserver(
+      entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            document.querySelectorAll('.nav-link').forEach(link => {
+              link.classList.remove('active');
+              link.style.color = '';
+              link.style.fontWeight = '';
+            });
+            const activeLink = document.querySelector(`.nav-link[data-target="${entry.target.id}"]`);
+            if (activeLink) {
+              activeLink.classList.add('active');
+              activeLink.style.color = '#bef264';
+              activeLink.style.fontWeight = '600';
+            }
+          }
         });
+      },
+      { rootMargin: '-50% 0px -40% 0px', threshold: 0.1 }
+    );
 
-        plansContainer.appendChild(card);
-      });
-    }
-
-    window.addEventListener('DOMContentLoaded', fetchAndRenderPlans);
+    ['planA', 'planB', 'planC', 'planD'].forEach(id => {
+      const section = document.getElementById(id);
+      if (section) observer.observe(section);
+    });
   </script>
-</head>
-
-<body class="bg-gray-100 font-sans antialiased">
-  <main class="max-w-7xl mx-auto px-6 py-12">
-    <!-- Hero Section -->
-    <section class="text-center mb-12">
-      <h1 class="text-3xl md:text-4xl font-bold">
-        Here’s Your Personalized Credit Stack
-      </h1>
-      <p class="text-gray-600 mt-2">
-        Based on your credit score, lifestyle, and preferences
-      </p>
-    </section>
-
-    <!-- Plans Grid -->
-    <section id="plans"></section>
-  </main>
 </body>
 </html>
