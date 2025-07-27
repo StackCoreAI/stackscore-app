@@ -36,16 +36,24 @@
 
     /** Render planA – planD into styled cards */
     function renderPlans(result) {
-      const planKeys = Object.keys(result);
-      const output = document.getElementById('output');
+  console.log('🧠 Render input:', result);
 
-      // 2‑column grid on md+, stacked on mobile
-      output.className = 'grid gap-6 md:grid-cols-2 mt-8';
-      output.innerHTML = ''; // clear “Loading…”
+  const planKeys = Object.keys(result);
+  console.log('🧩 Plan Keys:', planKeys);
 
-      planKeys.forEach(key => {
-        const plan = result[key];
-        if (!plan) return;
+  const output = document.getElementById('output');
+  output.className = 'grid gap-6 md:grid-cols-2 mt-8';
+  output.innerHTML = '';
+
+  planKeys.forEach(key => {
+    const plan = result[key];
+    if (!plan || !Array.isArray(plan.apps)) {
+      console.warn(`⚠️ Skipping ${key}: invalid or missing apps array`);
+      return;
+    }
+
+    // Rendering continues...
+
 
         const card = document.createElement('div');
         card.className = 'bg-white rounded-lg shadow p-6';
