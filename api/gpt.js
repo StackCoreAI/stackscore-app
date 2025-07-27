@@ -17,7 +17,7 @@ module.exports = async function handler(req, res) {
         'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: 'gpt-4o', // fallback to 'gpt-3.5-turbo' if needed
+        model: 'gpt-4o', // or use 'gpt-3.5-turbo' if needed
         messages: [
           {
             role: 'system',
@@ -25,7 +25,7 @@ module.exports = async function handler(req, res) {
           },
           {
             role: 'user',
-            content: `User data: ${JSON.stringify(stackscoreUserData)}. Respond ONLY in raw JSON format with 4 top-level keys: planA, planB, planC, and planD. Do not include markdown or explanation. Return ONLY raw JSON.`,
+            content: `User data: ${JSON.stringify(stackscoreUserData)}. Respond ONLY in raw JSON format with 4 top-level keys: planA, planB, planC, and planD. Do not include markdown, code blocks, or explanation. Return ONLY raw JSON.`,
           }
         ],
         temperature: 0.7,
@@ -35,7 +35,7 @@ module.exports = async function handler(req, res) {
     const data = await openaiRes.json();
     console.log('🔍 OpenAI FULL raw response:', JSON.stringify(data, null, 2));
 
-    const reply = data.choices?.[0]?.message?.content;
+    let reply = data.choices?.[0]?.message?.content;
 
     if (!reply) {
       return res.status(500).json({
@@ -43,6 +43,13 @@ module.exports = async function handler(req, res) {
         openaiRaw: data,
       });
     }
+
+    // 🧼 Clean up markdown-style response
+    reply = reply.trim()
+                 .replace(/^```json/, '')
+                 .replace(/^```/, '')
+                 .replace(/```$/, '')
+                 .trim();
 
     try {
       const parsed = JSON.parse(reply);
@@ -57,6 +64,7 @@ module.exports = async function handler(req, res) {
     return res.status(500).json({ error: err.message || 'GPT API failed' });
   }
 };
+
 
 
 
