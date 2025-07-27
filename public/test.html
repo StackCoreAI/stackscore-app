@@ -35,7 +35,7 @@
 
     /** Render planA – planD into styled cards */
     function renderPlans(result) {
-      const planKeys = ['planA', 'planB', 'planC', 'planD'];
+      const planKeys = Object.keys(result);
       const output = document.getElementById('output');
 
       // 2‑column grid on md+, stacked on mobile
