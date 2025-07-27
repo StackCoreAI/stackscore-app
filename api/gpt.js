@@ -17,15 +17,15 @@ module.exports = async function handler(req, res) {
         'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: 'gpt-4o', // or use 'gpt-3.5-turbo' if needed
+        model: 'gpt-4o',
         messages: [
           {
             role: 'system',
-            content: 'You are StackScore Planner GPT. Your job is to return JSON plans A–D, each containing credit-building apps with categories and reasoning.',
+            content: 'You are StackScore Planner GPT. Based on user input, return JSON plans A–D, each with apps (name, category, reasoning). Respond in raw JSON only. Do NOT wrap your response in markdown or code blocks.',
           },
           {
             role: 'user',
-            content: `User data: ${JSON.stringify(stackscoreUserData)}. Respond ONLY in raw JSON format with 4 top-level keys: planA, planB, planC, and planD. Do not include markdown, code blocks, or explanation. Return ONLY raw JSON.`,
+            content: `User data: ${JSON.stringify(stackscoreUserData)}. Respond ONLY in pure JSON — no explanation, no markdown, no extra formatting.`,
           }
         ],
         temperature: 0.7,
@@ -44,12 +44,19 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    // 🧼 Clean up markdown-style response
-    reply = reply.trim()
-                 .replace(/^```json/, '')
-                 .replace(/^```/, '')
-                 .replace(/```$/, '')
-                 .trim();
+    // ✅ Clean: Remove markdown code fences + extra quotes
+    reply = reply.trim();
+
+    // Handle wrapped in backticks
+    if (reply.startsWith('```')) {
+      reply = reply.replace(/```json|```/g, '').trim();
+    }
+
+    // Handle reply being stringified JSON (double escaped)
+    if (reply.startsWith('"') && reply.endsWith('"')) {
+      reply = reply.slice(1, -1); // remove outer quotes
+      reply = reply.replace(/\\"/g, '"'); // unescape quotes
+    }
 
     try {
       const parsed = JSON.parse(reply);
@@ -64,6 +71,7 @@ module.exports = async function handler(req, res) {
     return res.status(500).json({ error: err.message || 'GPT API failed' });
   }
 };
+
 
 
 
