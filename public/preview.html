@@ -231,9 +231,38 @@
     );
 
     ['planA', 'planB', 'planC', 'planD'].forEach(id => {
-      const section = document.getElementById(id);
-      if (section) observer.observe(section);
+  const section = document.getElementById(id);
+  if (section) observer.observe(section);
+});
+
+// === GPT Output Injection Starts Here ===
+const userData = JSON.parse(localStorage.getItem("stackscoreUserData") || "{}");
+
+async function fetchGPTPlans() {
+  try {
+    const response = await fetch("/api/gpt", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(userData),
     });
+
+    const data = await response.json();
+    console.log("GPT Response:", data);
+
+    if (data?.plans) {
+      injectPlans(data.plans);
+    } else {
+      console.warn("No plans found in GPT response. Falling back.");
+      injectFallbackPlans();
+    }
+  } catch (err) {
+    console.error("GPT request failed:", err);
+    injectFallbackPlans();
+  }
+}
+
+fetchGPTPlans();
+// === GPT Output Injection Ends Here ===
   </script>
 </body>
 </html>
