@@ -1,0 +1,30 @@
+{
+  "done": true,
+  "migration": {
+    "name": "mig_d2ceck0bs5avv4bj68jg",
+    "operations": [
+      {
+        "add_column": {
+          "table": "app_substitutes",
+          "column": {
+            "name": "primary_app_id",
+            "type": "text",
+            "comment": "{\"xata.link\":\"apps\"}",
+            "nullable": true,
+            "references": {
+              "name": "primary_app_id_link",
+              "table": "apps",
+              "column": "xata_id",
+              "on_delete": "SET NULL"
+            }
+          }
+        }
+      }
+    ]
+  },
+  "migrationType": "pgroll",
+  "name": "mig_d2ceck0bs5avv4bj68jg",
+  "parent": "mig_d2cec99abui1ml6v71l0",
+  "schema": "public",
+  "startedAt": "2025-08-10T18:34:57.927139Z"
+}
