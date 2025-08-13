@@ -1,0 +1,25 @@
+{
+  "done": true,
+  "migration": {
+    "name": "mig_d2ce4g8bs5avv4bj68ag",
+    "operations": [
+      {
+        "add_column": {
+          "table": "plans",
+          "column": {
+            "name": "plan_code",
+            "type": "text",
+            "unique": true,
+            "comment": "",
+            "nullable": true
+          }
+        }
+      }
+    ]
+  },
+  "migrationType": "pgroll",
+  "name": "mig_d2ce4g8bs5avv4bj68ag",
+  "parent": "mig_d2ce3t0bs5avv4bj689g",
+  "schema": "public",
+  "startedAt": "2025-08-10T18:17:39.025876Z"
+}

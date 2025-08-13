@@ -1,0 +1,7 @@
+{
+  "databaseURL": "https://Jey-Fam-s-workspace-qpe9en.us-east-1.xata.sh/db/stackscore_core:main",
+  "codegen": {
+    "output": "src/xata.js",
+    "moduleType": "esm"
+  }
+}

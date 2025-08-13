@@ -1,0 +1,25 @@
+{
+  "done": true,
+  "migration": {
+    "name": "mig_d2cdpk0bs5avv4bj686g",
+    "operations": [
+      {
+        "add_column": {
+          "table": "apps",
+          "column": {
+            "name": "is_active",
+            "type": "bool",
+            "comment": "",
+            "default": "'true'",
+            "nullable": true
+          }
+        }
+      }
+    ]
+  },
+  "migrationType": "pgroll",
+  "name": "mig_d2cdpk0bs5avv4bj686g",
+  "parent": "mig_d2cdp38bs5avv4bj685g",
+  "schema": "public",
+  "startedAt": "2025-08-10T17:54:24.966329Z"
+}

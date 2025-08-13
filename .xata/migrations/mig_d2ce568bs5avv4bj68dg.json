@@ -1,0 +1,24 @@
+{
+  "done": true,
+  "migration": {
+    "name": "mig_d2ce568bs5avv4bj68dg",
+    "operations": [
+      {
+        "add_column": {
+          "table": "plans",
+          "column": {
+            "name": "boost_min",
+            "type": "int",
+            "comment": "",
+            "nullable": true
+          }
+        }
+      }
+    ]
+  },
+  "migrationType": "pgroll",
+  "name": "mig_d2ce568bs5avv4bj68dg",
+  "parent": "mig_d2ce508bs5avv4bj68cg",
+  "schema": "public",
+  "startedAt": "2025-08-10T18:19:05.965004Z"
+}

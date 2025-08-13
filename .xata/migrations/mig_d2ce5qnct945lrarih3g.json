@@ -1,0 +1,24 @@
+{
+  "done": true,
+  "migration": {
+    "name": "mig_d2ce5qnct945lrarih3g",
+    "operations": [
+      {
+        "add_column": {
+          "table": "plans",
+          "column": {
+            "name": "cost_per_month",
+            "type": "int",
+            "comment": "",
+            "nullable": true
+          }
+        }
+      }
+    ]
+  },
+  "migrationType": "pgroll",
+  "name": "mig_d2ce5qnct945lrarih3g",
+  "parent": "mig_d2ce5lobs5avv4bj68eg",
+  "schema": "public",
+  "startedAt": "2025-08-10T18:20:26.722532Z"
+}
