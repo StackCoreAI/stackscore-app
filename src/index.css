@@ -1,0 +1,81 @@
+/* src/index.css — Tailwind v4 */
+@import "tailwindcss";
+
+/* Tell Tailwind where to scan for class usage */
+@source "./index.html";
+@source "./src/**/*.{js,jsx,ts,tsx}";
+
+/* ------------------------------
+   Wizard step transitions
+   ------------------------------ */
+.wizard-stage {
+  position: relative;
+  min-height: 440px; /* keeps layout height stable */
+}
+
+.wizard-panel {
+  opacity: 0;
+  transform: translateX(24px);
+  position: absolute;
+  inset: 0;
+  transition: opacity 0.28s ease, transform 0.28s ease;
+}
+
+.wizard-panel.active {
+  opacity: 1;
+  transform: translateX(0);
+  position: relative;
+}
+
+.wizard-panel.exiting {
+  opacity: 0;
+  transform: translateX(-24px);
+  pointer-events: none;
+}
+
+/* ------------------------------
+   Floating numbers: fade + drift
+   ------------------------------ */
+@keyframes ss-float-in-out {
+  0%   { opacity: 0; transform: translateY(10px) scale(.98); }
+  10%  { opacity: 1; transform: translateY(0)    scale(1);   }
+  70%  { opacity: 1; transform: translateY(-12px) scale(1.02); }
+  100% { opacity: 0; transform: translateY(-22px) scale(1.02); }
+}
+
+/* (Removed the old .ss-floating-number rule that used ss-float-in-out) */
+
+/* ----- Score burst (wizard step 6) ----- */
+.score-burst {
+  position: relative;
+  width: min(520px, 86vw);
+  height: 3.5rem;
+  margin: -20px auto 0;
+  pointer-events: none;
+  user-select: none;
+}
+
+@keyframes ssFloat {
+  0%   { transform: translateY(10px); opacity: 0; }
+  20%  { opacity: 1; }
+  80%  { opacity: 1; }
+  100% { transform: translateY(-10px); opacity: 0; }
+}
+
+.ss-floating-number {
+  position: absolute;
+  font-weight: 800;
+  color: #bef264;              /* lime-300 */
+  text-shadow: 0 8px 28px rgba(163,230,53,.35);
+  will-change: transform, opacity;
+  animation-name: ssFloat;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  /* CSS vars let us randomize per instance */
+  animation-duration: var(--duration, 4.6s);
+  animation-delay: var(--delay, 0s);
+}
+
+/* Optional subtle color/size variation */
+.ss-floating-number.em { color:#a3e635; }      /* lime-400 */
+.ss-floating-number.strong { color:#84cc16; }  /* lime-500 */
