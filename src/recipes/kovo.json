@@ -1,0 +1,24 @@
+{
+    "name": "Kovo",
+    "why": "Reports a small installment plan to establish on-time payment history with minimal cost and setup.",
+    "cost": "$8–$10/mo (plan-dependent)",
+    "reportsTo": ["Equifax"],
+    "features": [
+      "Installment plan",
+      "Autopay",
+      "Alerts"
+    ],
+    "steps": [
+      "Create an account at https://www.kovo.com with your exact legal name.",
+      "Choose a low monthly installment you can sustain for 6–12 months.",
+      "Link your primary checking account and enable Autopay immediately.",
+      "Turn ON alerts for draft scheduled and draft posted.",
+      "Keep your account funded ≥ 3 days before draft to prevent returns.",
+      "Verification: Expect the new installment tradeline to appear within 2–6 weeks after your first successful payment."
+    ],
+    "pitfalls": [
+      "Pausing or missing early payments undermines the purpose—enable Autopay on day 1.",
+      "Do not stack too many new installment builders at once; keep total monthly cost within your plan’s allowance."
+    ]
+  }
+  

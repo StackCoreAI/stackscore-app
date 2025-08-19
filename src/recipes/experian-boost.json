@@ -1,0 +1,25 @@
+{
+    "name": "Experian Boost",
+    "why": "Adds eligible utility, phone, and streaming payments to your Experian file for an immediate score lift.",
+    "cost": "$0",
+    "reportsTo": ["Experian"],
+    "features": [
+      "Boost connection",
+      "Continuous sync",
+      "Alerts"
+    ],
+    "steps": [
+      "Create/sign in at https://www.experian.com using the exact legal name on your credit reports.",
+      "Go to Boost and select “Connect Accounts.” Link the checking account you use to pay utilities and streaming bills (avoid savings).",
+      "When prompted, authorize a full 12–24 months of transaction history to surface more eligible bills.",
+      "In the Boost scanner, prioritize utilities and mobile phone first, then add 2–3 streaming services.",
+      "Confirm continuous syncing is ON (Settings → Boost → Keep this account linked).",
+      "Save a screenshot of the “Bills added” confirmation for your records.",
+      "Verification: Your Experian score should reflect Boost immediately. If it doesn’t, clear filters, re-scan, or re-link the bank connection."
+    ],
+    "pitfalls": [
+      "Joint or mirrored accounts (via money-management apps) can hide bills—temporarily unlink those before linking Boost.",
+      "If eligible bills don’t appear, check bank filters and try a re-scan after 24 hours."
+    ]
+  }
+  

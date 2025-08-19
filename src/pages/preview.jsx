@@ -1,282 +1,260 @@
-// src/pages/Preview.jsx
-import React, { useEffect, useMemo, useState } from "react";
-import { useEntryGuard } from "../shared/useEntryGuard.js";
-import { getWizardData } from "../shared/useWizardData.js";
-import PlanSection from "../shared/PlanSection.jsx";
-import LockedCard from "../shared/LockedCard.jsx";
+// src/pages/preview.jsx
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import Loader from "../components/Loader.jsx";
+import PreviewHeader from "../components/PreviewHeader.jsx";
+import PlanGrid from "../components/PlanGrid.jsx";
 
-// --- Tiny inline mock used when the API isn't available in Vite dev ---
-const INLINE_MOCK = {
-  plans: [
-    {
-      id: "A",
-      title: "Fast Start",
-      summary: "Quick wins this month with low effort tools.",
-      apps: [
-        {
-          app_name: "Experian Boost",
-          app_category: "Tradeline",
-          app_cost: "Free",
-          app_url: "https://www.experian.com/boost",
-          why: "Reports utilities/streaming for an immediate tradeline."
-        },
-        {
-          app_name: "Kikoff",
-          app_category: "Credit Builder",
-          app_cost: "$5/mo",
-          app_url: "https://kikoff.com",
-          why: "Low-cost builder that reports monthly."
-        },
-        {
-          app_name: "Grow Credit",
-          app_category: "Subscription Reporting",
-          app_cost: "$0–$4.99/mo",
-          app_url: "https://growcredit.com",
-          why: "Reports eligible subscriptions like Netflix/Spotify."
-        },
-        {
-          app_name: "Credit Karma",
-          app_category: "Monitoring",
-          app_cost: "Free",
-          app_url: "https://www.creditkarma.com",
-          why: "Ongoing monitoring and alerts."
-        }
-      ]
-    },
-    {
-      id: "B",
-      title: "Builder Track",
-      summary: "Focus on steady monthly reporting and utilization.",
-      apps: [
-        {
-          app_name: "Self",
-          app_category: "Installment Builder",
-          app_cost: "$25+/mo",
-          app_url: "https://www.self.inc",
-          why: "Build payment history with a CD-backed loan."
-        },
-        {
-          app_name: "Chime Credit Builder",
-          app_category: "Secured Card",
-          app_cost: "Free*",
-          app_url: "https://www.chime.com",
-          why: "No-fee secured card with auto-pay features."
-        },
-        {
-          app_name: "Experian",
-          app_category: "Monitoring",
-          app_cost: "Free",
-          app_url: "https://www.experian.com",
-          why: "Score tracking and alerts."
-        },
-        {
-          app_name: "Rocket Money",
-          app_category: "Budgeting",
-          app_cost: "Free",
-          app_url: "https://www.rocketmoney.com",
-          why: "Budget and subscription tracking."
-        }
-      ]
-    },
-    {
-      id: "C",
-      title: "Subscription Reporter",
-      summary: "Max out eligible utilities/subscriptions for reporting.",
-      apps: [
-        {
-          app_name: "Experian Boost",
-          app_category: "Tradeline",
-          app_cost: "Free",
-          app_url: "https://www.experian.com/boost",
-          why: "Immediate reporting for eligible bills."
-        },
-        {
-          app_name: "Grow Credit",
-          app_category: "Subscription Reporting",
-          app_cost: "$0–$4.99/mo",
-          app_url: "https://growcredit.com",
-          why: "Report streaming services to help build history."
-        },
-        {
-          app_name: "Kikoff",
-          app_category: "Credit Builder",
-          app_cost: "$5/mo",
-          app_url: "https://kikoff.com",
-          why: "Low-cost recurring tradeline."
-        },
-        {
-          app_name: "Credit Karma",
-          app_category: "Monitoring",
-          app_cost: "Free",
-          app_url: "https://www.creditkarma.com",
-          why: "Monitor the impact over time."
-        }
-      ]
-    },
-    {
-      id: "D",
-      title: "Balanced Mix",
-      summary: "Blend of builder, reporting, and monitoring.",
-      apps: [
-        {
-          app_name: "Self",
-          app_category: "Installment Builder",
-          app_cost: "$25+/mo",
-          app_url: "https://www.self.inc",
-          why: "Installment history foundation."
-        },
-        {
-          app_name: "Grow Credit",
-          app_category: "Subscription Reporting",
-          app_cost: "$0–$4.99/mo",
-          app_url: "https://growcredit.com",
-          why: "Leverage existing subscriptions."
-        },
-        {
-          app_name: "Chime Credit Builder",
-          app_category: "Secured Card",
-          app_cost: "Free*",
-          app_url: "https://www.chime.com",
-          why: "Keep utilization healthy with autopay."
-        },
-        {
-          app_name: "Experian",
-          app_category: "Monitoring",
-          app_cost: "Free",
-          app_url: "https://www.experian.com",
-          why: "Track progress; catch issues early."
-        }
-      ]
-    }
-  ]
-};
+// NEW: global header/footer (logo is a home link on every page)
+import SiteHeader from "../components/SiteHeader.jsx";
+import SiteFooter from "../components/SiteFooter.jsx";
 
-function safeParseJson(text) {
-  if (!text) return null;
-  const trimmed = text.trim();
-  if (!trimmed) return null;
-  // If the server returned HTML (404 page, etc.), don't try to parse.
-  if (trimmed.startsWith("<")) return null;
+const BLANK = { housing: "", subs: [], tools: "", employment: "", goal: "", budget: "45" };
+
+// In dev we’ll call the API directly; when you add a Vite proxy you can switch to "".
+const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3001";
+
+function loadAnswers() {
   try {
-    return JSON.parse(trimmed);
+    const raw =
+      localStorage.getItem("stackscoreUserData") ||
+      localStorage.getItem("ss_answers");
+    if (!raw) return null;
+    return { ...BLANK, ...JSON.parse(raw) };
   } catch {
     return null;
   }
 }
 
+function getSelectedPlanKey() {
+  // PlanGrid likely writes 'ss_selected' to sessionStorage.
+  // We’ll accept "growth" | "foundation" | "accelerator" | "elite" (string) or an object.
+  const raw = sessionStorage.getItem("ss_selected");
+  if (!raw) return "growth";
+  try {
+    const v = JSON.parse(raw);
+    if (typeof v === "string") return v || "growth";
+    return v?.planKey || v?.key || "growth";
+  } catch {
+    return raw || "growth";
+  }
+}
+
 export default function Preview() {
-  useEntryGuard(); // if no wizard payload, bounce to /wizard
+  const nav = useNavigate();
 
-  const payload = useMemo(() => getWizardData(), []);
-  const [plans, setPlans] = useState(null);
-  const [meta, setMeta] = useState({ source: "", cacheKey: "" });
-  const [status, setStatus] = useState({ loading: true, error: "" });
+  const [answers, setAnswers] = useState(null);
+  const [plan, setPlan] = useState(null);
+  const [status, setStatus] = useState("idle"); // idle | loading | done | error
+  const [error, setError] = useState("");
 
-  useEffect(() => {
-    let cancelled = false;
+  const [refreshedAt, setRefreshedAt] = useState(
+    Number(sessionStorage.getItem("ss_refreshed_at") || 0) || undefined
+  );
 
-    (async () => {
-      setStatus({ loading: true, error: "" });
+  const [unlocking, setUnlocking] = useState(false);
+  const [unlockErr, setUnlockErr] = useState("");
 
-      // Try live API first
-      try {
-        const r = await fetch("/api/gpt-plan?shape=advisor", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
+  // One-shot mock fallback if live call fails
+  async function runFetch(useAnswers, tryMock = true) {
+    setStatus("loading");
+    const payload = {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ answers: useAnswers || {} }),
+    };
 
-        const text = await r.text();
-        if (cancelled) return;
+    try {
+      // 1) Live call
+      const r = await fetch("/api/gpt-plan", payload);
+      if (!r.ok) throw new Error(`API ${r.status}`);
+      const data = await r.json();
+      setPlan(data);
+      sessionStorage.setItem("ss_plan", JSON.stringify(data));
+      const t = Date.now();
+      setRefreshedAt(t);
+      sessionStorage.setItem("ss_refreshed_at", String(t));
+      setStatus("done");
+    } catch (e) {
+      console.error("Live plan failed:", e);
 
-        const data = safeParseJson(text);
-        if (r.ok && data && Array.isArray(data.plans)) {
-          setPlans(data.plans);
-          setMeta({
-            source: r.headers.get("x-ss-source") || "api",
-            cacheKey: r.headers.get("x-ss-cache-key") || "",
-          });
-          setStatus({ loading: false, error: "" });
-          return;
-        }
-
-        // Not ok or not JSON -> fall through to mock
-        throw new Error(`API unavailable (${r.status})`);
-      } catch (e) {
-        // Mock fallback (works during Vite dev when no serverless route exists)
+      // 2) Retry once with mock
+      if (tryMock) {
         try {
-          if (cancelled) return;
-          setPlans(INLINE_MOCK.plans);
-          setMeta({ source: "mock(local)", cacheKey: "" });
-          setStatus({ loading: false, error: "" });
-        } catch (mockErr) {
-          if (cancelled) return;
-          setStatus({
-            loading: false,
-            error: String(mockErr?.message || e?.message || "Failed to load plans"),
-          });
+          const r2 = await fetch("/api/gpt-plan?mock=1", payload);
+          if (!r2.ok) throw new Error(`Mock API ${r2.status}`);
+          const data2 = await r2.json();
+          setPlan(data2);
+          sessionStorage.setItem("ss_plan", JSON.stringify(data2));
+          const t2 = Date.now();
+          setRefreshedAt(t2);
+          sessionStorage.setItem("ss_refreshed_at", String(t2));
+          setStatus("done");
+          return;
+        } catch (e2) {
+          console.error("Mock fallback failed:", e2);
         }
       }
-    })();
 
-    return () => {
-      cancelled = true;
-    };
-  }, [payload]);
-
-  if (status.loading) {
-    return (
-      <main className="min-h-screen grid place-items-center p-6">
-        <div className="text-slate-600">Loading your plans…</div>
-      </main>
-    );
+      setError(e.message || "Failed to build plan");
+      setStatus("error");
+    }
   }
 
-  if (status.error) {
-    return (
-      <main className="min-h-screen grid place-items-center p-6">
-        <div className="max-w-xl bg-white rounded-2xl shadow p-6">
-          <h2 className="text-xl font-semibold mb-2">We hit a snag</h2>
-          <p className="text-slate-600 mb-4">
-            {status.error}
-          </p>
-          <p className="text-sm text-slate-500">
-            Try again in a moment or return to the wizard to adjust answers.
-          </p>
-        </div>
-      </main>
-    );
+  useEffect(() => {
+    window.scrollTo(0, 0);
+
+    const a = loadAnswers();
+    setAnswers(a);
+
+    // Use cached plan if present
+    const cached = sessionStorage.getItem("ss_plan");
+    if (cached) {
+      try {
+        setPlan(JSON.parse(cached));
+        const t = Number(sessionStorage.getItem("ss_refreshed_at") || 0);
+        if (t) setRefreshedAt(t);
+        setStatus("done");
+        return;
+      } catch {
+        // ignore and refetch
+      }
+    }
+
+    // Fetch live plan
+    runFetch(a);
+  }, []);
+
+  // Refresh handler from the header mini-wizard
+  function handleRefresh(updates) {
+    const merged = { ...(answers || {}), ...(updates || {}) };
+    setAnswers(merged);
+    try {
+      localStorage.setItem(
+        "stackscoreUserData",
+        JSON.stringify({ ...merged, step: 6 })
+      );
+      localStorage.setItem("ss_answers", JSON.stringify(merged));
+      sessionStorage.removeItem("ss_plan");
+    } catch {}
+    runFetch(merged);
   }
 
-  // trial view: show full Plan A; blur-lock the rest card-level
-  const hasAccess = false;
+  const resetAll = () => {
+    try {
+      localStorage.removeItem("stackscoreUserData");
+      localStorage.removeItem("ss_answers");
+      sessionStorage.removeItem("ss_plan");
+      sessionStorage.removeItem("ss_selected");
+      sessionStorage.removeItem("ss_refreshed_at");
+    } catch {}
+    nav("/wizard?fresh=1", { replace: true });
+  };
+
+  const editAnswers = () => nav("/wizard", { replace: false });
+
+  // Start Stripe Checkout
+  async function handleUnlockClick() {
+    setUnlockErr("");
+    setUnlocking(true);
+    try {
+      const planKey = getSelectedPlanKey();
+      const res = await fetch(`${API_BASE}/api/checkout`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ planKey })
+      });
+      const { url, error } = await res.json().catch(() => ({}));
+      if (!res.ok || !url) throw new Error(error || "No checkout URL returned");
+      window.location.href = url; // redirect to Stripe
+    } catch (e) {
+      console.error(e);
+      setUnlockErr(e?.message || "Couldn’t start checkout. Please try again.");
+      setUnlocking(false);
+    }
+  }
 
   return (
-    <main className="min-h-screen p-6">
-      <div className="max-w-6xl mx-auto">
-        <header className="mb-6">
-          <h1 className="text-3xl font-bold">Your credit plan</h1>
-          <p className="text-slate-600">
-            Source: {meta.source || "model/mock"} {meta.cacheKey ? `• cache ${meta.cacheKey}` : ""}
-          </p>
-        </header>
+    <div className="min-h-screen bg-neutral-950 text-white flex flex-col">
+      {/* Global header with clickable StackScore logo → Home */}
+      <SiteHeader />
 
-        <section className="grid gap-6 md:grid-cols-2">
-          {plans?.map((p, i) => {
-            const lockedCard = i > 0 && !hasAccess;
-            return (
-              <div key={p.id || i} className="relative">
-                {lockedCard && <LockedCard />}
-                <PlanSection
-                  plan={p}
-                  hasAccess={i === 0 ? true : hasAccess}
-                  className={lockedCard ? "blur-[2px] select-none" : ""}
+      <main className="flex-1">
+        {/* Page-specific preview header (mini-wizard + refresh) */}
+        <PreviewHeader
+          answers={answers || {}}
+          refreshedAt={refreshedAt}
+          onEdit={editAnswers}
+          onReset={resetAll}
+          onRefresh={handleRefresh}
+        />
+
+        <div className="max-w-5xl mx-auto px-4 pb-10">
+          {status === "loading" && (
+            <div className="mt-6">
+              <Loader label="Crunching your answers and assembling your stacks…" />
+            </div>
+          )}
+
+          {status === "error" && (
+            <div
+              role="alert"
+              className="mt-6 rounded-xl border border-red-200/30 bg-red-500/10 p-4 text-red-300"
+            >
+              Couldn’t load your stacks. <span className="font-medium">Please try again.</span>
+              <div className="mt-1 text-xs opacity-80">Details: {error}</div>
+            </div>
+          )}
+
+          {status === "done" && plan && (
+            <>
+              <div className="mt-6">
+                {/* pass onUnlock so the Growth card can render the unlock pill */}
+                <PlanGrid
+                  plans={plan.plans}
+                  fallbackStack={plan.stack}
+                  onUnlock={handleUnlockClick}
                 />
               </div>
-            );
-          })}
-        </section>
-      </div>
-    </main>
+
+              {/* Optional big Unlock CTA below the grid */}
+              <div className="mt-8 flex flex-col sm:flex-row sm:items-center gap-3">
+                <button
+                  onClick={handleUnlockClick}
+                  disabled={unlocking}
+                  className={`px-5 py-2 rounded-full text-gray-900 font-semibold transition
+                    ${unlocking ? "bg-lime-300 cursor-wait" : "bg-lime-400 hover:bg-lime-300"}`}
+                  title="Unlock all apps and download your digital brief"
+                >
+                  {unlocking ? "Redirecting to checkout…" : "Unlock your optimized stack"}
+                </button>
+                {unlockErr && (
+                  <span className="text-red-300 text-sm">{unlockErr}</span>
+                )}
+              </div>
+            </>
+          )}
+
+          <div className="mt-10 flex flex-wrap gap-3">
+            <button
+              onClick={editAnswers}
+              className="px-5 py-2 rounded-full border border-white/30 text-white/90 hover:text-white hover:bg-white/5 transition"
+            >
+              Make changes
+            </button>
+            <button
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+              className="px-5 py-2 rounded-full bg-neutral-800 text-white/90 hover:bg-neutral-700 transition"
+            >
+              Scroll to top
+            </button>
+          </div>
+        </div>
+      </main>
+
+      {/* Brighter, consistent site footer */}
+      <SiteFooter />
+    </div>
   );
 }
+

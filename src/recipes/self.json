@@ -1,0 +1,25 @@
+{
+    "name": "Self Credit Builder",
+    "why": "Creates a payment history with a secured installment account that reports monthly.",
+    "cost": "$25–48/mo (plan-dependent) + small admin fee",
+    "reportsTo": ["Experian", "Equifax", "TransUnion"],
+    "features": [
+      "Credit Builder Account",
+      "Autopay",
+      "Alerts"
+    ],
+    "steps": [
+      "Sign up at https://www.self.inc using the exact legal name on your credit reports.",
+      "Pick a monthly plan you can comfortably sustain for 12 months.",
+      "Link your primary checking account and verify micro-deposits if prompted.",
+      "Turn ON Autopay on day 1 to prevent late/missed payments.",
+      "Enable all account alerts (payment scheduled, payment posted, upcoming due).",
+      "Optional: When eligible, consider the secured Self Visa® to add a revolving line (keep utilization under 10%).",
+      "Verification: Expect the new installment account to appear on bureaus within 2–6 weeks of the first payment."
+    ],
+    "pitfalls": [
+      "Pausing or missing early payments can negate the benefit of reported history.",
+      "Don’t overfund the secured card—keep utilization low rather than raising the limit aggressively."
+    ]
+  }
+  

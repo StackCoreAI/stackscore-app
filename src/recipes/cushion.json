@@ -1,0 +1,24 @@
+{
+    "name": "Cushion",
+    "why": "Automates bank fee detection and refund requests to free cash for your credit-building stack.",
+    "cost": "$4.99–$8.99/mo (plan-dependent) + potential refund share",
+    "reportsTo": [],
+    "features": [
+      "Fee detection",
+      "Refund request automation",
+      "Balance and fee alerts"
+    ],
+    "steps": [
+      "Sign up at https://www.cushion.ai and connect your primary checking account (read-only).",
+      "Run the initial scan for overdraft/NSF/maintenance fees.",
+      "Enable automated refund requests where supported; otherwise approve suggested outreach.",
+      "Turn ON alerts for new fees and successful refunds.",
+      "Route any recovered funds to your builder apps (Autopay top-ups).",
+      "Verification: Monitor dashboard for refund outcomes over 7–14 days; adjust bank settings to reduce future fees."
+    ],
+    "pitfalls": [
+      "Some banks limit automated outreach—be ready to approve manual requests.",
+      "Refunds aren’t guaranteed; treat Cushion as savings recovery, not bureau reporting."
+    ]
+  }
+  

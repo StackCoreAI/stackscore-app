@@ -1,260 +1,249 @@
 // shared/plan.ts
-// Phase 2 foundation: contracts + Zod + LLM->Advisor transform (ASCII-safe)
+// Complete, drop-in file: schemas + sanitizer + LLM→UI transform
+// Includes ensureGrowthIncludesExperianBoost for Plan B (Growth)
 
 import { z } from "zod";
 
-/* 1) Canonical UI-facing contract ---------------------------------------- */
+/* ---------- Public Types (consumed by the app) ---------- */
 
 export type AppItem = {
-  app_id: string;
+  app_id: string;            // slugified from app_name
   app_name: string;
-  app_url: string;
-  why: string;
-  setup_steps: string[];
+  app_url?: string;
+  why?: string;              // short purpose/benefit line
+  setup_steps?: string[];    // short, UI-friendly steps (recipes go deeper in /src/recipes)
 };
 
-export type Plan = {
-  id: "A" | "B" | "C" | "D";
-  title: string;
-  summary: string;
-  apps: AppItem[];
-  unlocked_app_index: number;
+export type PlanItem = {
+  key: "A" | "B" | "C" | "D"; // A=Foundation, B=Growth, C=Accelerator, D=Elite
+  label: string;              // e.g., "Growth"
+  subtitle?: string;
+  projectedGain?: string;     // e.g., "+35–70"
+  timeToImpactDays?: number;  // e.g., 14
+  counts?: { visible?: number; locked?: number };
+  revealApp?: string;         // one anchor app we reveal pre-purchase
+  narrative?: string;         // persona-aware text
+  apps: AppItem[];            // UI-level app items (recipes are separate)
 };
 
-export type AdvisorResponse = {
-  plans: Plan[];
-  notes?: string;
+export type AdvisorResponseParsed = {
+  plans: PlanItem[];
 };
 
-/* Zod schema */
+/* ---------- LLM Response Schemas ---------- */
 
-export const AppItemSchema = z.object({
-  app_id: z.string().min(1).max(120),
-  app_name: z.string().min(1).max(140),
-  app_url: z.string().url().max(400),
-  why: z.string().min(1).max(400),
-  setup_steps: z.array(z.string().min(1)).min(1).max(8),
-});
-
-export const PlanSchema = z.object({
-  id: z.enum(["A", "B", "C", "D"]),
-  title: z.string().min(1).max(120),
-  summary: z.string().min(1).max(500),
-  apps: z.array(AppItemSchema).min(4).max(7),
-  unlocked_app_index: z.number().int().min(0),
-});
-
-export const AdvisorResponseSchema = z.object({
-  plans: z
-    .array(PlanSchema)
-    .length(4)
-    .refine(
-      (arr) => ["A", "B", "C", "D"].every((k) => arr.some((p) => p.id === (k as any))),
-      "plans must include exactly one of A, B, C, D"
-    ),
-  notes: z.string().max(1000).optional(),
-});
-
-export type AdvisorResponseParsed = z.infer<typeof AdvisorResponseSchema>;
-
-export function validateAdvisorResponse(input: unknown): AdvisorResponseParsed {
-  return AdvisorResponseSchema.parse(input);
-}
-
-/* 2) LLM wire format (PlanA..PlanD) -------------------------------------- */
-
-export const AllowedCategories = [
-  "Subscription Reporting",
-  "Subscription Trackers",
-  "Tradeline",
-  "Credit Builder",
-  "Credit Builders",
-  "Installment Builder",
-  "Secured Card",
-  "Unsecured Card",
-  "Utility Reporting",
-  "Dispute Tools",
-  "AI Insights",
-  "Monitoring",
-  "Budgeting",
-  "Finance",
-  "Banking",
-] as const;
-const AllowedSet = new Set<string>(AllowedCategories as unknown as string[]);
-
-export const BlockTerms = [
-  "fitness","workout","diet","meal","meditation","sleep","weight","yoga","steps","calorie","coach","health"
-] as const;
-
-export const LLMAppSchema = z.object({
-  app_name: z.string().min(1).max(140),
-  app_category: z.enum(AllowedCategories),
-  app_description: z.string().min(1).max(400),
-  app_cost: z.string().min(1).max(60),
-  app_url: z.string().url().max(400),
+export const LLMPlanAppSchema = z.object({
+  app_name: z.string().min(1),
+  app_url: z.string().url().optional(),
+  why: z.string().min(1).optional(),
+  setup_steps: z.array(z.string().min(1)).optional(),
 });
 
 export const LLMPlanSchema = z.object({
-  apps: z.array(LLMAppSchema).min(1).max(8),
+  id: z.enum(["A", "B", "C", "D"]).optional(), // model might omit; we’ll fill sequentially if needed
+  label: z.string().min(1).optional(),
+  subtitle: z.string().optional(),
+  projectedGain: z.string().optional(),
+  timeToImpactDays: z.number().int().positive().optional(),
+  counts: z
+    .object({
+      visible: z.number().int().nonnegative().optional(),
+      locked: z.number().int().nonnegative().optional(),
+    })
+    .optional(),
+  revealApp: z.string().optional(),
+  narrative: z.string().optional(),
+  apps: z.array(LLMPlanAppSchema).default([]),
 });
 
 export const LLMPlansSchema = z.object({
-  PlanA: LLMPlanSchema,
-  PlanB: LLMPlanSchema,
-  PlanC: LLMPlanSchema,
-  PlanD: LLMPlanSchema,
+  plans: z.array(LLMPlanSchema).min(1),
 });
-export type LLMPlans = z.infer<typeof LLMPlansSchema>;
 
-/* 3) Helpers -------------------------------------------------------------- */
+/* ---------- Utilities ---------- */
 
-function containsBlocked(a: { app_name: string; app_description: string; app_category: string }) {
-  const hay = `${a.app_name} ${a.app_description} ${a.app_category}`.toLowerCase();
-  return (BlockTerms as readonly string[]).some((t) => hay.includes(t));
-}
-
-export function sanitizeLLM(plans: LLMPlans): LLMPlans {
-  const out: any = {};
-  (["PlanA","PlanB","PlanC","PlanD"] as const).forEach((k) => {
-    const apps = Array.isArray(plans[k]?.apps) ? plans[k].apps : [];
-    const filtered = apps.filter(
-      (a) => AllowedSet.has(a.app_category) && !containsBlocked(a)
-    );
-    const seen = new Set<string>();
-    const unique = filtered.filter((a) => {
-      const key = (a.app_url || a.app_name).trim().toLowerCase();
-      if (seen.has(key)) return false;
-      seen.add(key);
-      return true;
-    }).slice(0, 6);
-    out[k] = { apps: unique };
-  });
-  return LLMPlansSchema.parse(out);
-}
-
-export function slugifyId(name: string) {
-  return name
+export function slugifyId(s: string): string {
+  return s
     .toLowerCase()
-    .replace(/&/g, "and")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 64);
+    .trim()
+    .replace(/['".]/g, "")
+    .replace(/[^a-z0-9]+/gi, "-")
+    .replace(/^-+|-+$/g, "");
 }
 
-export async function hashWizardAnswers(obj: unknown): Promise<string> {
-  const json = typeof obj === "string" ? obj : JSON.stringify(obj || {});
-  if (typeof window !== "undefined" && (window as any).crypto?.subtle) {
-    const enc = new TextEncoder().encode(json);
-    const buf = await (window as any).crypto.subtle.digest("SHA-256", enc);
-    return Array.from(new Uint8Array(buf)).map((b)=>b.toString(16).padStart(2,"0")).join("");
-  } else {
-    const { createHash } = await import("node:crypto");
-    return createHash("sha256").update(json).digest("hex");
-  }
-}
-
-/* 4) Transform LLM -> AdvisorResponse ------------------------------------ */
-
-type TitleSummaryInput = {
-  id: "A" | "B" | "C" | "D";
-  user?: { goal?: string | null; budget?: number | null };
-};
-
-function titleFor(id: "A" | "B" | "C" | "D") {
-  switch (id) {
-    case "A": return "Plan A — Foundation Stack";
-    case "B": return "Plan B — Growth Stack";
-    case "C": return "Plan C — Accelerator Stack";
-    case "D": return "Plan D — Elite Stack";
-  }
-}
-
-function summaryFor({ id, user }: TitleSummaryInput) {
-  const base: Record<string,string> = {
-    A: "Low-cost starter picks to establish momentum and quick wins.",
-    B: "Balanced upgrades that add depth while keeping cost reasonable.",
-    C: "Stronger mix of revolving and installment to accelerate gains.",
-    D: "Premium options for maximum impact and long-term strength."
-  };
-  const when =
-    user?.goal === "30" ? "aimed at 30-day improvements"
-    : user?.goal === "90" ? "shaped for a 90-day horizon"
-    : "paced for steady progress";
-  const budget =
-    typeof user?.budget === "number" ? ` within a ~$${user!.budget}/mo budget` : "";
-  return `${base[id]} ${when}${budget}.`.trim();
-}
-
-function sanitizeApp(a: z.infer<typeof LLMAppSchema>): AppItem {
+/** Tiny helper to construct a UI-level AppItem */
+function makeAppItem(app_name: string, app_url: string, why: string): AppItem {
   return {
-    app_id: slugifyId(a.app_name),
-    app_name: a.app_name.trim(),
-    app_url: a.app_url.trim(),
-    why: a.app_description.trim(),
+    app_id: slugifyId(app_name),
+    app_name,
+    app_url,
+    why,
+    // Keep steps minimal for UI; deep “Activation Recipes” live in /src/recipes/*.json
     setup_steps: [
-      `Open ${a.app_name}`,
+      `Open ${app_name}`,
       "Create/verify your account",
       "Complete onboarding and link required accounts",
     ],
   };
 }
 
-export function fromLLMPlans(
-  raw: unknown,
-  opts?: { user?: { goal?: string | null; budget?: number | null }; defaultUnlockedIndex?: number }
-): AdvisorResponseParsed {
-  const llm = sanitizeLLM(LLMPlansSchema.parse(raw));
-  const ids: ("A" | "B" | "C" | "D")[] = ["A", "B", "C", "D"];
+/** Defensive parsing + normalization of the LLM output */
+export function sanitizeLLM(raw: unknown) {
+  const parsed = LLMPlansSchema.safeParse(raw);
+  if (!parsed.success) {
+    // Provide a minimal fallback so UI doesn’t crash
+    const fallback: z.infer<typeof LLMPlansSchema> = {
+      plans: [
+        {
+          id: "A",
+          label: "Foundation",
+          subtitle: "Baseline setup",
+          narrative: "Get your bearings and stabilize cash flow first.",
+          apps: [],
+        },
+        {
+          id: "B",
+          label: "Growth",
+          subtitle: "Fast lift on a tight budget",
+          narrative: "Quick wins with low monthly cost.",
+          apps: [],
+        },
+      ],
+    };
+    return fallback;
+  }
 
-  const plans: Plan[] = ids.map((id) => {
-    const key = `Plan${id}` as keyof LLMPlans;
-    const appsLLM = (llm[key].apps || []).map(sanitizeApp);
+  // Ensure each plan has an id; if missing, assign A/B/C/D in order
+  const ids: Array<"A" | "B" | "C" | "D"> = ["A", "B", "C", "D"];
+  const seen = new Set<string>();
+  let idx = 0;
 
-    const padded: AppItem[] = [...appsLLM];
-    while (padded.length < 4) {
-      const idx = padded.length + 1;
-      padded.push({
-        app_id: `locked-${id.toLowerCase()}-${idx}`,
-        app_name: "Locked app",
-        app_url: "https://stacksco.re/locked",
-        why: "This slot is reserved for premium suggestions.",
-        setup_steps: ["Unlock StackScore Access to reveal this app."],
-      });
+  const normalized = parsed.data.plans.map((p) => {
+    let id = (p.id as "A" | "B" | "C" | "D" | undefined) || ids[Math.min(idx, 3)];
+    if (seen.has(id)) {
+      // if duplicate, shift to next available
+      const next = ids.find((x) => !seen.has(x)) || id;
+      id = next;
     }
-    if (padded.length > 7) padded.length = 7;
+    seen.add(id);
+    idx++;
 
-    const unlockedIndex = Math.min(
-      typeof opts?.defaultUnlockedIndex === "number" ? opts!.defaultUnlockedIndex : 0,
-      Math.max(0, padded.length - 1)
-    );
+    const label =
+      p.label ||
+      (id === "A"
+        ? "Foundation"
+        : id === "B"
+        ? "Growth"
+        : id === "C"
+        ? "Accelerator"
+        : "Elite");
 
     return {
+      ...p,
       id,
-      title: titleFor(id)!,
-      summary: summaryFor({ id, user: opts?.user }),
-      apps: padded,
-      unlocked_app_index: unlockedIndex,
+      label,
+      apps: Array.isArray(p.apps) ? p.apps : [],
     };
   });
 
-  return AdvisorResponseSchema.parse({ plans });
+  return { plans: normalized };
 }
 
-/* 5) Wizard payload validation ------------------------------------------- */
+/* ---------- Transform: LLM → App UI ---------- */
 
-export const WizardPayloadSchema = z.object({
-  housing: z.enum(["rent","mortgage","neither"]).nullable().optional(),
-  subs: z.array(z.string()).default([]),
-  tools: z.enum(["auto","manual","not-sure"]).nullable().optional(),
-  employment: z.enum(["employed","self-employed","unemployed","student"]).nullable().optional(),
-  goal: z.enum(["30","90","flexible"]).nullable().optional(),
-  budget: z.union([z.number(), z.string().regex(/^\d+$/).transform(Number)]).nullable().optional(),
-  remix: z.boolean().optional(),
-  topic: z.string().optional(),
-  require_categories: z.array(z.enum(AllowedCategories)).optional(),
-}).passthrough();
+export function fromLLMPlans(
+  raw: unknown,
+  opts?: {
+    user?: { goal?: string | null; budget?: number | null };
+    defaultUnlockedIndex?: number;
+    /** When true, ensure Plan B (Growth) includes Experian Boost even if the LLM omitted it. */
+    ensureGrowthIncludesExperianBoost?: boolean;
+  }
+): AdvisorResponseParsed {
+  const data = sanitizeLLM(raw);
 
-export type WizardPayload = z.infer<typeof WizardPayloadSchema>;
-export function validateWizardPayload(input: unknown): WizardPayload {
-  return WizardPayloadSchema.parse(input);
+  // Map LLM plan → UI plan
+  const uiPlans: PlanItem[] = data.plans.map((p) => {
+    const id = (p.id as PlanItem["key"]) || "A";
+
+    // Map each LLM app into a UI AppItem with safe defaults
+    let items: AppItem[] = (p.apps || []).map((a) => ({
+      app_id: slugifyId(a.app_name),
+      app_name: a.app_name,
+      app_url: a.app_url,
+      why: a.why,
+      setup_steps: a.setup_steps,
+    }));
+
+    // Fill in revealApp if the model didn’t nominate one
+    const reveal = p.revealApp || items[0]?.app_name;
+
+    // Cap items to a sane UI maximum first (we’ll inject Boost before final cap)
+    const MAX_APPS = 7;
+    if (items.length > MAX_APPS) items = items.slice(0, MAX_APPS);
+
+    // === New behavior: guarantee Experian Boost in Growth (Plan B), if requested ===
+    if (id === "B" && opts?.ensureGrowthIncludesExperianBoost) {
+      const hasBoost = items.some((a) =>
+        a.app_name.toLowerCase().includes("experian boost")
+      );
+      if (!hasBoost) {
+        items.push(
+          makeAppItem(
+            "Experian Boost",
+            "https://www.experian.com/consumer/experian-boost.html",
+            "Adds eligible utility, phone, and streaming payments to your Experian file for an immediate score lift."
+          )
+        );
+      }
+    }
+
+    // Final cap to keep UI predictable
+    if (items.length > MAX_APPS) items.length = MAX_APPS;
+
+    // Counts (visible vs locked) – default: 1 visible if reveal exists
+    const visibleDefault =
+      typeof opts?.defaultUnlockedIndex === "number" ? 1 : reveal ? 1 : 0;
+    const counts = {
+      visible: p.counts?.visible ?? visibleDefault,
+      locked: p.counts?.locked ?? Math.max(0, items.length - (p.counts?.visible ?? visibleDefault)),
+    };
+
+    return {
+      key: id,
+      label: p.label || labelFor(id),
+      subtitle: p.subtitle,
+      projectedGain: p.projectedGain,
+      timeToImpactDays: p.timeToImpactDays,
+      counts,
+      revealApp: reveal,
+      narrative: p.narrative,
+      apps: items,
+    };
+  });
+
+  // Keep plan order A→B→C→D if the model shuffled
+  uiPlans.sort((a, b) => orderIndex(a.key) - orderIndex(b.key));
+
+  return { plans: uiPlans };
+}
+
+/* ---------- Helpers ---------- */
+
+function labelFor(id: PlanItem["key"]) {
+  switch (id) {
+    case "A":
+      return "Foundation";
+    case "B":
+      return "Growth";
+    case "C":
+      return "Accelerator";
+    case "D":
+    default:
+      return "Elite";
+  }
+}
+
+function orderIndex(id: PlanItem["key"]) {
+  return id === "A" ? 0 : id === "B" ? 1 : id === "C" ? 2 : 3;
 }

@@ -1,0 +1,25 @@
+{
+    "name": "Rocket Money",
+    "why": "Finds and cancels wasteful subscriptions; negotiates bills to free budget for builders.",
+    "cost": "$0–$12/mo (Premium optional) + negotiation success fees",
+    "reportsTo": [],
+    "features": [
+      "Subscriptions dashboard",
+      "Smart Cancellations",
+      "Bill Negotiation",
+      "Budget Alerts"
+    ],
+    "steps": [
+      "Create an account at https://rocketmoney.com and start the Premium trial to reveal full subscription list.",
+      "Link the bank/card you use for recurring services (read-only access).",
+      "In Subscriptions, tag annual or dormant services and enable Smart Cancellations.",
+      "Enable Bill Negotiation for internet/mobile—upload the latest bill PDF.",
+      "Set Budget Alerts equal to your StackScore allowance (e.g., $45/mo) to protect your plan.",
+      "Verification: Within 3–7 days, expect at least one negotiation update or cancellation suggestion; redirect savings to your builders."
+    ],
+    "pitfalls": [
+      "Turning off bank syncing hides subscriptions.",
+      "Don’t accept negotiation outcomes that raise fees later—read the new term summary first."
+    ]
+  }
+  

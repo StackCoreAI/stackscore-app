@@ -1,0 +1,25 @@
+{
+    "name": "Kikoff Credit Builder",
+    "why": "Low-cost installment tradeline that reports monthly to build on-time history.",
+    "cost": "$5–10/mo",
+    "reportsTo": ["Experian", "Equifax", "TransUnion"],
+    "features": [
+      "Credit Builder account",
+      "Autopay",
+      "Alerts"
+    ],
+    "steps": [
+      "Go to https://kikoff.com and create an account using the same legal name as on your credit files.",
+      "Choose the Credit Builder plan; skip add-ons for now to keep costs tight.",
+      "Link the checking account you use for monthly bills to reduce payment failures.",
+      "Turn ON Autopay (Settings → Billing → Autopay) and note the first draft date.",
+      "In Settings → Credit Reporting, ensure all three bureaus are toggled ON.",
+      "Add a calendar reminder 3 days before draft; keep your balance ≥ $25 to avoid returns.",
+      "Verification: After 7–14 days from first draft, check for a new installment tradeline on Credit Karma (TU/EQ) and Experian."
+    ],
+    "pitfalls": [
+      "Do not miss the very first payment; your first 60 days are the foundation.",
+      "If the tradeline doesn’t appear after 2 statements, check for name/address mismatches and update Profile before contacting support."
+    ]
+  }
+  

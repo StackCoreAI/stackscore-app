@@ -1,0 +1,11 @@
+{
+  "Kikoff Credit Builder": ["Kovo", "Self Credit Builder"],
+  "Self Credit Builder": ["Kikoff Credit Builder", "Kovo"],
+  "Chime Credit Builder": ["StellarFi"],
+  "StellarFi": ["Chime Credit Builder"],
+  "Experian Boost": ["StellarFi"],
+  "Rocket Money": ["Trim", "Cushion"],
+  "Trim": ["Rocket Money", "Cushion"],
+  "Cushion": ["Rocket Money", "Trim"],
+  "Kovo": ["Kikoff Credit Builder", "Self Credit Builder"]
+}

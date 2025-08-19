@@ -1,0 +1,25 @@
+{
+    "name": "Dovly",
+    "why": "Automated dispute engine to remove inaccurate negatives and accelerate score recovery.",
+    "cost": "$0–$40/mo (plan-dependent)",
+    "reportsTo": [],
+    "features": [
+      "Automated dispute flows",
+      "Status tracking",
+      "Alerts",
+      "Bureau letter management"
+    ],
+    "steps": [
+      "Create an account at https://www.dovly.com and complete ID verification.",
+      "Sync your credit data (read-only) and review negative items for accuracy.",
+      "Select target items and launch automated disputes to each bureau.",
+      "Enable alerts for bureau responses and follow-up rounds.",
+      "Upload supporting documents (receipts, correspondence) when prompted.",
+      "Verification: Monitor each bureau’s online portal and Dovly’s dashboard for results within 15–45 days; repeat rounds as recommended."
+    ],
+    "pitfalls": [
+      "Disputing legitimate debts can backfire—target inaccuracies only.",
+      "Missing follow-up windows can reset timelines; keep alerts ON and respond promptly."
+    ]
+  }
+  

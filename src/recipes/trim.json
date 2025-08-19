@@ -1,0 +1,25 @@
+{
+    "name": "Trim",
+    "why": "Automates subscription cancellations and negotiates bills to unlock cash for your stack.",
+    "cost": "$0–$10/mo (plan-dependent) + negotiation success fees",
+    "reportsTo": [],
+    "features": [
+      "Subscription detection",
+      "Cancellation concierge",
+      "Bill negotiation",
+      "Spend alerts"
+    ],
+    "steps": [
+      "Sign up at https://www.asktrim.com and connect your spending account (read-only).",
+      "Scan for recurring charges and mark any unknown, annual, or price-crept items.",
+      "Authorize cancellation concierge for selected subscriptions.",
+      "Upload your latest internet/mobile bill to initiate negotiation.",
+      "Turn ON spend alerts to catch any re-starts or duplicate services.",
+      "Verification: Expect cancellation confirmations and negotiation outcomes within 3–10 days; reallocate freed funds to builders."
+    ],
+    "pitfalls": [
+      "Some vendors restart trials—watch statements for 60 days.",
+      "Negotiations may extend contract terms; confirm the net benefit fits your timeline."
+    ]
+  }
+  

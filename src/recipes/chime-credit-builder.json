@@ -1,0 +1,26 @@
+{
+    "name": "Chime Credit Builder",
+    "why": "Spend-based secured card that reports on-time payment behavior without interest.",
+    "cost": "$0/mo (requires eligible Chime account)",
+    "reportsTo": ["Experian", "Equifax", "TransUnion"],
+    "features": [
+      "Credit Builder Secured Card",
+      "Safer Credit Building (autopay-on-file)",
+      "Round Ups (optional)",
+      "Alerts"
+    ],
+    "steps": [
+      "Open/verify your Chime account (same legal name as your credit files).",
+      "Activate Credit Builder and move a small, predictable budget ($50–$150) into the secured balance.",
+      "Enable Safer Credit Building so your monthly statement auto-pays from your secured funds.",
+      "Set card-on-file for 1–3 small recurring bills (e.g., music/video subscriptions).",
+      "Turn ON alerts for card charges, statement ready, and payment posted.",
+      "Keep monthly spend predictable and allow the auto-payment to post in full.",
+      "Verification: Look for the Credit Builder tradeline to report within 4–8 weeks of first statement."
+    ],
+    "pitfalls": [
+      "Transferring too little can cause declined charges; keep a buffer above your recurring bill total.",
+      "Manually paying off before statement close can sometimes reduce reported activity—let the autopay flow run."
+    ]
+  }
+  

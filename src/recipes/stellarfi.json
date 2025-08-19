@@ -1,0 +1,24 @@
+{
+    "name": "StellarFi",
+    "why": "Routes bill payments through a credit line that’s reported to the bureaus, helping build positive payment history.",
+    "cost": "$5–$15/mo (plan-dependent) + pass-through bill costs",
+    "reportsTo": ["Experian", "Equifax", "TransUnion"],
+    "features": [
+      "Bill hub (add providers)",
+      "Autopay forwarding",
+      "Payment alerts"
+    ],
+    "steps": [
+      "Sign up at https://www.stellarfi.com using the same legal name as your credit files.",
+      "Add 2–4 recurring bills (mobile, utilities, streaming).",
+      "Enable Autopay so StellarFi forwards payments on schedule; verify first due dates.",
+      "Turn ON alerts for upcoming due, payment sent, and payment posted.",
+      "Keep a small buffer in your funding account to prevent returns.",
+      "Verification: Look for the new tradeline and on-time history to begin reporting within 2–6 weeks of the first forwarded payment."
+    ],
+    "pitfalls": [
+      "Late funding can cause a failed forward—keep sufficient balance 3 days before due.",
+      "Avoid adding one-off or irregular bills; stick to predictable monthly charges."
+    ]
+  }
+  
