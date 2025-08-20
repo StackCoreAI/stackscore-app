@@ -2,21 +2,49 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>StackScore</title>
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="theme-color" content="#0a0a0a" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <!-- Inter (used via Tailwind's font-sans) -->
+    <title>StackScore</title>
+    <meta name="description" content="Build a smarter credit-improvement stack in minutes. StackScore recommends proven apps and step-by-step actions tailored to your budget and goals." />
+    <meta name="theme-color" content="#0a0a0a" />
+    <meta name="robots" content="index,follow" />
+    <link rel="canonical" href="/" />
+
+    <!-- Icons & PWA bits -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <!-- Fonts (Inter via Tailwind font-sans) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+    <!-- Social (Open Graph / Twitter) -->
+    <meta property="og:title" content="StackScore" />
+    <meta property="og:description" content="Build a smarter credit-improvement stack in minutes." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="/" />
+    <meta property="og:image" content="/og-image.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="StackScore" />
+    <meta name="twitter:description" content="Build a smarter credit-improvement stack in minutes." />
+    <meta name="twitter:image" content="/og-image.png" />
+
+    <!-- Ensure relative paths resolve from root in SPA deployments -->
+    <base href="/" />
   </head>
+
   <body class="bg-neutral-950 text-white antialiased font-sans">
     <div id="root"></div>
+
+    <noscript>
+      <div style="padding:1rem;max-width:720px;margin:2rem auto;background:#111;border:1px solid #222;border-radius:12px;color:#ddd;font-family:system-ui, -apple-system, Segoe UI, Roboto, Inter, sans-serif;">
+        <strong>JavaScript is required.</strong> Please enable JavaScript to use StackScore.
+      </div>
+    </noscript>
+
+    <!-- Vite entry -->
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
