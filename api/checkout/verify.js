@@ -1,6 +1,5 @@
 // api/checkout/verify.js
-// Signature pattern: guard → input/env checks → lazy imports → work → clean JSON + cookie
-export const config = { runtime: "nodejs18.x" };
+export const config = { runtime: "nodejs" };
 
 function methodNotAllowed(res) {
   res.setHeader("Allow", "GET");
@@ -8,39 +7,30 @@ function methodNotAllowed(res) {
 }
 
 export default async function handler(req, res) {
-  // 1) Method guard
   if (req.method !== "GET") return methodNotAllowed(res);
 
-  // 2) Input/env sanity
   const session_id = String(req.query.session_id || "").trim();
   if (!session_id) return res.status(400).json({ ok: false, error: "missing_session_id" });
   const key = process.env.STRIPE_SECRET_KEY;
   if (!key) return res.status(500).json({ ok: false, error: "server_not_configured" });
 
   try {
-    // 3) Lazy‑import Stripe + Xata AFTER guards (prevents module‑load 500s)
     const Stripe = (await import("stripe")).default;
     const { getXataClient } = await import("../../src/xata.js");
     const stripe = new Stripe(key, { apiVersion: "2022-11-15" });
     const xata = getXataClient();
 
-    // 4) Do the work: retrieve session → derive email → set cookie → upsert entitlement
     const session = await stripe.checkout.sessions.retrieve(session_id);
     const email =
-      session?.customer_details?.email ||
-      session?.customer_email ||
-      session?.metadata?.email ||
-      null;
+      session?.customer_details?.email || session?.customer_email || session?.metadata?.email || null;
 
     if (!email) return res.status(200).json({ ok: false, reason: "no_email" });
 
-    // Fast-path identity for your app via HttpOnly cookie (30 days)
     res.setHeader(
       "Set-Cookie",
       `ss_email=${encodeURIComponent(email)}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=2592000`
     );
 
-    // Soft upsert (webhook remains source of truth)
     try {
       await xata.db.entitlements.createOrReplace(email, {
         email,
