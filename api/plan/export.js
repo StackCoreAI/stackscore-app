@@ -21,13 +21,12 @@ function safeJson(body) {
 }
 
 /** normalize apps for any of these:
- *  - [{...}]
- *  - { apps: [...] }
- *  - { stack: [...] }                    // new
- *  - { items: [...] }                    // new
- *  - { [planKey]: { apps/stack/items } } // new
- *  - { ok: true, plans: { ... } }        // unwrap then apply above
- *  If planKey doesn't exist, auto-pick the FIRST plan with apps/stack/items.
+ *  - [{...app}]                                 // direct list of app objects
+ *  - [{apps:[...]}, {apps:[...]}]               // array of plan objects (flatten)  ⟵ NEW
+ *  - { apps: [...] }  | { stack: [...] } | { items: [...] }
+ *  - { [planKey]: { apps/stack/items } }
+ *  - { ok: true, plans: { ... } }
+ *  If planKey doesn't exist, auto-pick the first plan that has any apps/stack/items.
  */
 function normalizeApps(plans, planKey) {
   try {
@@ -38,24 +37,40 @@ function normalizeApps(plans, planKey) {
       ? plans.plans
       : plans;
 
-    // Array directly
-    if (Array.isArray(base)) return base;
+    // If it's an array, decide what it holds.
+    if (Array.isArray(base)) {
+      // Case A: it already looks like a list of app objects (has "name"/"app_name" in first few entries)
+      const looksLikeApps = base.some(
+        a => a && typeof a === "object" && ("app_name" in a || "name" in a)
+      );
+      if (looksLikeApps) return base;
 
+      // Case B: it's an array of plan-like nodes each with apps/stack/items -> flatten & take first non-empty
+      for (const node of base) {
+        if (!node || typeof node !== "object") continue;
+        if (Array.isArray(node.apps))  return node.apps;
+        if (Array.isArray(node.stack)) return node.stack;
+        if (Array.isArray(node.items)) return node.items;
+      }
+      return [];
+    }
+
+    // Object container
     if (base && typeof base === "object") {
-      // direct containers
+      // direct lists
       if (Array.isArray(base.apps))  return base.apps;
       if (Array.isArray(base.stack)) return base.stack;
       if (Array.isArray(base.items)) return base.items;
 
       // preferred key
       const node = base[planKey];
-      if (node) {
+      if (node && typeof node === "object") {
         if (Array.isArray(node.apps))  return node.apps;
         if (Array.isArray(node.stack)) return node.stack;
         if (Array.isArray(node.items)) return node.items;
       }
 
-      // fallback: first plan with any of the supported arrays
+      // fallback: first plan with any supported list
       for (const v of Object.values(base)) {
         if (!v || typeof v !== "object") continue;
         if (Array.isArray(v.apps))  return v.apps;
@@ -123,14 +138,14 @@ export default async function handler(req, res) {
   const { ss_access, planKey = "growth", answers = {}, plans = [] } = data;
 
   if (debug === "1") {
+    const apps = normalizeApps(plans, planKey);
     return res.status(200).json({
       ok: true,
       received: {
-        ss_access,
         planKey,
         answersKeys: Object.keys(answers || {}),
-        plansHasPlansKey: !!(plans && plans.plans),
-        normalizedCount: normalizeApps(plans, planKey).length
+        normalizedCount: Array.isArray(apps) ? apps.length : 0,
+        sample: Array.isArray(apps) && apps.length ? apps[0] : null
       }
     });
   }
@@ -187,7 +202,6 @@ export default async function handler(req, res) {
     yy -= 6;
 
     const startX = 48, maxWidth = width - startX - 48;
-
     const ensureRoom = (lines = 60) => {
       if (yy < 80 + lines) {
         const w = page.getSize().width;
@@ -203,14 +217,13 @@ export default async function handler(req, res) {
     };
 
     if (appList.length === 0) {
-      // Graceful empty state (prevents “scrambled” look)
       ensureRoom(0);
       page.drawText("No recommended apps were found for this plan.", {
         x: startX, y: yy + 12, size: 11, font, color: BRAND.gray
       });
       yy -= 24;
     } else {
-      (appList || []).slice(0, 50).forEach((app, idx) => {
+      appList.slice(0, 50).forEach((app, idx) => {
         ensureRoom();
         page.drawRectangle({
           x: 40, y: yy - 2, width: width - 80, height: 60,

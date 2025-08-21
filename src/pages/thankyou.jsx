@@ -13,7 +13,6 @@ export default function ThankYou() {
     (async () => {
       if (!sessionId) { setErr("Missing session_id"); setChecking(false); return; }
       try {
-        // ✅ Relative path
         const res = await fetch(`/api/checkout/verify?session_id=${encodeURIComponent(sessionId)}`, {
           credentials: "include"
         });
@@ -60,13 +59,32 @@ export default function ThankYou() {
   );
 
   async function downloadPlan() {
-    let answers = null, plans = null;
+    let answers = null, rawPlan = null;
     try { answers = JSON.parse(localStorage.getItem("ss_answers") || localStorage.getItem("stackscoreUserData") || "null"); } catch {}
-    try { plans = JSON.parse(sessionStorage.getItem("ss_plan") || "null"); } catch {}
+    try { rawPlan = JSON.parse(sessionStorage.getItem("ss_plan") || "null"); } catch {}
 
-    const body = { ss_access: "1", planKey: "growth", answers: answers || {}, plans: plans?.plans || [] };
+    // ✅ unwrap common shapes before sending to server
+    let plansForServer = rawPlan;
+    if (rawPlan && typeof rawPlan === "object") {
+      if (rawPlan.plans) plansForServer = rawPlan.plans;
+      else if (rawPlan.plan) plansForServer = rawPlan.plan;
+    }
 
-    // ✅ Relative path
+    // ✅ respect user’s selected planKey if present
+    let planKey = "growth";
+    try {
+      const sel = JSON.parse(sessionStorage.getItem("ss_selected") || "null");
+      if (typeof sel === "string") planKey = sel;
+      else if (sel?.planKey) planKey = sel.planKey;
+    } catch {}
+
+    const body = {
+      ss_access: "1",
+      planKey,
+      answers: answers || {},
+      plans: plansForServer || []
+    };
+
     const res = await fetch(`/api/plan/export`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -83,8 +101,9 @@ export default function ThankYou() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "StackScore-Plan.pdf";
+    a.download = `StackScore-Plan-${planKey}.pdf`;
     a.click();
     URL.revokeObjectURL(url);
   }
 }
+
