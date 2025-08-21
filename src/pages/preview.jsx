@@ -11,9 +11,6 @@ import SiteFooter from "../components/SiteFooter.jsx";
 
 const BLANK = { housing: "", subs: [], tools: "", employment: "", goal: "", budget: "45" };
 
-// In dev we’ll call the API directly; when you add a Vite proxy you can switch to "".
-const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3001";
-
 function loadAnswers() {
   try {
     const raw =
@@ -27,8 +24,6 @@ function loadAnswers() {
 }
 
 function getSelectedPlanKey() {
-  // PlanGrid likely writes 'ss_selected' to sessionStorage.
-  // We’ll accept "growth" | "foundation" | "accelerator" | "elite" (string) or an object.
   const raw = sessionStorage.getItem("ss_selected");
   if (!raw) return "growth";
   try {
@@ -45,17 +40,14 @@ export default function Preview() {
 
   const [answers, setAnswers] = useState(null);
   const [plan, setPlan] = useState(null);
-  const [status, setStatus] = useState("idle"); // idle | loading | done | error
+  const [status, setStatus] = useState("idle"); 
   const [error, setError] = useState("");
-
   const [refreshedAt, setRefreshedAt] = useState(
     Number(sessionStorage.getItem("ss_refreshed_at") || 0) || undefined
   );
-
   const [unlocking, setUnlocking] = useState(false);
   const [unlockErr, setUnlockErr] = useState("");
 
-  // One-shot mock fallback if live call fails
   async function runFetch(useAnswers, tryMock = true) {
     setStatus("loading");
     const payload = {
@@ -65,7 +57,6 @@ export default function Preview() {
     };
 
     try {
-      // 1) Live call
       const r = await fetch("/api/gpt-plan", payload);
       if (!r.ok) throw new Error(`API ${r.status}`);
       const data = await r.json();
@@ -77,8 +68,6 @@ export default function Preview() {
       setStatus("done");
     } catch (e) {
       console.error("Live plan failed:", e);
-
-      // 2) Retry once with mock
       if (tryMock) {
         try {
           const r2 = await fetch("/api/gpt-plan?mock=1", payload);
@@ -95,7 +84,6 @@ export default function Preview() {
           console.error("Mock fallback failed:", e2);
         }
       }
-
       setError(e.message || "Failed to build plan");
       setStatus("error");
     }
@@ -103,11 +91,9 @@ export default function Preview() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-
     const a = loadAnswers();
     setAnswers(a);
 
-    // Use cached plan if present
     const cached = sessionStorage.getItem("ss_plan");
     if (cached) {
       try {
@@ -116,16 +102,12 @@ export default function Preview() {
         if (t) setRefreshedAt(t);
         setStatus("done");
         return;
-      } catch {
-        // ignore and refetch
-      }
+      } catch {}
     }
 
-    // Fetch live plan
     runFetch(a);
   }, []);
 
-  // Refresh handler from the header mini-wizard
   function handleRefresh(updates) {
     const merged = { ...(answers || {}), ...(updates || {}) };
     setAnswers(merged);
@@ -153,20 +135,20 @@ export default function Preview() {
 
   const editAnswers = () => nav("/wizard", { replace: false });
 
-  // Start Stripe Checkout
+  // ✅ No localhost — relative path works in dev & prod
   async function handleUnlockClick() {
     setUnlockErr("");
     setUnlocking(true);
     try {
       const planKey = getSelectedPlanKey();
-      const res = await fetch(`${API_BASE}/api/checkout`, {
+      const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ planKey })
       });
       const { url, error } = await res.json().catch(() => ({}));
       if (!res.ok || !url) throw new Error(error || "No checkout URL returned");
-      window.location.href = url; // redirect to Stripe
+      window.location.href = url; 
     } catch (e) {
       console.error(e);
       setUnlockErr(e?.message || "Couldn’t start checkout. Please try again.");
@@ -176,11 +158,8 @@ export default function Preview() {
 
   return (
     <div className="min-h-screen bg-neutral-950 text-white flex flex-col">
-      {/* Global header with clickable StackScore logo → Home */}
       <SiteHeader />
-
       <main className="flex-1">
-        {/* Page-specific preview header (mini-wizard + refresh) */}
         <PreviewHeader
           answers={answers || {}}
           refreshedAt={refreshedAt}
@@ -209,7 +188,6 @@ export default function Preview() {
           {status === "done" && plan && (
             <>
               <div className="mt-6">
-                {/* pass onUnlock so the Growth card can render the unlock pill */}
                 <PlanGrid
                   plans={plan.plans}
                   fallbackStack={plan.stack}
@@ -217,7 +195,6 @@ export default function Preview() {
                 />
               </div>
 
-              {/* Optional big Unlock CTA below the grid */}
               <div className="mt-8 flex flex-col sm:flex-row sm:items-center gap-3">
                 <button
                   onClick={handleUnlockClick}
@@ -251,10 +228,7 @@ export default function Preview() {
           </div>
         </div>
       </main>
-
-      {/* Brighter, consistent site footer */}
       <SiteFooter />
     </div>
   );
 }
-
