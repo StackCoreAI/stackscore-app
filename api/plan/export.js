@@ -20,38 +20,55 @@ function safeJson(body) {
   } catch { return {}; }
 }
 
+/** Sanitize text to WinAnsi-safe ASCII.
+ *  Replaces “smart” punctuation, NBSP/NBHYPHEN, bullets, and strips other non-ASCII.
+ */
+function enc(v) {
+  if (v == null) return "—";
+  let s = typeof v === "string" ? v : (typeof v === "number" || typeof v === "boolean" ? String(v) : (() => { try { return JSON.stringify(v); } catch { return String(v); } })());
+
+  return s
+    // dashes/hyphens
+    .replace(/[\u2010\u2011\u2012\u2013\u2014\u2212]/g, "-")
+    // quotes
+    .replace(/[\u2018\u2019\u02BC]/g, "'")
+    .replace(/[\u201C\u201D]/g, '"')
+    // bullets & middots
+    .replace(/[\u2022\u2023\u2043\u00B7]/g, "-")
+    // ellipsis
+    .replace(/\u2026/g, "...")
+    // spaces
+    .replace(/\u00A0/g, " ")
+    // any other non-ASCII → remove
+    .replace(/[^\x00-\x7E]/g, "");
+}
+
 /** normalize apps for any of these:
- *  - [{...app}]                                 // direct list of app objects
- *  - [{apps:[...]}, {apps:[...]}]               // array of plan objects (flatten)
- *  - { apps: [...] }  | { stack: [...] } | { items: [...] }
+ *  - [{...app}]                         // direct list of app objects
+ *  - [{apps:[...]}, {apps:[...]}]       // array of plan objects (flatten)
+ *  - { apps/stack/items:[...] }
  *  - { [planKey]: { apps/stack/items } }
- *  - { ok: true, plans: { ... } }
- *  If planKey doesn't exist, auto-pick the first plan that has any apps/stack/items.
+ *  - { [planKey]: { plan:{ apps/stack/items } } }  // <-- nested .plan
+ *  - { ok:true, plans:{ ... } }
+ *  If planKey doesn't exist, auto-pick the first plan that has content.
  */
 function normalizeApps(plans, planKey) {
   try {
     if (!plans) return [];
 
-    // unwrap { ok, plans }
     const base = (plans && plans.plans && typeof plans.plans === "object")
       ? plans.plans
       : plans;
 
-    // If it's an array, decide what it holds.
     if (Array.isArray(base)) {
-      // Case A: it already looks like a list of app objects (has "name"/"app_name" in first few entries)
-      const looksLikeApps = base.some(
-        a => a && typeof a === "object" && ("app_name" in a || "name" in a)
-      );
+      const looksLikeApps = base.some(a => a && typeof a === "object" && ("app_name" in a || "name" in a));
       if (looksLikeApps) return base;
 
-      // Case B: it's an array of plan-like nodes each with apps/stack/items -> flatten & take first non-empty
       for (const node of base) {
         if (!node || typeof node !== "object") continue;
         if (Array.isArray(node.apps))  return node.apps;
         if (Array.isArray(node.stack)) return node.stack;
         if (Array.isArray(node.items)) return node.items;
-        // ✅ also support nested `plan` object
         if (node.plan) {
           if (Array.isArray(node.plan.apps))  return node.plan.apps;
           if (Array.isArray(node.plan.stack)) return node.plan.stack;
@@ -61,20 +78,16 @@ function normalizeApps(plans, planKey) {
       return [];
     }
 
-    // Object container
     if (base && typeof base === "object") {
-      // direct lists
       if (Array.isArray(base.apps))  return base.apps;
       if (Array.isArray(base.stack)) return base.stack;
       if (Array.isArray(base.items)) return base.items;
 
-      // preferred key
       const node = base[planKey];
       if (node && typeof node === "object") {
         if (Array.isArray(node.apps))  return node.apps;
         if (Array.isArray(node.stack)) return node.stack;
         if (Array.isArray(node.items)) return node.items;
-        // ✅ nested .plan container
         if (node.plan) {
           if (Array.isArray(node.plan.apps))  return node.plan.apps;
           if (Array.isArray(node.plan.stack)) return node.plan.stack;
@@ -82,7 +95,6 @@ function normalizeApps(plans, planKey) {
         }
       }
 
-      // fallback: first plan with any supported list
       for (const v of Object.values(base)) {
         if (!v || typeof v !== "object") continue;
         if (Array.isArray(v.apps))  return v.apps;
@@ -103,20 +115,20 @@ function normalizeApps(plans, planKey) {
 const BRAND = {
   bg: rgb(0.06, 0.06, 0.06),
   text: rgb(0.07, 0.07, 0.07),
-  lime: rgb(0.65, 1.00, 0.40),   // ~ #A6FF66
+  lime: rgb(0.65, 1.00, 0.40),
   gray: rgb(0.38, 0.38, 0.38),
   border: rgb(0.88, 0.88, 0.88),
 };
 
 function drawSectionTitle(page, fontBold, x, y, title) {
   page.drawRectangle({ x, y: y - 10, width: 4, height: 20, color: BRAND.lime });
-  page.drawText(title, { x: x + 12, y, size: 14, font: fontBold, color: BRAND.text });
+  page.drawText(enc(title), { x: x + 12, y, size: 14, font: fontBold, color: BRAND.text });
 }
 
 function drawKeyVal(page, font, xKey, xVal, y, key, val, right = 540) {
   const size = 11;
-  page.drawText(`${key}:`, { x: xKey, y, size, font, color: BRAND.gray });
-  let txt = String(val ?? "—");
+  page.drawText(enc(`${key}:`), { x: xKey, y, size, font, color: BRAND.gray });
+  let txt = enc(val);
   const max = right - xVal;
   while (font.widthOfTextAtSize(txt, size) > max && txt.length > 3) txt = txt.slice(0, -1);
   page.drawText(txt, { x: xVal, y, size, font, color: BRAND.text });
@@ -124,20 +136,19 @@ function drawKeyVal(page, font, xKey, xVal, y, key, val, right = 540) {
 }
 
 function drawBulletWrapped(page, font, x, y, text, maxWidth) {
-  const bullet = "• ";
   const size = 11;
-  const words = String(text || "").split(/\s+/);
+  const t = enc(text);
+  const words = t.split(/\s+/);
   const lines = [];
-  let line = bullet;
+  let line = "-"; // use ASCII hyphen (WinAnsi-safe)
+
   for (const w of words) {
-    const test = (line === bullet) ? bullet + w : line + " " + w;
-    if (font.widthOfTextAtSize(test, size) > maxWidth) {
-      lines.push(line); line = bullet + w;
-    } else {
-      line = test;
-    }
+    const test = (line === "-") ? `- ${w}` : `${line} ${w}`;
+    if (font.widthOfTextAtSize(test, size) > maxWidth) { lines.push(line); line = `- ${w}`; }
+    else { line = test; }
   }
   if (line.trim()) lines.push(line);
+
   let yy = y;
   for (const ln of lines) { page.drawText(ln, { x, y: yy, size, font, color: BRAND.text }); yy -= 14; }
   return yy;
@@ -189,7 +200,7 @@ export default async function handler(req, res) {
     // Title
     const titleY = height - 120;
     page.drawText("Your Optimized Credit Stack", { x: 36, y: titleY, size: 18, font: fontBold, color: BRAND.text });
-    page.drawText(`Selected Plan: ${String(planKey).toUpperCase()}`, { x: 36, y: titleY - 20, size: 11, font, color: BRAND.gray });
+    page.drawText(enc(`Selected Plan: ${String(planKey).toUpperCase()}`), { x: 36, y: titleY - 20, size: 11, font, color: BRAND.gray });
 
     // Answers panel
     const panelTop = titleY - 50;
@@ -197,19 +208,19 @@ export default async function handler(req, res) {
     drawSectionTitle(page, fontBold, 40, panelTop + 98, "Your Answers");
 
     let y = panelTop + 78;
-    const subs = Array.isArray(answers.subs) ? answers.subs.join(", ") : (answers.subs ?? "—");
+    const subs = Array.isArray(answers.subs) ? answers.subs.map(enc).join(", ") : enc(answers.subs);
 
-    y  = drawKeyVal(page, font, 60, 155, y, "Housing",      answers.housing ?? "—");
+    y  = drawKeyVal(page, font, 60, 155, y, "Housing",      enc(answers.housing));
     y  = drawKeyVal(page, font, 60, 155, y, "Subscriptions", subs || "—");
-    y  = drawKeyVal(page, font, 60, 155, y, "Tools",        answers.tools ?? "—");
+    y  = drawKeyVal(page, font, 60, 155, y, "Tools",        enc(answers.tools));
 
     let y2 = panelTop + 78;
-    y2 = drawKeyVal(page, font, 320, 410, y2, "Employment", answers.employment ?? "—");
-    y2 = drawKeyVal(page, font, 320, 410, y2, "Goal (days)", answers.goal ?? "—");
-    y2 = drawKeyVal(page, font, 320, 410, y2, "Budget / mo", answers.budget ? `$${answers.budget}` : "—");
+    y2 = drawKeyVal(page, font, 320, 410, y2, "Employment", enc(answers.employment));
+    y2 = drawKeyVal(page, font, 320, 410, y2, "Goal (days)", enc(answers.goal));
+    y2 = drawKeyVal(page, font, 320, 410, y2, "Budget / mo", answers.budget != null ? enc(`$${answers.budget}`) : "—");
 
     page.drawText(
-      "These recommendations pair proven credit‑builder apps with smart tracking to compound wins quickly.",
+      enc("These recommendations pair proven credit‑builder apps with smart tracking to compound wins quickly."),
       { x: 36, y: panelTop - 20, size: 11, font, color: BRAND.gray }
     );
 
@@ -235,7 +246,7 @@ export default async function handler(req, res) {
 
     if (appList.length === 0) {
       ensureRoom(0);
-      page.drawText("No recommended apps were found for this plan.", {
+      page.drawText(enc("No recommended apps were found for this plan."), {
         x: startX, y: yy + 12, size: 11, font, color: BRAND.gray
       });
       yy -= 24;
@@ -247,14 +258,14 @@ export default async function handler(req, res) {
           color: rgb(1,1,1), borderColor: BRAND.border, borderWidth: 1
         });
 
-        page.drawText(`${idx + 1}. ${app?.app_name || app?.name || "App"}`, {
+        page.drawText(`${idx + 1}. ${enc(app?.app_name || app?.name || "App")}`, {
           x: startX, y: yy + 34, size: 12, font: fontBold, color: BRAND.text
         });
 
         let nextY = yy + 18;
-        if (app?.category) nextY = drawBulletWrapped(page, font, startX, nextY, `Category: ${app.category}`, maxWidth);
-        if (app?.reason || app?.why) nextY = drawBulletWrapped(page, font, startX, nextY, app.reason || app.why, maxWidth);
-        if (app?.action)  nextY = drawBulletWrapped(page, font, startX, nextY, `Action: ${app.action}`, maxWidth);
+        if (app?.category) nextY = drawBulletWrapped(page, font, startX, nextY, `Category: ${enc(app.category)}`, maxWidth);
+        if (app?.reason || app?.why) nextY = drawBulletWrapped(page, font, startX, nextY, enc(app.reason || app.why), maxWidth);
+        if (app?.action)  nextY = drawBulletWrapped(page, font, startX, nextY, `Action: ${enc(app.action)}`, maxWidth);
 
         yy -= 70;
       });

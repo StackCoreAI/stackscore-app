@@ -63,14 +63,14 @@ export default function ThankYou() {
     try { answers = JSON.parse(localStorage.getItem("ss_answers") || localStorage.getItem("stackscoreUserData") || "null"); } catch {}
     try { rawPlan = JSON.parse(sessionStorage.getItem("ss_plan") || "null"); } catch {}
 
-    // ✅ unwrap common shapes before sending to server
+    // unwrap common shapes before sending to server
     let plansForServer = rawPlan;
     if (rawPlan && typeof rawPlan === "object") {
       if (rawPlan.plans) plansForServer = rawPlan.plans;
       else if (rawPlan.plan) plansForServer = rawPlan.plan;
     }
 
-    // ✅ respect user’s selected planKey if present
+    // respect user’s selected planKey if present
     let planKey = "growth";
     try {
       const sel = JSON.parse(sessionStorage.getItem("ss_selected") || "null");
@@ -106,3 +106,4 @@ export default function ThankYou() {
     URL.revokeObjectURL(url);
   }
 }
+
