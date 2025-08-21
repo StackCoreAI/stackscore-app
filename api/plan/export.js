@@ -40,6 +40,10 @@ function normalizeApps(plans, planKey) {
       if (Array.isArray(base.apps)) return base.apps;
       const node = base[planKey];
       if (node && Array.isArray(node.apps)) return node.apps;
+
+      // fallback: first plan with apps
+      const firstWithApps = Object.values(base).find(v => v && Array.isArray(v.apps));
+      if (firstWithApps) return firstWithApps.apps;
     }
   } catch {}
   return [];
@@ -100,7 +104,7 @@ export default async function handler(req, res) {
   const debug = readSearchParam(req, "debug");
   const { ss_access, planKey = "growth", answers = {}, plans = [] } = data;
 
-  // quick inspect (kept from your last version)
+  // quick inspect
   if (debug === "1") {
     return res.status(200).json({
       ok: true,
@@ -117,9 +121,9 @@ export default async function handler(req, res) {
   try {
     if (ss_access !== "1") return res.status(403).json({ error: "Not authorized" });
 
-    // Normalize and harden app list
-    const appListRaw = normalizeApps(plans, planKey);
-    const appList = (appListRaw || []).filter(a => a && typeof a === "object"); // <- filter non-objects
+    // Normalize and filter non-object entries (recommended)
+    const appList = normalizeApps(plans, planKey)
+      .filter(a => a && typeof a === "object");
 
     const pdf = await PDFDocument.create();
     const font = await pdf.embedFont(StandardFonts.Helvetica);
@@ -156,7 +160,7 @@ export default async function handler(req, res) {
     y2 = drawKeyVal(page, font, 320, 410, y2, "Budget / mo", answers.budget ? `$${answers.budget}` : "—");
 
     page.drawText(
-      "These recommendations pair proven credit‑builder apps with smart tracking to compound wins quickly.",
+      "These recommendations pair proven credit-builder apps with smart tracking to compound wins quickly.",
       { x: 36, y: panelTop - 20, size: 11, font, color: BRAND.gray }
     );
 
@@ -180,7 +184,6 @@ export default async function handler(req, res) {
       }
     };
 
-    // render only safe objects
     (appList || []).slice(0, 50).forEach((app, idx) => {
       ensureRoom();
       page.drawRectangle({ x: 40, y: yy - 2, width: width - 80, height: 60, color: rgb(1,1,1), borderColor: BRAND.border, borderWidth: 1 });
