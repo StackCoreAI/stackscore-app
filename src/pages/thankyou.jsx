@@ -2,8 +2,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
-const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3001";
-
 export default function ThankYou() {
   const [ok, setOk] = useState(false);
   const [checking, setChecking] = useState(true);
@@ -15,7 +13,8 @@ export default function ThankYou() {
     (async () => {
       if (!sessionId) { setErr("Missing session_id"); setChecking(false); return; }
       try {
-        const res = await fetch(`${API_BASE}/api/checkout/verify?session_id=${encodeURIComponent(sessionId)}`, {
+        // ✅ Relative path
+        const res = await fetch(`/api/checkout/verify?session_id=${encodeURIComponent(sessionId)}`, {
           credentials: "include"
         });
         const json = await res.json().catch(() => ({}));
@@ -23,7 +22,7 @@ export default function ThankYou() {
           localStorage.setItem("ss_access", "1");
           setOk(true);
         } else {
-          setErr("Verification failed");
+          setErr(json?.error || "Verification failed");
         }
       } catch (e) {
         setErr(e?.message || "Network error");
@@ -34,13 +33,18 @@ export default function ThankYou() {
   }, [sessionId]);
 
   if (checking) return <div className="p-6">Verifying your payment…</div>;
-  if (!ok) return (
-    <div className="p-6">
-      <h1 className="text-xl font-semibold">We couldn’t verify your payment.</h1>
-      <p className="mt-2 text-sm opacity-80">{err}</p>
-      <Link to="/preview" className="inline-block mt-6 px-4 py-2 rounded bg-gray-800 text-white">Back to preview</Link>
-    </div>
-  );
+
+  if (!ok) {
+    return (
+      <div className="p-6">
+        <h1 className="text-xl font-semibold">We couldn’t verify your payment.</h1>
+        <p className="mt-2 text-sm opacity-80">{err}</p>
+        <Link to="/preview" className="inline-block mt-6 px-4 py-2 rounded bg-gray-800 text-white">
+          Back to preview
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6">
@@ -61,13 +65,19 @@ export default function ThankYou() {
     try { plans = JSON.parse(sessionStorage.getItem("ss_plan") || "null"); } catch {}
 
     const body = { ss_access: "1", planKey: "growth", answers: answers || {}, plans: plans?.plans || [] };
-    const res = await fetch(`${API_BASE}/api/plan/export`, {
+
+    // ✅ Relative path
+    const res = await fetch(`/api/plan/export`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
       body: JSON.stringify(body),
     });
-    if (!res.ok) { alert("Export failed. If you were charged, please contact support."); return; }
+
+    if (!res.ok) {
+      alert("Export failed. If you were charged, please contact support.");
+      return;
+    }
 
     const blob = await res.blob();
     const url = URL.createObjectURL(blob);
