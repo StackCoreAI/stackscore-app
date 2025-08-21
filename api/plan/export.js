@@ -23,8 +23,11 @@ function safeJson(body) {
 /** normalize apps for any of these:
  *  - [{...}]
  *  - { apps: [...] }
- *  - { [planKey]: { apps: [...] } }
- *  - { ok: true, plans: { [planKey]: { apps: [...] } } }
+ *  - { stack: [...] }                    // new
+ *  - { items: [...] }                    // new
+ *  - { [planKey]: { apps/stack/items } } // new
+ *  - { ok: true, plans: { ... } }        // unwrap then apply above
+ *  If planKey doesn't exist, auto-pick the FIRST plan with apps/stack/items.
  */
 function normalizeApps(plans, planKey) {
   try {
@@ -35,15 +38,30 @@ function normalizeApps(plans, planKey) {
       ? plans.plans
       : plans;
 
+    // Array directly
     if (Array.isArray(base)) return base;
-    if (base && typeof base === "object") {
-      if (Array.isArray(base.apps)) return base.apps;
-      const node = base[planKey];
-      if (node && Array.isArray(node.apps)) return node.apps;
 
-      // fallback: first plan with apps
-      const firstWithApps = Object.values(base).find(v => v && Array.isArray(v.apps));
-      if (firstWithApps) return firstWithApps.apps;
+    if (base && typeof base === "object") {
+      // direct containers
+      if (Array.isArray(base.apps))  return base.apps;
+      if (Array.isArray(base.stack)) return base.stack;
+      if (Array.isArray(base.items)) return base.items;
+
+      // preferred key
+      const node = base[planKey];
+      if (node) {
+        if (Array.isArray(node.apps))  return node.apps;
+        if (Array.isArray(node.stack)) return node.stack;
+        if (Array.isArray(node.items)) return node.items;
+      }
+
+      // fallback: first plan with any of the supported arrays
+      for (const v of Object.values(base)) {
+        if (!v || typeof v !== "object") continue;
+        if (Array.isArray(v.apps))  return v.apps;
+        if (Array.isArray(v.stack)) return v.stack;
+        if (Array.isArray(v.items)) return v.items;
+      }
     }
   } catch {}
   return [];
@@ -104,7 +122,6 @@ export default async function handler(req, res) {
   const debug = readSearchParam(req, "debug");
   const { ss_access, planKey = "growth", answers = {}, plans = [] } = data;
 
-  // quick inspect
   if (debug === "1") {
     return res.status(200).json({
       ok: true,
@@ -121,7 +138,7 @@ export default async function handler(req, res) {
   try {
     if (ss_access !== "1") return res.status(403).json({ error: "Not authorized" });
 
-    // Normalize and filter non-object entries (recommended)
+    // Normalize + filter (prevents edge-case 500s)
     const appList = normalizeApps(plans, planKey)
       .filter(a => a && typeof a === "object");
 
@@ -160,7 +177,7 @@ export default async function handler(req, res) {
     y2 = drawKeyVal(page, font, 320, 410, y2, "Budget / mo", answers.budget ? `$${answers.budget}` : "—");
 
     page.drawText(
-      "These recommendations pair proven credit-builder apps with smart tracking to compound wins quickly.",
+      "These recommendations pair proven credit‑builder apps with smart tracking to compound wins quickly.",
       { x: 36, y: panelTop - 20, size: 11, font, color: BRAND.gray }
     );
 
@@ -170,6 +187,7 @@ export default async function handler(req, res) {
     yy -= 6;
 
     const startX = 48, maxWidth = width - startX - 48;
+
     const ensureRoom = (lines = 60) => {
       if (yy < 80 + lines) {
         const w = page.getSize().width;
@@ -184,20 +202,33 @@ export default async function handler(req, res) {
       }
     };
 
-    (appList || []).slice(0, 50).forEach((app, idx) => {
-      ensureRoom();
-      page.drawRectangle({ x: 40, y: yy - 2, width: width - 80, height: 60, color: rgb(1,1,1), borderColor: BRAND.border, borderWidth: 1 });
-      page.drawText(`${idx + 1}. ${app?.app_name || app?.name || "App"}`, {
-        x: startX, y: yy + 34, size: 12, font: fontBold, color: BRAND.text
+    if (appList.length === 0) {
+      // Graceful empty state (prevents “scrambled” look)
+      ensureRoom(0);
+      page.drawText("No recommended apps were found for this plan.", {
+        x: startX, y: yy + 12, size: 11, font, color: BRAND.gray
       });
+      yy -= 24;
+    } else {
+      (appList || []).slice(0, 50).forEach((app, idx) => {
+        ensureRoom();
+        page.drawRectangle({
+          x: 40, y: yy - 2, width: width - 80, height: 60,
+          color: rgb(1,1,1), borderColor: BRAND.border, borderWidth: 1
+        });
 
-      let nextY = yy + 18;
-      if (app?.category) nextY = drawBulletWrapped(page, font, startX, nextY, `Category: ${app.category}`, maxWidth);
-      if (app?.reason || app?.why) nextY = drawBulletWrapped(page, font, startX, nextY, app.reason || app.why, maxWidth);
-      if (app?.action)  nextY = drawBulletWrapped(page, font, startX, nextY, `Action: ${app.action}`, maxWidth);
+        page.drawText(`${idx + 1}. ${app?.app_name || app?.name || "App"}`, {
+          x: startX, y: yy + 34, size: 12, font: fontBold, color: BRAND.text
+        });
 
-      yy -= 70;
-    });
+        let nextY = yy + 18;
+        if (app?.category) nextY = drawBulletWrapped(page, font, startX, nextY, `Category: ${app.category}`, maxWidth);
+        if (app?.reason || app?.why) nextY = drawBulletWrapped(page, font, startX, nextY, app.reason || app.why, maxWidth);
+        if (app?.action)  nextY = drawBulletWrapped(page, font, startX, nextY, `Action: ${app.action}`, maxWidth);
+
+        yy -= 70;
+      });
+    }
 
     // footer last page
     const w = page.getSize().width;
