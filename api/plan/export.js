@@ -100,7 +100,7 @@ export default async function handler(req, res) {
   const debug = readSearchParam(req, "debug");
   const { ss_access, planKey = "growth", answers = {}, plans = [] } = data;
 
-  // quick inspect
+  // quick inspect (kept from your last version)
   if (debug === "1") {
     return res.status(200).json({
       ok: true,
@@ -117,7 +117,9 @@ export default async function handler(req, res) {
   try {
     if (ss_access !== "1") return res.status(403).json({ error: "Not authorized" });
 
-    const appList = normalizeApps(plans, planKey);
+    // Normalize and harden app list
+    const appListRaw = normalizeApps(plans, planKey);
+    const appList = (appListRaw || []).filter(a => a && typeof a === "object"); // <- filter non-objects
 
     const pdf = await PDFDocument.create();
     const font = await pdf.embedFont(StandardFonts.Helvetica);
@@ -178,6 +180,7 @@ export default async function handler(req, res) {
       }
     };
 
+    // render only safe objects
     (appList || []).slice(0, 50).forEach((app, idx) => {
       ensureRoom();
       page.drawRectangle({ x: 40, y: yy - 2, width: width - 80, height: 60, color: rgb(1,1,1), borderColor: BRAND.border, borderWidth: 1 });
@@ -212,4 +215,3 @@ export default async function handler(req, res) {
     });
   }
 }
-
