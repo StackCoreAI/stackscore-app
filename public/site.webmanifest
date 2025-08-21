@@ -1,16 +1,17 @@
 {
-    "name": "StackScore",
-    "short_name": "StackScore",
-    "start_url": "/",
-    "display": "standalone",
-    "background_color": "#000000",
-    "theme_color": "#00FF66",
-    "icons": [
-      {
-        "src": "/favicon.svg",
-        "sizes": "any",
-        "type": "image/svg+xml"
-      }
-    ]
-  }
+  "name": "StackScore",
+  "short_name": "StackScore",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#A6FF66",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
+
   
