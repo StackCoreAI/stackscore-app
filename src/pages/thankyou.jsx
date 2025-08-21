@@ -106,4 +106,3 @@ export default function ThankYou() {
     URL.revokeObjectURL(url);
   }
 }
-

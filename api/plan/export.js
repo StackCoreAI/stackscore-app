@@ -22,7 +22,7 @@ function safeJson(body) {
 
 /** normalize apps for any of these:
  *  - [{...app}]                                 // direct list of app objects
- *  - [{apps:[...]}, {apps:[...]}]               // array of plan objects (flatten)  ⟵ NEW
+ *  - [{apps:[...]}, {apps:[...]}]               // array of plan objects (flatten)
  *  - { apps: [...] }  | { stack: [...] } | { items: [...] }
  *  - { [planKey]: { apps/stack/items } }
  *  - { ok: true, plans: { ... } }
@@ -51,6 +51,12 @@ function normalizeApps(plans, planKey) {
         if (Array.isArray(node.apps))  return node.apps;
         if (Array.isArray(node.stack)) return node.stack;
         if (Array.isArray(node.items)) return node.items;
+        // ✅ also support nested `plan` object
+        if (node.plan) {
+          if (Array.isArray(node.plan.apps))  return node.plan.apps;
+          if (Array.isArray(node.plan.stack)) return node.plan.stack;
+          if (Array.isArray(node.plan.items)) return node.plan.items;
+        }
       }
       return [];
     }
@@ -68,6 +74,12 @@ function normalizeApps(plans, planKey) {
         if (Array.isArray(node.apps))  return node.apps;
         if (Array.isArray(node.stack)) return node.stack;
         if (Array.isArray(node.items)) return node.items;
+        // ✅ nested .plan container
+        if (node.plan) {
+          if (Array.isArray(node.plan.apps))  return node.plan.apps;
+          if (Array.isArray(node.plan.stack)) return node.plan.stack;
+          if (Array.isArray(node.plan.items)) return node.plan.items;
+        }
       }
 
       // fallback: first plan with any supported list
@@ -76,6 +88,11 @@ function normalizeApps(plans, planKey) {
         if (Array.isArray(v.apps))  return v.apps;
         if (Array.isArray(v.stack)) return v.stack;
         if (Array.isArray(v.items)) return v.items;
+        if (v.plan) {
+          if (Array.isArray(v.plan.apps))  return v.plan.apps;
+          if (Array.isArray(v.plan.stack)) return v.plan.stack;
+          if (Array.isArray(v.plan.items)) return v.plan.items;
+        }
       }
     }
   } catch {}
