@@ -3,14 +3,15 @@ export const config = { runtime: "nodejs" };
 
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 
-// ---------- utils ----------
+/* ------------------------------ helpers ------------------------------ */
+
+// Read URL param in Vercel env
 function readSearchParam(req, key) {
-  try {
-    const url = new URL(req.url, `https://${req.headers.host || "x"}`);
-    return url.searchParams.get(key);
-  } catch { return null; }
+  try { return new URL(req.url, `https://${req.headers.host || "x"}`).searchParams.get(key); }
+  catch { return null; }
 }
 
+// Robust body parse
 function safeJson(body) {
   try {
     if (!body) return {};
@@ -20,45 +21,29 @@ function safeJson(body) {
   } catch { return {}; }
 }
 
-/** Sanitize text to WinAnsi-safe ASCII.
- *  Replaces “smart” punctuation, NBSP/NBHYPHEN, bullets, and strips other non-ASCII.
- */
+// WinAnsi-safe text encoder (replace smart quotes, bullets, NBSP/NB hyphen, etc.)
 function enc(v) {
   if (v == null) return "—";
-  let s = typeof v === "string" ? v : (typeof v === "number" || typeof v === "boolean" ? String(v) : (() => { try { return JSON.stringify(v); } catch { return String(v); } })());
+  let s = typeof v === "string" ? v
+        : (typeof v === "number" || typeof v === "boolean") ? String(v)
+        : (()=>{ try { return JSON.stringify(v); } catch { return String(v); } })();
 
   return s
-    // dashes/hyphens
-    .replace(/[\u2010\u2011\u2012\u2013\u2014\u2212]/g, "-")
-    // quotes
-    .replace(/[\u2018\u2019\u02BC]/g, "'")
-    .replace(/[\u201C\u201D]/g, '"')
-    // bullets & middots
-    .replace(/[\u2022\u2023\u2043\u00B7]/g, "-")
-    // ellipsis
-    .replace(/\u2026/g, "...")
-    // spaces
-    .replace(/\u00A0/g, " ")
-    // any other non-ASCII → remove
-    .replace(/[^\x00-\x7E]/g, "");
+    .replace(/[\u2010\u2011\u2012\u2013\u2014\u2212]/g, "-")      // dashes
+    .replace(/[\u2018\u2019\u02BC]/g, "'")                      // single quotes
+    .replace(/[\u201C\u201D]/g, '"')                            // double quotes
+    .replace(/[\u2022\u2023\u2043\u00B7]/g, "-")               // bullets/middot
+    .replace(/\u2026/g, "...")                                  // ellipsis
+    .replace(/\u00A0/g, " ")                                    // nbsp
+    .replace(/[^\x00-\x7E]/g, "");                              // strip other non-ascii
 }
 
-/** normalize apps for any of these:
- *  - [{...app}]                         // direct list of app objects
- *  - [{apps:[...]}, {apps:[...]}]       // array of plan objects (flatten)
- *  - { apps/stack/items:[...] }
- *  - { [planKey]: { apps/stack/items } }
- *  - { [planKey]: { plan:{ apps/stack/items } } }  // <-- nested .plan
- *  - { ok:true, plans:{ ... } }
- *  If planKey doesn't exist, auto-pick the first plan that has content.
- */
+// Normalize apps for wide variety of shapes (incl. nested .plan)
 function normalizeApps(plans, planKey) {
   try {
     if (!plans) return [];
 
-    const base = (plans && plans.plans && typeof plans.plans === "object")
-      ? plans.plans
-      : plans;
+    const base = (plans && plans.plans && typeof plans.plans === "object") ? plans.plans : plans;
 
     if (Array.isArray(base)) {
       const looksLikeApps = base.some(a => a && typeof a === "object" && ("app_name" in a || "name" in a));
@@ -111,7 +96,20 @@ function normalizeApps(plans, planKey) {
   return [];
 }
 
-// ---------- theme ----------
+// Map a raw GPT "app" into consistent fields for rendering
+function mapApp(a) {
+  if (!a || typeof a !== "object") return { title: "App" };
+  return {
+    title: a.app_name || a.name || a.title || a.app || "App",
+    category: a.category || a.type || a.tier || a.scope || "",
+    reason: a.reason || a.why || a.description || a.summary || "",
+    action: a.action || a.next || a.step || a.activation || "",
+    url: a.url || a.link || a.website || a.homepage || ""
+  };
+}
+
+/* -------------------------------- theme/UI --------------------------------- */
+
 const BRAND = {
   bg: rgb(0.06, 0.06, 0.06),
   text: rgb(0.07, 0.07, 0.07),
@@ -120,9 +118,9 @@ const BRAND = {
   border: rgb(0.88, 0.88, 0.88),
 };
 
-function drawSectionTitle(page, fontBold, x, y, title) {
+function drawSectionTitle(page, bold, x, y, title) {
   page.drawRectangle({ x, y: y - 10, width: 4, height: 20, color: BRAND.lime });
-  page.drawText(enc(title), { x: x + 12, y, size: 14, font: fontBold, color: BRAND.text });
+  page.drawText(enc(title), { x: x + 12, y, size: 14, font: bold, color: BRAND.text });
 }
 
 function drawKeyVal(page, font, xKey, xVal, y, key, val, right = 540) {
@@ -135,26 +133,25 @@ function drawKeyVal(page, font, xKey, xVal, y, key, val, right = 540) {
   return y - 14;
 }
 
-function drawBulletWrapped(page, font, x, y, text, maxWidth) {
+function drawBullets(page, font, x, y, text, maxWidth) {
   const size = 11;
   const t = enc(text);
   const words = t.split(/\s+/);
   const lines = [];
-  let line = "-"; // use ASCII hyphen (WinAnsi-safe)
-
+  let line = "-";
   for (const w of words) {
     const test = (line === "-") ? `- ${w}` : `${line} ${w}`;
     if (font.widthOfTextAtSize(test, size) > maxWidth) { lines.push(line); line = `- ${w}`; }
     else { line = test; }
   }
   if (line.trim()) lines.push(line);
-
   let yy = y;
   for (const ln of lines) { page.drawText(ln, { x, y: yy, size, font, color: BRAND.text }); yy -= 14; }
   return yy;
 }
 
-// ---------- handler ----------
+/* -------------------------------- handler ---------------------------------- */
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     res.setHeader("Allow", "POST");
@@ -162,10 +159,10 @@ export default async function handler(req, res) {
   }
 
   const data = safeJson(req.body);
-  const debug = readSearchParam(req, "debug");
+  const dbg = readSearchParam(req, "debug");
   const { ss_access, planKey = "growth", answers = {}, plans = [] } = data;
 
-  if (debug === "1") {
+  if (dbg === "1") {
     const apps = normalizeApps(plans, planKey);
     return res.status(200).json({
       ok: true,
@@ -181,99 +178,90 @@ export default async function handler(req, res) {
   try {
     if (ss_access !== "1") return res.status(403).json({ error: "Not authorized" });
 
-    // Normalize + filter (prevents edge-case 500s)
-    const appList = normalizeApps(plans, planKey)
+    // normalize + filter + map for consistent rendering
+    const rawList = normalizeApps(plans, planKey)
       .filter(a => a && typeof a === "object");
+    const appList = rawList.map(mapApp);
 
     const pdf = await PDFDocument.create();
     const font = await pdf.embedFont(StandardFonts.Helvetica);
-    const fontBold = await pdf.embedFont(StandardFonts.HelveticaBold);
+    const bold = await pdf.embedFont(StandardFonts.HelveticaBold);
 
-    let page = pdf.addPage([612, 792]); // Letter
+    let page = pdf.addPage([612, 792]);
     const { width, height } = page.getSize();
 
     // Header band
     page.drawRectangle({ x: 0, y: height - 90, width, height: 90, color: BRAND.bg });
-    page.drawText("StackScore", { x: 36, y: height - 56, size: 22, font: fontBold, color: BRAND.lime });
+    page.drawText("StackScore", { x: 36, y: height - 56, size: 22, font: bold, color: BRAND.lime });
     page.drawText("Optimized Stack Plan", { x: 36, y: height - 78, size: 12, font, color: rgb(1,1,1) });
 
-    // Title
+    // Title + Answers
     const titleY = height - 120;
-    page.drawText("Your Optimized Credit Stack", { x: 36, y: titleY, size: 18, font: fontBold, color: BRAND.text });
+    page.drawText("Your Optimized Credit Stack", { x: 36, y: titleY, size: 18, font: bold, color: BRAND.text });
     page.drawText(enc(`Selected Plan: ${String(planKey).toUpperCase()}`), { x: 36, y: titleY - 20, size: 11, font, color: BRAND.gray });
 
-    // Answers panel
     const panelTop = titleY - 50;
     page.drawRectangle({ x: 32, y: panelTop - 130, width: width - 64, height: 130, color: rgb(1,1,1), borderColor: BRAND.border, borderWidth: 1 });
-    drawSectionTitle(page, fontBold, 40, panelTop + 98, "Your Answers");
+    drawSectionTitle(page, bold, 40, panelTop + 98, "Your Answers");
 
-    let y = panelTop + 78;
+    let yL = panelTop + 78, yR = panelTop + 78;
     const subs = Array.isArray(answers.subs) ? answers.subs.map(enc).join(", ") : enc(answers.subs);
-
-    y  = drawKeyVal(page, font, 60, 155, y, "Housing",      enc(answers.housing));
-    y  = drawKeyVal(page, font, 60, 155, y, "Subscriptions", subs || "—");
-    y  = drawKeyVal(page, font, 60, 155, y, "Tools",        enc(answers.tools));
-
-    let y2 = panelTop + 78;
-    y2 = drawKeyVal(page, font, 320, 410, y2, "Employment", enc(answers.employment));
-    y2 = drawKeyVal(page, font, 320, 410, y2, "Goal (days)", enc(answers.goal));
-    y2 = drawKeyVal(page, font, 320, 410, y2, "Budget / mo", answers.budget != null ? enc(`$${answers.budget}`) : "—");
+    yL = drawKeyVal(page, font, 60, 155, yL, "Housing",      enc(answers.housing));
+    yL = drawKeyVal(page, font, 60, 155, yL, "Subscriptions", subs || "—");
+    yL = drawKeyVal(page, font, 60, 155, yL, "Tools",        enc(answers.tools));
+    yR = drawKeyVal(page, font, 320, 410, yR, "Employment",  enc(answers.employment));
+    yR = drawKeyVal(page, font, 320, 410, yR, "Goal (days)", enc(answers.goal));
+    yR = drawKeyVal(page, font, 320, 410, yR, "Budget / mo", answers.budget != null ? enc(`$${answers.budget}`) : "—");
 
     page.drawText(
-      enc("These recommendations pair proven credit‑builder apps with smart tracking to compound wins quickly."),
+      enc("These recommendations pair proven credit-builder apps with smart tracking to compound wins quickly."),
       { x: 36, y: panelTop - 20, size: 11, font, color: BRAND.gray }
     );
 
     // Apps
-    let yy = panelTop - 50;
-    drawSectionTitle(page, fontBold, 36, yy + 20, "Recommended Apps");
-    yy -= 6;
+    let y = panelTop - 50;
+    drawSectionTitle(page, bold, 36, y + 20, "Recommended Apps");
+    y -= 6;
 
     const startX = 48, maxWidth = width - startX - 48;
-    const ensureRoom = (lines = 60) => {
-      if (yy < 80 + lines) {
-        const w = page.getSize().width;
-        page.drawLine({ start: { x: 36, y: 40 }, end: { x: w - 36, y: 40 }, thickness: 0.5, color: BRAND.border });
-        page.drawText(`Generated by StackScore • © ${new Date().getFullYear()}`, {
-          x: 36, y: 26, size: 9, font, color: BRAND.gray
-        });
-        page = pdf.addPage([612, 792]);
-        yy = page.getSize().height - 72;
-        drawSectionTitle(page, fontBold, 36, yy + 20, "Recommended Apps (cont.)");
-        yy -= 6;
-      }
-    };
 
     if (appList.length === 0) {
-      ensureRoom(0);
-      page.drawText(enc("No recommended apps were found for this plan."), {
-        x: startX, y: yy + 12, size: 11, font, color: BRAND.gray
-      });
-      yy -= 24;
+      page.drawText(enc("No recommended apps were found for this plan."), { x: startX, y: y + 12, size: 11, font, color: BRAND.gray });
+      y -= 24;
     } else {
-      appList.slice(0, 50).forEach((app, idx) => {
-        ensureRoom();
-        page.drawRectangle({
-          x: 40, y: yy - 2, width: width - 80, height: 60,
-          color: rgb(1,1,1), borderColor: BRAND.border, borderWidth: 1
-        });
+      for (let i = 0; i < Math.min(appList.length, 50); i++) {
+        if (y < 100) {
+          // footer for old page
+          page.drawLine({ start: { x: 36, y: 40 }, end: { x: width - 36, y: 40 }, thickness: 0.5, color: BRAND.border });
+          page.drawText(`Generated by StackScore • © ${new Date().getFullYear()}`, { x: 36, y: 26, size: 9, font, color: BRAND.gray });
+          page = pdf.addPage([612, 792]);
+          const { height: h2, width: w2 } = page.getSize();
+          page.drawRectangle({ x: 0, y: h2 - 90, width: w2, height: 90, color: BRAND.bg });
+          page.drawText("StackScore", { x: 36, y: h2 - 56, size: 22, font: bold, color: BRAND.lime });
+          page.drawText("Optimized Stack Plan", { x: 36, y: h2 - 78, size: 12, font, color: rgb(1,1,1) });
+          y = h2 - 72;
+          drawSectionTitle(page, bold, 36, y + 20, "Recommended Apps (cont.)");
+          y -= 6;
+        }
 
-        page.drawText(`${idx + 1}. ${enc(app?.app_name || app?.name || "App")}`, {
-          x: startX, y: yy + 34, size: 12, font: fontBold, color: BRAND.text
-        });
+        const app = appList[i];
+        // card box
+        page.drawRectangle({ x: 40, y: y - 2, width: width - 80, height: 60, color: rgb(1,1,1), borderColor: BRAND.border, borderWidth: 1 });
+        // title
+        page.drawText(`${i + 1}. ${enc(app.title)}`, { x: startX, y: y + 34, size: 12, font: bold, color: BRAND.text });
+        // bullets
+        let nextY = y + 18;
+        if (app.category) nextY = drawBullets(page, font, startX, nextY, `Category: ${app.category}`, maxWidth);
+        if (app.reason)   nextY = drawBullets(page, font, startX, nextY, app.reason, maxWidth);
+        if (app.action)   nextY = drawBullets(page, font, startX, nextY, `Action: ${app.action}`, maxWidth);
+        if (app.url)      nextY = drawBullets(page, font, startX, nextY, `Link: ${app.url}`, maxWidth);
 
-        let nextY = yy + 18;
-        if (app?.category) nextY = drawBulletWrapped(page, font, startX, nextY, `Category: ${enc(app.category)}`, maxWidth);
-        if (app?.reason || app?.why) nextY = drawBulletWrapped(page, font, startX, nextY, enc(app.reason || app.why), maxWidth);
-        if (app?.action)  nextY = drawBulletWrapped(page, font, startX, nextY, `Action: ${enc(app.action)}`, maxWidth);
-
-        yy -= 70;
-      });
+        y -= 70;
+      }
     }
 
-    // footer last page
-    const w = page.getSize().width;
-    page.drawLine({ start: { x: 36, y: 40 }, end: { x: w - 36, y: 40 }, thickness: 0.5, color: BRAND.border });
+    // Footer last page
+    page.drawLine({ start: { x: 36, y: 40 }, end: { x: width - 36, y: 40 }, thickness: 0.5, color: BRAND.border });
     page.drawText(`Generated by StackScore • © ${new Date().getFullYear()}`, { x: 36, y: 26, size: 9, font, color: BRAND.gray });
 
     const bytes = await pdf.save();
@@ -282,11 +270,9 @@ export default async function handler(req, res) {
     res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
     return res.status(200).end(Buffer.from(bytes));
   } catch (e) {
-    const dbg = readSearchParam(req, "debug");
+    const show = readSearchParam(req, "debug") === "2";
     console.error("export error:", e);
-    return res.status(500).json({
-      error: "export_failed",
-      ...(dbg === "2" ? { detail: e?.message || String(e), stack: e?.stack } : {})
-    });
+    return res.status(500).json({ error: "export_failed", ...(show ? { detail: e?.message || String(e), stack: e?.stack } : {}) });
   }
 }
+
