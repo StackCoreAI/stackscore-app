@@ -63,14 +63,14 @@ export default function ThankYou() {
     try { answers = JSON.parse(localStorage.getItem("ss_answers") || localStorage.getItem("stackscoreUserData") || "null"); } catch {}
     try { rawPlan = JSON.parse(sessionStorage.getItem("ss_plan") || "null"); } catch {}
 
-    // unwrap common shapes before sending to server
+    // ✅ unwrap common shapes before sending
     let plansForServer = rawPlan;
     if (rawPlan && typeof rawPlan === "object") {
       if (rawPlan.plans) plansForServer = rawPlan.plans;
       else if (rawPlan.plan) plansForServer = rawPlan.plan;
     }
 
-    // respect user’s selected planKey if present
+    // ✅ respect selected planKey if present
     let planKey = "growth";
     try {
       const sel = JSON.parse(sessionStorage.getItem("ss_selected") || "null");
@@ -92,10 +92,7 @@ export default function ThankYou() {
       body: JSON.stringify(body),
     });
 
-    if (!res.ok) {
-      alert("Export failed. If you were charged, please contact support.");
-      return;
-    }
+    if (!res.ok) { alert("Export failed. If you were charged, please contact support."); return; }
 
     const blob = await res.blob();
     const url = URL.createObjectURL(blob);
@@ -106,4 +103,5 @@ export default function ThankYou() {
     URL.revokeObjectURL(url);
   }
 }
+
 
