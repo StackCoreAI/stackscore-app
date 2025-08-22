@@ -31,15 +31,20 @@ function enc(v) {
     .replace(/\u00A0/g, " ")
     .replace(/[^\x00-\x7E]/g, "");
 }
-// Normalize apps (arrays, objects, {plans}, {plan}, nested .plan)
+
+/* --------------------- normalize + mapping (NEW) --------------------- */
+/** Accept: arrays, objects, {plans}, {plan}, nested .plan, or array of plan nodes */
 function normalizeApps(plans, planKey) {
   try {
     if (!plans) return [];
     const base = (plans && plans.plans && typeof plans.plans === "object") ? plans.plans : plans;
 
     if (Array.isArray(base)) {
+      // Already a list of app objects?
       const looksLikeApps = base.some(a => a && typeof a === "object" && ("app_name" in a || "name" in a));
       if (looksLikeApps) return base;
+
+      // Array of plan-like nodes → return first node's apps/stack/items or node.plan.*
       for (const node of base) {
         if (!node || typeof node !== "object") continue;
         if (Array.isArray(node.apps))  return node.apps;
@@ -55,10 +60,12 @@ function normalizeApps(plans, planKey) {
     }
 
     if (base && typeof base === "object") {
+      // direct lists
       if (Array.isArray(base.apps))  return base.apps;
       if (Array.isArray(base.stack)) return base.stack;
       if (Array.isArray(base.items)) return base.items;
 
+      // preferred key
       const node = base[planKey];
       if (node && typeof node === "object") {
         if (Array.isArray(node.apps))  return node.apps;
@@ -70,6 +77,8 @@ function normalizeApps(plans, planKey) {
           if (Array.isArray(node.plan.items)) return node.plan.items;
         }
       }
+
+      // fallback: first plan node with content
       for (const v of Object.values(base)) {
         if (!v || typeof v !== "object") continue;
         if (Array.isArray(v.apps))  return v.apps;
@@ -85,7 +94,8 @@ function normalizeApps(plans, planKey) {
   } catch {}
   return [];
 }
-// Flexible mapper → consistent fields for rendering
+
+// Map a raw GPT "app" into consistent fields for rendering
 function mapApp(a) {
   if (!a || typeof a !== "object") return { title: "App" };
   return {
