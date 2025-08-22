@@ -32,7 +32,7 @@ function enc(v) {
     .replace(/[^\x00-\x7E]/g, "");
 }
 
-/* --------------------- normalize + mapping (NEW) --------------------- */
+/* --------------------- normalize + mapping (UPDATED) --------------------- */
 /** Accept: arrays, objects, {plans}, {plan}, nested .plan, or array of plan nodes */
 function normalizeApps(plans, planKey) {
   try {
@@ -40,23 +40,8 @@ function normalizeApps(plans, planKey) {
     const base = (plans && plans.plans && typeof plans.plans === "object") ? plans.plans : plans;
 
     if (Array.isArray(base)) {
-      // Already a list of app objects?
-      const looksLikeApps = base.some(a => a && typeof a === "object" && ("app_name" in a || "name" in a));
-      if (looksLikeApps) return base;
-
-      // Array of plan-like nodes → return first node's apps/stack/items or node.plan.*
-      for (const node of base) {
-        if (!node || typeof node !== "object") continue;
-        if (Array.isArray(node.apps))  return node.apps;
-        if (Array.isArray(node.stack)) return node.stack;
-        if (Array.isArray(node.items)) return node.items;
-        if (node.plan) {
-          if (Array.isArray(node.plan.apps))  return node.plan.apps;
-          if (Array.isArray(node.plan.stack)) return node.plan.stack;
-          if (Array.isArray(node.plan.items)) return node.plan.items;
-        }
-      }
-      return [];
+      // Already a list of items (strings or objects)
+      return base;
     }
 
     if (base && typeof base === "object") {
@@ -65,7 +50,7 @@ function normalizeApps(plans, planKey) {
       if (Array.isArray(base.stack)) return base.stack;
       if (Array.isArray(base.items)) return base.items;
 
-      // preferred key
+      // preferred key, if the caller gave one that actually exists
       const node = base[planKey];
       if (node && typeof node === "object") {
         if (Array.isArray(node.apps))  return node.apps;
@@ -78,7 +63,7 @@ function normalizeApps(plans, planKey) {
         }
       }
 
-      // fallback: first plan node with content
+      // fallback: first plan node with any supported list (covers A/B/C)
       for (const v of Object.values(base)) {
         if (!v || typeof v !== "object") continue;
         if (Array.isArray(v.apps))  return v.apps;
@@ -95,15 +80,18 @@ function normalizeApps(plans, planKey) {
   return [];
 }
 
-// Map a raw GPT "app" into consistent fields for rendering
-function mapApp(a) {
-  if (!a || typeof a !== "object") return { title: "App" };
+// Map any raw GPT item (string or object) into consistent fields for rendering
+function mapApp(item) {
+  if (item == null) return { title: "App" };
+  if (typeof item === "string") return { title: item, category: "", reason: "", action: "", url: "" };
+  if (typeof item !== "object")   return { title: String(item), category: "", reason: "", action: "", url: "" };
+
   return {
-    title: a.app_name || a.name || a.title || a.app || "App",
-    category: a.category || a.type || a.tier || a.scope || "",
-    reason: a.reason || a.why || a.description || a.summary || "",
-    action: a.action || a.next || a.step || a.activation || "",
-    url: a.url || a.link || a.website || a.homepage || ""
+    title: item.app_name || item.name || item.title || item.app || "App",
+    category: item.category || item.type || item.tier || item.scope || "",
+    reason: item.reason || item.why || item.description || item.summary || "",
+    action: item.action || item.next || item.step || item.activation || "",
+    url: item.url || item.link || item.website || item.homepage || ""
   };
 }
 
@@ -133,8 +121,9 @@ export default async function handler(req,res){
   try{
     if(ss_access!=="1") return res.status(403).json({ error:"Not authorized" });
 
-    const rawList = normalizeApps(plans, planKey).filter(a => a && typeof a === "object");
-    const appList = rawList.map(mapApp);
+    // ✅ Map first (to support strings) THEN filter out empties
+    const rawList = normalizeApps(plans, planKey);
+    const appList = (Array.isArray(rawList) ? rawList : []).map(mapApp).filter(a => a && a.title);
 
     const pdf = await PDFDocument.create();
     const font = await pdf.embedFont(StandardFonts.Helvetica);
