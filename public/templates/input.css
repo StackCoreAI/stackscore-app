@@ -1,0 +1,57 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Inter for main document (body/pages) */
+@font-face {
+  font-family: "Inter";
+  src: url("/templates/fonts/Inter-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+html{
+  font-family:"Inter",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,
+  "Helvetica Neue",Arial,"Noto Sans","Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+}
+
+/* Keep brand color in print */
+*{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+
+/* PDF page size + base margins (honored via preferCSSPageSize) */
+@page{size:Letter;margin:24px}
+
+/* ───────── Premium print refinements ───────── */
+
+/* Avoid splitting important blocks */
+.service-card,.premium-steps,.services-wrap{break-inside:avoid;page-break-inside:avoid}
+
+/* Step number badge: single clean circle; remove inner dot/ring */
+.premium-steps li::before{
+  font-weight:800;
+  letter-spacing:.2px;
+  box-shadow:none;
+  border:none;
+  border-radius:9999px;
+}
+
+/* Breathing room between badge and text */
+.premium-steps{gap:.5rem}
+.premium-steps li{padding-left:.375rem}
+
+/* Subtle, premium shadows that survive print */
+.service-card{box-shadow:0 6px 24px rgba(0,0,0,.08)}
+.feature-banner{box-shadow:0 8px 28px rgba(0,0,0,.06)}
+
+/* Value pills: spacing so they don’t run together on wrap */
+.hero-props .value-pill{
+  margin-right:.4rem;margin-bottom:.4rem;padding-left:.75rem;padding-right:.75rem
+}
+
+/* Manual page break utility */
+.page-break{page-break-before:always;break-before:page}
+
+@media print{
+  html{-webkit-font-smoothing:antialiased}
+}

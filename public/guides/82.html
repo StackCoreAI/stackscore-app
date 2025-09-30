@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>StackScore – Build & Compose</title>
+
+  <!-- Local, production-safe assets -->
+  <link rel="stylesheet" href="/assets/guide.css">
+  <script defer src="/assets/lucide.min.js"></script>
+  <script defer src="/assets/guide.js"></script>
+  <script defer src="/assets/plan.runtime.js"></script>
+
+  <style>
+    html { scroll-behavior:smooth }
+    body { font-family: Inter, ui-sans-serif, system-ui, sans-serif }
+    @keyframes fadeInUp { 0% { opacity:0; transform: translateY(28px) } 100% { opacity:1; transform: translateY(0) } }
+    .init-opacity { opacity:0 }
+    .show { animation: fadeInUp .9s cubic-bezier(.22,1,.36,1) forwards }
+    svg.lucide { stroke: currentColor; stroke-width: 1.5 }
+    details summary::-webkit-details-marker { display:none }
+    details[open] summary .chev { transform: rotate(180deg) }
+    details summary .chev { transition: transform .2s ease }
+
+    /* --- Print styles --- */
+    @media print {
+      .no-print, nav, header, .site-nav, .builder, .sticky-cta, .footer-cta { display:none !important; }
+
+      html, body {
+        background:#fff !important; color:#000 !important;
+        -webkit-print-color-adjust: exact; print-color-adjust: exact;
+      }
+
+      .deck-safe, .container, .content, .guide-inner {
+        max-width:100% !important; width:100% !important;
+        padding:0 !important; margin:0 !important; box-shadow:none !important; background:transparent !important;
+      }
+
+      .card, .app, .section, .panel, .grid > * {
+        break-inside: avoid; page-break-inside: avoid;
+      }
+
+      .page-break { break-before: page; page-break-before: always; }
+    }
+
+    @page { size: Letter; margin: 12mm; }
+
+    /* helpers */
+    .no-print {}
+    @media print { .no-print { display:none !important; } }
+    .print-only { display:none !important; }
+    @media print { .print-only { display:block !important; } }
+  </style>
+</head>
+
+<body class="bg-gradient-to-br from-[#101012] via-[#0c0d0e] to-[#08090a] text-white antialiased">
+  <!-- Floating print button -->
+  <button id="print-plan" class="no-print"
+    aria-label="Print this plan"
+    style="position:fixed; right:16px; top:16px; z-index:9999; padding:10px 14px; border-radius:9999px;
+           background:#16e263; color:#0a0a0a; border:0; font-weight:600; box-shadow:0 8px 20px rgba(0,0,0,.25); cursor:pointer;">
+    Print Plan
+  </button>
+
+  <!-- ================= NAV ================= -->
+  <header class="max-w-7xl mx-auto px-6 py-6 flex flex-col md:flex-row md:items-center justify-between gap-4 init-opacity" data-anim>
+    <a href="/" class="flex items-center gap-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-lime-400/70">
+      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" class="text-lime-400" aria-hidden="true">
+        <path d="M4 4h16v3H4z"></path><path d="M4 10.5h16v3H4z"></path><path d="M4 17h16v3H4z"></path>
+      </svg>
+      <span class="text-lg font-semibold tracking-tight text-white">StackScore</span>
+    </a>
+
+    <nav class="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-8">
+      <a href="#main" class="text-neutral-300 hover:text-white transition-colors">Home</a>
+      <a href="#features" class="text-neutral-300 hover:text-white transition-colors">Features</a>
+      <a href="#results" class="text-neutral-300 hover:text-white transition-colors">Results</a>
+      <a href="#faq" class="text-neutral-300 hover:text-white transition-colors">FAQ</a>
+      <a href="#wizard" class="flex items-center gap-1 text-lime-300 hover:text-lime-200 transition-colors">
+        <i data-lucide="zap" class="w-4 h-4"></i><span>Build</span>
+      </a>
+    </nav>
+  </header>
+
+  <!-- ================= HERO ================= -->
+  <section id="main" class="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center pt-20 pb-20 init-opacity" data-anim>
+    <div class="lg:col-span-6 space-y-6">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-lime-400/30 bg-gradient-to-r from-lime-400/10 to-emerald-500/10 text-xs text-lime-300">
+        <i data-lucide="sparkles" class="w-4 h-4"></i> AI-Powered Financial Stack
+      </div>
+
+      <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light leading-tight tracking-tight">
+        Your Elite <span class="bg-clip-text text-transparent bg-gradient-to-r from-lime-400 via-emerald-400 to-cyan-400 font-semibold">Stack.</span>
+      </h1>
+
+      <p class="mt-2 text-xl md:text-2xl italic text-white tracking-tight">
+        Shhh… Stacking is the new <span class="not-italic font-semibold">take charge of your credit score</span>
+      </p>
+    </div>
+
+    <div class="lg:col-span-6">
+      <div class="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10 shadow-md space-y-6">
+        <h3 class="text-white font-semibold text-lg text-center tracking-tight">Your Potential Gains</h3>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="p-4 text-center rounded-lg border border-lime-400/30 hover:bg-white/10 transition">
+            <p class="text-lime-400 font-semibold">Utilities</p><p class="text-slate-300 text-xs">+10–20 pts</p>
+          </div>
+          <div class="p-4 text-center rounded-lg border border-emerald-400/30 hover:bg-white/10 transition">
+            <p class="text-emerald-400 font-semibold">Installments</p><p class="text-slate-300 text-xs">+20–40 pts</p>
+          </div>
+          <div class="p-4 text-center rounded-lg border border-cyan-400/30 hover:bg-white/10 transition">
+            <p class="text-cyan-400 font-semibold">Disputes</p><p class="text-slate-300 text-xs">+15–30 pts</p>
+          </div>
+          <div class="p-4 text-center rounded-lg border border-yellow-300/30 hover:bg-white/10 transition">
+            <p class="text-yellow-300 font-semibold">Tradelines</p><p class="text-slate-300 text-xs">+25–50 pts</p>
+          </div>
+        </div>
+        <div class="text-center space-y-1">
+          <p class="text-lime-300">Stack Impact: ★★★★★</p>
+          <p class="text-emerald-400">Synergy Score: High</p>
+          <p class="text-xs text-slate-500">Based on verified user reports. Results may vary.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======= FULL-WIDTH NAV HIGHLIGHT ======= -->
+  <div class="max-w-7xl mx-auto px-6 relative mb-12">
+    <div class="h-1 w-full bg-gradient-to-r from-lime-400 via-emerald-400 to-cyan-400 rounded-full"></div>
+    <nav class="flex justify-center space-x-8 -mt-3">
+      <a href="#main" class="flex items-center space-x-2 px-4 py-1.5 bg-black/70 rounded-full text-sm font-medium text-zinc-300 hover:text-white hover:bg-white/10 transition">
+        <i data-lucide="zap" class="w-4 h-4 text-lime-400"></i><span>Quick Start</span>
+      </a>
+      <a href="#compose" class="flex items-center space-x-2 px-4 py-1.5 bg-black/70 rounded-full text-sm font-medium text-zinc-300 hover:text-white hover:bg-white/10 transition">
+        <i data-lucide="layers" class="w-4 h-4 text-emerald-400"></i><span>Your Stack</span>
+      </a>
+      <a href="#instructions" class="flex items-center space-x-2 px-4 py-1.5 bg-black/70 rounded-full text-sm font-medium text-zinc-300 hover:text-white hover:bg-white/10 transition">
+        <i data-lucide="clipboard-list" class="w-4 h-4 text-cyan-400"></i><span>Instructions</span>
+      </a>
+    </nav>
+  </div>
+
+  <!-- =============== YOUR STACK (COMPOSE) =============== -->
+  <section id="compose" class="max-w-7xl mx-auto px-6 pb-24 init-opacity" data-anim>
+    <div class="bg-white/5 border border-white/10 shadow-xl rounded-xl overflow-hidden">
+      <!-- header -->
+      <header class="flex flex-col md:flex-row items-start md:items-center justify-between md:px-6 bg-gradient-to-b from-white/5 via-white/0 to-white/5 border-b border-white/10 pt-4 pr-4 pb-4 pl-4">
+        <a href="#compose" class="inline-block">
+          <button class="bg-gradient-to-r from-lime-400 to-emerald-500 text-black rounded-full font-semibold px-6 py-3 transition hover:scale-105 hover:shadow-md hover:brightness-110">
+            Your Stack — Start Here
+          </button>
+        </a>
+      </header>
+
+      <!-- AI-powered Feature Specific Instructions -->
+      <div class="mt-4 bg-amber-50/5 border border-amber-200/30 rounded-xl shadow p-5">
+        <div class="flex items-center gap-2 mb-2">
+          <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-300"></i>
+          <h4 class="text-amber-200 font-semibold">Important: Feature-specific Instructions</h4>
+        </div>
+        <p class="text-zinc-200/90">
+          Behind your guide is AI intelligence that searched through
+          <span class="font-semibold text-white">hundreds of features across dozens of apps</span>
+          to find what works best for you. We don’t give everyone the same setup — even with the same app, different people get different features.
+          Based on your answers to our six questions, the AI curated this <span class="font-semibold text-white">specific combination of apps and features</span>
+          to create the most impact for your credit journey.
+        </p>
+        <details class="mt-3">
+          <summary class="cursor-pointer underline text-amber-200 hover:text-amber-100 text-sm">
+            Learn more ▾
+          </summary>
+          <div class="mt-2 text-zinc-300">
+            Apps include many capabilities, but only certain features move the needle for your profile. Follow the features we highlighted to unlock the full benefit of your plan.
+          </div>
+        </details>
+        
+      </div>
+
+      <!-- content grid -->
+      <section class="grid grid-cols-1 lg:grid-cols-12 min-h-[60vh]">
+        <!-- Sidebar -->
+        <aside class="page-break col-span-1 lg:col-span-3 lg:p-6 bg-gradient-to-b from-white/5 to-white/10 border-r border-white/10 pt-4 pr-4 pb-4 pl-4">
+          <div class="space-y-3 mb-6">
+            <h3 class="text-xs font-medium text-zinc-400 uppercase tracking-wider">Apps in Your Stack.</h3>
+
+            <!-- Sidebar slot populated by SSR and/or plan.runtime.js -->
+            <div class="space-y-2" id="sidebar-slot"></div>
+          </div>
+
+          <!-- Resources -->
+          <div class="space-y-3">
+            <h3 class="text-xs font-medium text-zinc-400 uppercase tracking-wider">Resources &amp; Support.</h3>
+            <div class="space-y-1">
+              <button class="w-full text-left p-2 rounded-md hover:bg-white/10 transition-colors group">
+                <div class="flex items-center space-x-2">
+                  <div class="w-5 h-5 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center text-white text-xs font-medium">S</div>
+                  <div class="flex-1 min-w-0"><p class="text-xs font-medium text-zinc-100 truncate">StackScore Support</p></div>
+                  <i data-lucide="plus" class="w-3 h-3 text-zinc-500 opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                </div>
+              </button>
+              <button class="w-full text-left p-2 rounded-md hover:bg-white/10 transition-colors group">
+                <div class="flex items-center space-x-2">
+                  <div class="w-5 h-5 bg-gradient-to-br from-pink-400 to-pink-600 rounded-full flex items-center justify-center text-white text-xs font-medium">C</div>
+                  <div class="flex-1 min-w-0"><p class="text-xs font-medium text-zinc-100 truncate">Credit Resources</p></div>
+                  <i data-lucide="plus" class="w-3 h-3 text-zinc-500 opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                </div>
+              </button>
+              <button class="w-full text-left p-2 rounded-md hover:bg-white/10 transition-colors group">
+                <div class="flex items-center space-x-2">
+                  <div class="w-5 h-5 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center text-white text-xs font-medium">F</div>
+                  <div class="flex-1 min-w-0"><p class="text-xs font-medium text-zinc-100 truncate">Community Forum</p></div>
+                  <i data-lucide="plus" class="w-3 h-3 text-zinc-500 opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                </div>
+              </button>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Right panel -->
+        <main id="instructions" class="page-break col-span-1 lg:col-span-9 lg:p-8 space-y-5">
+          <div class="flex items-center justify-between mb-6">
+            <h1 class="text-lg font-semibold text-white">App Instructions</h1>
+          </div>
+
+          <!-- Form the runtime hydrates -->
+          <form class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <label class="block">
+                <span class="text-xs text-zinc-400">Website:</span>
+                <input type="url" placeholder="https://"
+                  class="mt-1 w-full rounded-md bg-black/40 border border-white/10 px-3 py-2 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-lime-500/40" />
+              </label>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <label class="block">
+                <span class="text-xs text-zinc-400">1st:</span>
+                <input type="text" placeholder="First step"
+                  class="mt-1 w-full rounded-md bg-black/40 border border-white/10 px-3 py-2 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-lime-500/40" />
+              </label>
+              <label class="block">
+                <span class="text-xs text-zinc-400">2nd:</span>
+                <input type="text" placeholder="Second step"
+                  class="mt-1 w-full rounded-md bg-black/40 border border-white/10 px-3 py-2 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-lime-500/40" />
+              </label>
+              <label class="block">
+                <span class="text-xs text-zinc-400">3rd:</span>
+                <input type="text" placeholder="Third step"
+                  class="mt-1 w-full rounded-md bg-black/40 border border-white/10 px-3 py-2 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-lime-500/40" />
+              </label>
+            </div>
+
+            <label class="block">
+              <span class="text-xs text-zinc-400">Pro tip / Notes:</span>
+              <textarea rows="4" placeholder="Any specific feature, toggle, or caveat to watch for…"
+                class="mt-1 w-full rounded-md bg-black/40 border border-white/10 px-3 py-2 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-lime-500/40"></textarea>
+            </label>
+
+            <div class="flex gap-3">
+              <button type="button" class="px-3 py-2 rounded-md bg-white/10 border border-white/10 hover:bg-white/15 text-sm">Save Progress</button>
+              <button type="button" class="px-3 py-2 rounded-md bg-emerald-600 hover:bg-emerald-500 text-black text-sm">Mark Complete</button>
+            </div>
+          </form>
+        </main>
+      </section>
+    </div>
+  </section>
+
+  <!-- Legal Disclaimer -->
+  <footer class="max-w-7xl mx-auto px-6 pb-12 text-xs text-zinc-400">
+    <div class="bg-white/5 border border-white/10 rounded-lg p-4 leading-relaxed">
+      <strong class="text-zinc-300">Disclaimer:</strong>
+      We are not financial advisors, credit advisors, or credit counseling providers. The information in this guide is
+      <span class="font-semibold text-zinc-200">educational only</span> and should not be taken as financial advice,
+      credit advice, or credit counseling advice. Results from using apps and features will vary, and there is no guarantee
+      that your credit score will increase.
+    </div>
+  </footer>
+</body>
+</html>

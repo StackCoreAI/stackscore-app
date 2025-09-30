@@ -1,314 +1,398 @@
 // server/index.js
-import 'dotenv/config';
-import express from 'express';
-import fs from 'node:fs';
-import path from 'path';
-import Stripe from 'stripe';
-import cookieParser from 'cookie-parser';
-import helmet from 'helmet';
-import compression from 'compression';
-import rateLimit from 'express-rate-limit';
-import { fileURLToPath } from 'url';
+import "dotenv/config";
+import express from "express";
+import magicLinks from "./magicLinks.js";
+import path from "path";
+import Stripe from "stripe";
+import cookieParser from "cookie-parser";
+import helmet from "helmet";
+import compression from "compression";
+import rateLimit from "express-rate-limit";
+import fetch from "node-fetch";
+import mustacheExpress from "mustache-express";
 
-// Load Xata client from src (with a safe fallback if it doesn't exist)
-let getXataClientOrNull;
-try {
-  ({ getXataClientOrNull } = await import('../src/xata.js'));
-} catch {
-  console.warn('ℹ️ Xata client not found at ../src/xata.js — DB features disabled.');
-  getXataClientOrNull = () => null;
-}
-
-// NEW: GPT plan JSON + HTML→PDF routes
-import gptPlan from './api/gpt-plan.js';
-import planPdf from './api/plan-pdf.js';
-
-// NEW DIAGNOSTICS: smoke & debug-html
-import pdfSmoke from './api/pdf-smoke.js';
-import pdfDebugHtml from './api/pdf-debug-html.js';
+// API routers
+import { router as planRouter } from "./routes/plan.js";
+import { router as checkoutRouter } from "./routes/checkout.js";
+import healthRouter from "./routes/health.js";
+import gptPlanRouter from "./routes/gptPlan.js";
 
 // ───────────────────────────────────────────────────────────────────────────────
-// Basic setup & guards
+// Env guards (Stripe only)
 // ───────────────────────────────────────────────────────────────────────────────
 const requiredEnv = [
-  'STRIPE_SECRET_KEY',
-  'STRIPE_WEBHOOK_SECRET',
-  'STRIPE_PRICE_ID',
-  'STRIPE_SUCCESS_URL',
-  'STRIPE_CANCEL_URL',
+  "STRIPE_SECRET_KEY",
+  "STRIPE_WEBHOOK_SECRET",
+  "STRIPE_PRICE_ID",
+  "STRIPE_SUCCESS_URL",
+  "STRIPE_CANCEL_URL",
 ];
 for (const k of requiredEnv) {
   if (!process.env[k]) throw new Error(`Missing required env: ${k}`);
 }
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2022-11-15' });
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: "2022-11-15" });
 const WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
 
+// ───────────────────────────────────────────────────────────────────────────────
+// App setup
+// ───────────────────────────────────────────────────────────────────────────────
 const app = express();
 
-// Security & perf
-app.use(helmet({ contentSecurityPolicy: false }));
-
-// ⬇︎ Disable compression for PDF endpoints to avoid corrupting the binary payload
+// Security/perf
 app.use(
-  compression({
-    filter: (req, res) => {
-      if (req.path === '/api/plan/pdf' || req.path === '/api/plan/pdf-smoke') return false;
-      return compression.filter(req, res);
+  helmet({
+    crossOriginEmbedderPolicy: false,
+    contentSecurityPolicy: {
+      useDefaults: true,
+      directives: {
+        "default-src": ["'self'"],
+        "script-src": ["'self'"],
+        "style-src": ["'self'", "'unsafe-inline'"],
+        "font-src": ["'self'", "data:"],
+        "img-src": ["'self'", "data:"],
+        "connect-src": ["'self'"], // API calls are same-origin (3001)
+        "object-src": ["'none'"],
+        "base-uri": ["'self'"],
+        "frame-ancestors": ["'none'"],
+      },
     },
   })
 );
+app.use(compression());
+app.use(rateLimit({ windowMs: 60 * 1000, max: 180, standardHeaders: true, legacyHeaders: false }));
+app.use(cookieParser());
 
+// ───────────────────────────────────────────────────────────────────────────────
+// Static assets from /public (so 3001 serves guide.css/js/images too)
+// ───────────────────────────────────────────────────────────────────────────────
+const PUBLIC_DIR = path.join(process.cwd(), "public");
+
+// Everything in /public (favicon, webmanifest, plain html, etc.)
+app.use(express.static(PUBLIC_DIR));
+// Cache /assets aggressively (guide.css, guide.js, lucide.min.js)
 app.use(
-  rateLimit({
-    windowMs: 60 * 1000,
-    max: 180, // 180 req/min per IP
-    standardHeaders: true,
-    legacyHeaders: false,
+  "/assets",
+  express.static(path.join(PUBLIC_DIR, "assets"), {
+    immutable: true,
+    maxAge: "30d",
   })
 );
 
-app.use(cookieParser());
-// IMPORTANT: Do NOT use express.json() globally BEFORE the webhook raw body.
-// We attach json parser AFTER the webhook route below.
-
-// Static (SPA) serve
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const rootDir = path.resolve(__dirname, '..');
-const distDir = path.join(rootDir, 'dist');
-const publicDir = path.join(rootDir, 'public');
-
-app.use(express.static(distDir));     // built SPA (if present)
-app.use(express.static(publicDir));   // /templates, /favicon.svg, etc.
+// Cache SW/manifest a bit
+app.get(["/sw.js", "/manifest.webmanifest"], (req, res, next) => {
+  res.setHeader("Cache-Control", "public, max-age=300");
+  next();
+});
 
 // ───────────────────────────────────────────────────────────────────────────────
-// Helpers
+// Stripe webhook (raw body FIRST)
 // ───────────────────────────────────────────────────────────────────────────────
-const mask = (v = '') => (v ? `${v.slice(0, 6)}...${v.slice(-4)}` : '');
-console.log(`✅ Stripe key loaded: ${mask(process.env.STRIPE_SECRET_KEY)}`);
-
-const xata = getXataClientOrNull();
-
-/**
- * Upsert entitlement by email. Safe if Xata isn't configured.
- */
-async function upsertEntitlementByEmail(email, fields) {
-  if (!xata) return null;
+app.post("/api/stripe/webhook", express.raw({ type: "application/json" }), async (req, res) => {
   try {
-    // Try createOrReplace with email as ID (best if email is PK)
-    return await xata.db.entitlements.createOrReplace(email, { email, ...fields });
-  } catch {
-    // Fallback: find by unique email, update or create
-    const existing = await xata.db.entitlements.filter({ email }).getFirst();
-    if (existing) return await xata.db.entitlements.update(existing.id, fields);
-    return await xata.db.entitlements.create({ email, ...fields });
-  }
-}
+    const sig = req.headers["stripe-signature"];
+    const event = stripe.webhooks.constructEvent(req.body, sig, WEBHOOK_SECRET);
 
-async function getEntitlementByEmail(email) {
-  if (!xata) return null;
-  let rec = null;
-  try {
-    rec = await xata.db.entitlements.read(email);
-  } catch { /* ignore */ }
-  if (rec) return rec;
-  return await xata.db.entitlements.filter({ email }).getFirst();
-}
-
-function getEmailFromRequest(req) {
-  if (req.cookies?.ss_email) return req.cookies.ss_email;
-  if (req.headers['x-ss-email']) return String(req.headers['x-ss-email']);
-  if (req.body?.email) return String(req.body.email);
-  return null;
-}
-
-// ───────────────────────────────────────────────────────────────────────────────
-// Stripe Webhook (must be BEFORE express.json())
-// ───────────────────────────────────────────────────────────────────────────────
-app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
-  const sig = req.headers['stripe-signature'];
-  let event;
-  try {
-    event = stripe.webhooks.constructEvent(req.body, sig, WEBHOOK_SECRET);
+    if (event.type === "checkout.session.completed") {
+      const obj = event.data.object;
+      const email =
+        obj?.customer_details?.email || obj?.customer_email || obj?.metadata?.email || null;
+      if (email) console.log(`✅ Checkout completed for: ${email}`);
+      // TODO: entitlement write + Short.io magic link
+    }
+    return res.json({ received: true });
   } catch (err) {
-    console.error('❌ Webhook signature verification failed:', err.message);
+    console.error("❌ Stripe webhook error:", err.message);
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
+});
 
-  try {
-    if (event.type === 'checkout.session.completed') {
-      const session = event.data.object;
-      const email =
-        session.customer_details?.email ||
-        session.customer_email ||
-        session?.metadata?.email ||
-        null;
+// Switch back to JSON parsing for the rest
+app.use(express.json({ limit: "2mb" }));
 
-      if (!email) {
-        console.warn('⚠️ checkout.session.completed missing email; session id:', session.id);
-      } else {
-        await upsertEntitlementByEmail(email, {
-          sessionId: session.id,
-          hasAccess: true,
-          createdAt: new Date(),
-        });
-        console.log(`✅ Entitlement granted for ${email}`);
-      }
-    }
+// ───────────────────────────────────────────────────────────────────────────────
+/** Views (Mustache) */
+// ───────────────────────────────────────────────────────────────────────────────
+const rootDir = process.cwd();
+const distDir = path.join(rootDir, "dist");
+const publicDir = PUBLIC_DIR;
+const serverViews = path.join(rootDir, "server", "templates");
+const publicViews = path.join(publicDir, "templates");
 
-    return res.json({ received: true });
-  } catch (e) {
-    console.error('❌ Webhook handler error:', e);
-    return res.status(500).json({ error: 'Webhook handler failure' });
-  }
+app.engine("mustache", mustacheExpress());
+app.set("view engine", "mustache");
+app.set("views", [serverViews, publicViews]);
+
+// Route-scoped CSP for guide pages (allow fonts inline styles; scripts are self)
+const guideCsp = helmet({
+  crossOriginEmbedderPolicy: false,
+  contentSecurityPolicy: {
+    useDefaults: true,
+    directives: {
+      "default-src": ["'self'"],
+      "script-src": ["'self'"],
+      "style-src": ["'self'", "'unsafe-inline'"],
+      "font-src": ["'self'", "data:"],
+      "img-src": ["'self'", "data:"],
+      "connect-src": ["'self'"],
+      "object-src": ["'none'"],
+      "base-uri": ["'self'"],
+      "frame-ancestors": ["'none'"],
+    },
+  },
 });
 
 // ───────────────────────────────────────────────────────────────────────────────
-// JSON parser for the rest of the API
+// Helper fns (SSR sidebar + plan extraction)
 // ───────────────────────────────────────────────────────────────────────────────
-app.use(express.json({ limit: '2mb' }));
-
-// ───────────────────────────────────────────────────────────────────────────────
-// NEW: Injected HTML view used by browser & PDF renderer
-// ───────────────────────────────────────────────────────────────────────────────
-app.get('/pdf/view', (req, res) => {
-  const tplPath  = path.join(publicDir, 'templates', 'stacktemplate.html');
-  const planPath = path.join(rootDir, 'plan.json');
-
-  // 1) Load template
-  let html = fs.readFileSync(tplPath, 'utf8');
-
-  // 2) Load plan (fallback if missing)
-  let plan;
+function getWizardAnswers(req) {
+  let a = null;
   try {
-    plan = JSON.parse(fs.readFileSync(planPath, 'utf8'));
-  } catch {
-    plan = {
-      selected_stack_key: 'elite',
-      title: 'Elite Stack Guide',
-      subtitle: 'Your personalized activation plan with proven apps and clear steps',
-      value_props: ['100+ point potential', '30–60 day timeline', 'Premium coverage'],
-      services: [],
-      final_tip: {
-        title: 'Pro Tip: lock in autopay + weekly checks',
-        content:
-          'Enable autopay on every app, then check Experian and Credit Karma weekly. If a tradeline isn’t visible after two cycles, recheck connections or use a fallback from your plan.',
+    if (req.query.answers) a = JSON.parse(String(req.query.answers));
+  } catch {}
+  if (!a) {
+    try {
+      if (req.cookies?.ss_answers) a = JSON.parse(String(req.cookies.ss_answers));
+    } catch {}
+  }
+  return a || null;
+}
+
+function iconFor(appName = "") {
+  const n = appName.toLowerCase();
+  if (n.includes("boost")) return "zap";
+  if (n.includes("kikoff")) return "credit-card";
+  if (n.includes("kovo")) return "trending-up";
+  if (n.includes("rent")) return "home";
+  if (n.includes("dispute")) return "shield-check";
+  return "star";
+}
+
+function stepsFor(appName = "", a = {}) {
+  const n = appName.toLowerCase();
+  if (a.step1 || a.step2 || a.step3) return [a.step1 || "", a.step2 || "", a.step3 || ""];
+
+  if (n.includes("experian") && n.includes("boost"))
+    return ["Instant Credit Score Boost", "Connect Bank", "Add Utilities"];
+  if (n.includes("kikoff"))
+    return ["Open Kikoff Credit Account", "Enable Autopay", "Keep Utilization <10%"];
+  if (n.includes("kovo"))
+    return ["Create Kovo Account", "Choose Monthly Plan", "Make On-Time Payments"];
+  if (n.includes("self"))
+    return ["Open Self Credit Builder", "Fund First Deposit", "Auto-pay On"];
+  if (n.includes("rent") || n.includes("boom") || n.includes("rentreporter"))
+    return ["Verify Lease", "Connect Payment Source", "Backdate (if eligible)"];
+  if (n.includes("dispute") || n.includes("dovly"))
+    return ["Import Report", "Auto-scan Issues", "Submit Round-1 Disputes"];
+
+  return ["Start · Create account", "Connect · Bank/Payment", "Activate · Feature"];
+}
+
+function deriveSidebarApps(plans = []) {
+  const seen = new Set();
+  const out = [];
+  const add = (a) => {
+    const n = (a?.app_name || "").trim();
+    if (!n || seen.has(n)) return;
+    seen.add(n);
+    out.push(a);
+  };
+
+  if (plans[0]?.apps) (plans[0].apps || []).forEach(add);
+  for (let i = 1; i < plans.length && out.length < 5; i++) (plans[i].apps || []).forEach(add);
+
+  // pad to 5 with sensible fallbacks
+  const fallbacks = [
+    { app_name: "Experian Boost", app_url: "https://www.experian.com/boost" },
+    { app_name: "Kikoff", app_url: "https://www.kikoff.com/" },
+    { app_name: "Kovo", app_url: "https://www.kovo.com/" },
+    { app_name: "Self", app_url: "https://www.self.inc/" },
+    { app_name: "Boom (Rent)", app_url: "https://www.boompay.app/" },
+    { app_name: "Dovly (Disputes)", app_url: "https://www.dovly.com/" },
+  ];
+  for (const f of fallbacks) {
+    if (out.length >= 5) break;
+    if (!seen.has(f.app_name)) out.push(f);
+  }
+  return out.slice(0, 5);
+}
+
+function buildSidebarHtml(apps = []) {
+  return apps
+    .map((a, i) => {
+      const app = a.app_name || a.name || "App";
+      const url = a.app_url || a.url || "";
+      const [s1, s2, s3] = stepsFor(app, a);
+      return `
+<details class="group"${i === 0 ? " open" : ""}>
+  <summary class="w-full flex items-center justify-between px-3 py-2 bg-lime-600 text-black rounded-md hover:bg-lime-500 transition-colors text-xs font-medium cursor-pointer"
+    data-app="${app}" data-url="${url}" data-step1="${s1}" data-step2="${s2}" data-step3="${s3}">
+    <span class="flex items-center space-x-1.5"><i data-lucide="${iconFor(app)}" class="w-3.5 h-3.5"></i><span>${app}</span></span>
+    <i data-lucide="chevron-down" class="w-3 h-3 chev"></i>
+  </summary>
+  <ul class="mt-3 space-y-2 px-3 pb-3">
+    <li class="flex items-center justify-between text-xs text-zinc-300"><span>${s1}</span><input type="checkbox" class="w-3 h-3 rounded border-white/10 bg-zinc-800 text-lime-600"></li>
+    <li class="flex items-center justify-between text-xs text-zinc-300"><span>${s2}</span><input type="checkbox" class="w-3 h-3 rounded border-white/10 bg-zinc-800 text-lime-600"></li>
+    <li class="flex items-center justify-between text-xs text-zinc-300"><span>${s3}</span><input type="checkbox" class="w-3 h-3 rounded border-white/10 bg-zinc-800 text-lime-600"></li>
+  </ul>
+</details>`;
+    })
+    .join("\n");
+}
+
+// ───────────────────────────────────────────────────────────────────────────────
+// Plan fetch for SSR (GET + stackKey)
+// ───────────────────────────────────────────────────────────────────────────────
+async function fetchPlansAndSidebar(req, guideId) {
+  const answers = getWizardAnswers(req);
+  const stackKey = (req.query.stackKey || "foundation").toString().trim();
+  const url = `${req.protocol}://${req.get("host")}/api/gpt-plan?stackKey=${encodeURIComponent(
+    stackKey
+  )}`;
+
+  const resp = await fetch(url, { method: "GET" });
+  if (!resp.ok) throw new Error(`/api/gpt-plan ${resp.status}`);
+  let data = await resp.json();
+
+  const tryParse = (v) =>
+    typeof v === "string"
+      ? (() => {
+          try {
+            return JSON.parse(v);
+          } catch {
+            return null;
+          }
+        })()
+      : null;
+
+  let plans = [];
+  if (Array.isArray(data?.plans) && data.plans.length) plans = data.plans;
+  else if (data?.plan) plans = [data.plan];
+  else {
+    const nest =
+      tryParse(data?.result) ||
+      tryParse(data?.output) ||
+      tryParse(data?.plan_json) ||
+      tryParse(data);
+    if (Array.isArray(nest?.plans)) plans = nest.plans;
+    else if (nest?.plan) plans = [nest.plan];
+  }
+
+  if (!plans.length) {
+    plans = [
+      {
+        id: "A",
+        summary: "Fallback demo: utilities + 1 installment.",
+        total_monthly_cost_usd: 29,
+        apps: [
+          {
+            app_name: "Experian Boost",
+            app_description: "Report utilities",
+            monthly_fee_usd: 0,
+            reports_to: "EX",
+            app_url: "https://www.experian.com/boost",
+          },
+          {
+            app_name: "Kikoff",
+            app_description: "Installment tradeline",
+            monthly_fee_usd: 5,
+            reports_to: "EX/EQ/TU",
+            app_url: "https://www.kikoff.com/",
+          },
+        ],
+        sequence: [
+          { week: 1, steps: ["Sign up Boost", "Connect bank"] },
+          { week: 2, steps: ["Open Kikoff", "Enable autopay"] },
+        ],
+        kpis: ["+15–30 pts in 30–60 days"],
+        risk_flags: ["Missed payments undo progress"],
       },
-      footer: { year: '2025', tagline: 'Everything working in concert for maximum credit gains' },
-    };
+    ];
   }
 
-  // 3) Inject plan JSON into <script id="stacks-data">…</script>
-  const safe = JSON.stringify(plan).replace(/</g, '\\u003c'); // avoid </script> breakage
-  html = html.replace(
-    /<script id="stacks-data"[^>]*>[\s\S]*?<\/script>/,
-    `<script id="stacks-data" type="application/json">\n${safe}\n</script>`
-  );
-
-  // 4) Respond
-  res.setHeader('Content-Type', 'text/html; charset=utf-8');
-  res.end(html);
-});
+  const sidebar_html = buildSidebarHtml(deriveSidebarApps(plans));
+  return { plans, sidebar_html };
+}
 
 // ───────────────────────────────────────────────────────────────────────────────
-// NEW: GPT Plan JSON + PDF + Diagnostics
+// APIs
 // ───────────────────────────────────────────────────────────────────────────────
-app.post('/api/gpt-plan', gptPlan);
-app.post('/api/plan/pdf', planPdf);
-app.post('/api/plan/pdf-smoke', pdfSmoke);          // Smoke test: returns Hello PDF
-app.post('/api/plan/pdf-debug-html', pdfDebugHtml); // Returns injected HTML for inspection
+app.use("/api/plan", planRouter);
+app.use("/api/checkout", checkoutRouter);
+app.use("/api", healthRouter);
+app.use("/api", gptPlanRouter); // supports GET /api/gpt-plan (and optional POST alias)
+
+// Safety redirects for old asset paths under /guide/*
+app.get("/guide/assets/*", (req, res) =>
+  res.redirect(301, req.path.replace(/^\/guide\/assets\//, "/assets/"))
+);
+app.get("/guide/manifest.webmanifest", (_req, res) => res.redirect(301, "/manifest.webmanifest"));
+app.get("/guide/favicon.ico", (_req, res) => res.redirect(301, "/favicon.ico"));
 
 // ───────────────────────────────────────────────────────────────────────────────
-// /api/checkout  → creates Stripe Checkout Session
+// Dynamic GUIDE route (Mustache)
 // ───────────────────────────────────────────────────────────────────────────────
-app.post('/api/checkout', async (req, res) => {
+app.get("/guide/:id", guideCsp, async (req, res) => {
   try {
-    const { email } = req.body || {};
-    const session = await stripe.checkout.sessions.create({
-      mode: 'payment',
-      line_items: [{ price: process.env.STRIPE_PRICE_ID, quantity: 1 }],
-      success_url: `${process.env.STRIPE_SUCCESS_URL}?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: process.env.STRIPE_CANCEL_URL,
-      customer_email: email || undefined,
+    const token_tail = (req.query.t || "anon").toString().slice(-6);
+    const { plans, sidebar_html } = await fetchPlansAndSidebar(req, req.params.id);
+    return res.render("guide-v3", {
+      stack_title: "StackScore – Build & Compose",
+      token_tail,
+      plans,
+      sidebar_html,
     });
-    return res.json({ id: session.id, url: session.url });
-  } catch (e) {
-    console.error('❌ /api/checkout error:', e);
-    return res.status(500).json({ error: 'Failed to create checkout session' });
+  } catch (err) {
+    console.error("❌ /guide/:id error:", err);
+    const token_tail = (req.query.t || "anon").toString().slice(-6);
+    return res
+      .status(200)
+      .render("guide-v3", {
+        stack_title: "StackScore – Build & Compose",
+        token_tail,
+        plans: [],
+        sidebar_html: "",
+      });
   }
 });
 
-// ───────────────────────────────────────────────────────────────────────────────
-// /api/checkout/verify → verifies session & sets cookie
-// ───────────────────────────────────────────────────────────────────────────────
-app.get('/api/checkout/verify', async (req, res) => {
-  const { session_id } = req.query;
-  if (!session_id) return res.status(400).json({ ok: false, error: 'Missing session_id' });
-
+// Sidebar fragment (HTML only, same origin)
+app.get("/render/sidebar", guideCsp, async (req, res) => {
   try {
-    const session = await stripe.checkout.sessions.retrieve(String(session_id));
-    const email =
-      session.customer_details?.email ||
-      session.customer_email ||
-      session?.metadata?.email ||
-      null;
-
-    if (!email) return res.status(200).json({ ok: false, reason: 'no_email' });
-
-    // Optional: set fast-path cookie (HttpOnly, secure).
-    res.cookie('ss_email', email, {
-      httpOnly: true, secure: true, sameSite: 'strict',
-      maxAge: 1000 * 60 * 60 * 24 * 30 // 30 days
-    });
-
-    // Soft upsert entitlement as a safety net (webhook is source of truth)
-    await upsertEntitlementByEmail(email, {
-      sessionId: session.id,
-      hasAccess: true,
-      createdAt: new Date(),
-    });
-
-    return res.status(200).json({ ok: true, email });
+    const { sidebar_html } = await fetchPlansAndSidebar(req, "sidebar-fragment");
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    res.setHeader("Cache-Control", "no-store");
+    return res.status(200).send(sidebar_html || "");
   } catch (e) {
-    console.error('❌ /api/checkout/verify error:', e);
-    return res.status(500).json({ ok: false, error: 'verify_failed' });
+    console.error("❌ /render/sidebar error:", e);
+    return res.status(200).send("");
   }
 });
 
-// ───────────────────────────────────────────────────────────────────────────────
-// (Optional legacy) /api/plan/export – keep or remove after PDF route is live
-// ───────────────────────────────────────────────────────────────────────────────
-app.post('/api/plan/export', async (req, res) => {
-  try {
-    const email = getEmailFromRequest(req);
-    if (!email) return res.status(401).json({ error: 'Unauthorized: missing email' });
+// Magic links AFTER guide routes
+app.use(magicLinks);
 
-    const entitlement = await getEntitlementByEmail(email);
-    if (!entitlement || entitlement.hasAccess !== true) {
-      return res.status(402).json({ error: 'Payment required' });
-    }
+// Legacy simple health (kept) + new /api/health from router
+app.get("/healthz", (_req, res) => res.status(200).json({ ok: true }));
 
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', 'attachment; filename="StackScore-Plan.pdf"');
-    const fakePdf = Buffer.from('%PDF-1.4\n%… minimal demo …\n%%EOF');
-    return res.status(200).end(fakePdf);
-  } catch (e) {
-    console.error('❌ /api/plan/export error:', e);
-    return res.status(500).json({ error: 'export_failed' });
-  }
-});
+// SPA fallback for any other route (served from /dist)
+app.use(
+  express.static(distDir, {
+    setHeaders: (res, p) => {
+      if (/\.(css|js|woff2?|png|svg|jpg|jpeg|gif)$/.test(p)) {
+        res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+      }
+    },
+  })
+);
+app.get("*", (_req, res) => res.sendFile(path.join(distDir, "index.html")));
 
-// ───────────────────────────────────────────────────────────────────────────────
-// SPA fallback (must be LAST)
-// ───────────────────────────────────────────────────────────────────────────────
-app.get('*', (req, res) => {
-  res.sendFile(path.join(distDir, 'index.html'));
-});
-
-// ───────────────────────────────────────────────────────────────────────────────
+// Boot
 const PORT = Number(process.env.PORT) || 3001;
 app.listen(PORT, () => {
   console.log(`API listening on http://localhost:${PORT}`);
-  console.log(`PDF template path => ${path.join(publicDir, 'templates', 'stacktemplate.html')}`);
+  console.log(`Public dir: ${PUBLIC_DIR}`);
+  console.log(`Views (server): ${serverViews}`);
+  console.log(`Views (public): ${publicViews}`);
 });
+
+export default app;

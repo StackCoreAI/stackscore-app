@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>{{title}} — StackScore Plan</title>
+
+  <!-- PWA / installability -->
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <meta name="theme-color" content="#1C4789">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="/assets/icons/icon-192.png" />
+
+  <!-- Favicon -->
+  <link rel="icon" href="/favicon.ico" sizes="any" />
+  <!-- If you have an SVG favicon, uncomment next line -->
+  <!-- <link rel="icon" type="image/svg+xml" href="/favicon.svg" /> -->
+
+  <!-- Core stylesheet -->
+  <link rel="stylesheet" href="/assets/css/print-v2.css" />
+  <meta name="viewport" content="width=1200, initial-scale=1" />
+
+  <script>
+    // Minimal SW register (deferred)
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+      });
+    }
+
+    // Optional context for SW purge when token rotates
+    window.__STACKSCORE = {
+      path: location.pathname + location.search,
+      planId: "{{id}}{{^id}}{{plan_id}}{{/id}}",
+      tokenTail: "{{watermark}}{{^watermark}}{{/watermark}}"
+    };
+  </script>
+</head>
+<body>
+  <!-- Running elements for @page header/footer bands -->
+  <div class="page-header">{{title}}</div>
+  <div class="page-footer">{{footer_tagline}}</div>
+
+  <!-- Watermark overlay (uses faint styling in CSS) -->
+  <div id="wm">{{watermark}}</div>
+
+  <main>
+    <!-- Hero -->
+    <section class="hero card">
+      <div class="brand">
+        <!-- Inline SVG logo (print-optimal) -->
+        <svg class="logo-svg" viewBox="0 0 32 32" aria-label="StackScore">
+          <rect class="accent" x="2" y="2" width="28" height="28" rx="6"/>
+          <path class="mark" d="M8 11h16a2 2 0 110 4H8a2 2 0 110-4zm0 8h10a2 2 0 110 4H8a2 2 0 110-4z"/>
+        </svg>
+        <span class="word">StackScore</span>
+      </div>
+      <h1>{{title}}</h1>
+      <div class="subtitle">{{subtitle}}</div>
+      <ul class="pills">{{#value_props}}<li class="pill">{{.}}</li>{{/value_props}}</ul>
+    </section>
+
+    <!-- Feature-specific Instructions (callout) -->
+    <section class="callout">
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true">
+        <path fill="currentColor" d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0zM12 9v5m0 3h.01"/>
+      </svg>
+      <div>
+        <div class="title">
+          {{#callout}}{{title}}{{/callout}}
+          {{^callout}}Important: Feature-specific Instructions{{/callout}}
+        </div>
+        <p class="clamp-3">
+          {{#callout}}{{text}}{{/callout}}
+          {{^callout}}
+            We have stacked specific apps and the <em class="hl-lime">specific features</em> in those apps personalized for you.
+            These apps have many features, so a plan may have similar apps, but it is the features that we stack in those
+            plans that drive value and credit score increase for you. So please select only the
+            <em class="hl-lime">features that we recommend</em>.
+          {{/callout}}
+        </p>
+      </div>
+    </section>
+
+    <!-- Takeaway box (new) -->
+    {{#takeaway}}
+    <section class="takeaway">
+      <p>{{.}}</p>
+    </section>
+    {{/takeaway}}
+
+    <!-- Optional Quick Start banner -->
+    {{#banner}}
+    <section class="banner card">
+      <h2>{{title}}</h2>
+      <p class="clamp-3">{{text}}</p>
+    </section>
+    {{/banner}}
+
+    <!-- Services -->
+    {{#services_html}}
+    <section class="services" aria-label="Credit building services">
+      {{{services_html}}}
+    </section>
+    {{/services_html}}
+
+    <!-- Bracketed final tip -->
+    {{#final_tip}}
+    <aside class="bracket-box final-tip">
+      <h3 class="title">{{title}}</h3>
+      <p class="content clamp-3">{{content}}</p>
+    </aside>
+    {{/final_tip}}
+  </main>
+
+  <!-- Optional: purge old cached guide on load after token rotation -->
+  <script>
+    if (navigator.serviceWorker && navigator.serviceWorker.controller && window.__STACKSCORE?.path) {
+      navigator.serviceWorker.controller.postMessage({
+        type: 'PURGE_GUIDE',
+        path: window.__STACKSCORE.path
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+
+# ./seeds/apps_core.csv
+"app_name,app_url,app_description,app_category"
+"Experian Boost,https://www.experian.com/consumer-products/boost.html,""Report utilities/streaming to Experian"",Reporting"
+"Grow Credit,https://www.growcredit.com,""Build credit via subscription payments"",Tradelines"
+"Self,https://www.self.inc,""Credit builder loan reporting to all 3 bureaus"",Loans"
+"Chime Credit Builder,https://www.chime.com/credit-builder/,""Secured card with on-time automation"",Cards"
+"Dovly,https://www.dovly.com,""Automated dispute engine"",Disputes"

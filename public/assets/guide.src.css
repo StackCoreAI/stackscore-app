@@ -1,0 +1,8 @@
+@import "tailwindcss";
+
+/* Scan all guide HTML files so needed utilities are included */
+@source "../guides/**/*.html";
+
+/* (Optional) guide-only tweaks */
+:root { --rule: linear-gradient(to right, rgba(255,255,255,.2), rgba(255,255,255,0)); }
+.rule-line { height:1px; background:var(--rule); }

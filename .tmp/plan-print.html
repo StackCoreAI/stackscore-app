@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Elite Stack Guide</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Keep stack.css for screen preview only (low precedence for print) -->
+  <link rel="stylesheet" href="/templates/stack.css" media="screen" />
+  <!-- WeasyPrint-safe stylesheet still loaded; inline block below will override if paths act up -->
+  <link rel="stylesheet" href="/templates/print.css" />
+
+  <!-- PREMIUM INLINE BLOCK (temporary, for this proof render) -->
+  <style>
+    @page{ size:Letter; margin:24mm 18mm 20mm 18mm;
+      @bottom-center{ content:"Page " counter(page) " of " counter(pages) }
+    }
+    html,body{ font-family:-apple-system,"SF Pro Display","SF Pro Text",Inter,Arial,sans-serif; color:#111827 }
+
+    /* watermark */
+    body::before{
+      content:""; position:fixed; top:50%; left:50%; width:70%; height:70%;
+      transform:translate(-50%,-50%) rotate(-18deg);
+      background:url("/templates/vendor/watermark.svg") center/contain no-repeat;
+      opacity:.06; z-index:0; pointer-events:none;
+    }
+
+    /* cover */
+    .cover{ height:90vh; display:grid; place-content:center; text-align:center; color:#fff; background:#0b0f14; page-break-after:always }
+    .cover-title{ font-size:42px; font-weight:800; letter-spacing:-.2px }
+    .cover-sub{ font-size:18px; opacity:.9; margin-top:4px }
+    .pill{
+      display:inline-block; border-radius:9999px; padding:6px 12px; margin:8px 6px 0 0;
+      background:#101820; border:1px solid #1f2b38; color:#bfeeff;
+    }
+
+    /* bracket rails container */
+    .services-wrap{
+      position:relative; background:#fff; border:1px solid #e5e7eb; border-radius:18px; padding:16px 16px 8px; margin-top:8mm; z-index:1
+    }
+    .services-wrap::before{ content:""; position:absolute; left:0; top:0; bottom:0; width:10px; background:#111827; border-radius:10px 0 0 10px }
+    .services-wrap::after { content:""; position:absolute; left:0; right:0; top:0; height:10px; background:#111827; border-radius:10px 10px 0 0 }
+
+    /* cards */
+    .service-card{
+      break-inside:avoid; page-break-inside:avoid;
+      border:1px solid #e5e7eb; border-radius:16px; margin:10mm 0 6mm; background:#fff; position:relative; z-index:1
+    }
+    .service-card::before{ content:""; position:absolute; left:0; top:0; bottom:0; width:8px; background:#111827 }
+    .service-header{
+      background:linear-gradient(135deg,#7c3aed,#6366f1);
+      color:#fff; padding:14px 18px 12px; border-radius:16px 16px 0 0
+    }
+    .service-type,.service-cost{
+      display:inline-block; font-size:11px; font-weight:700; padding:3px 8px; border-radius:9999px;
+      color:#fff; border:1px solid rgba(255,255,255,.35); background:rgba(255,255,255,.18)
+    }
+    .card-content{ padding:12px 18px 16px; position:relative }
+    .card-content::before{ content:""; position:absolute; left:0; top:0; bottom:0; width:4px; background:#111827; opacity:.65 }
+
+    /* numbered timeline */
+    .premium-steps{ list-style:none; counter-reset:step; position:relative; margin:6px 0 8px 0; padding-left:0 }
+    .premium-steps::after{ content:""; position:absolute; left:18px; top:26px; bottom:4px; width:2px; background:#111827 }
+    .premium-steps li{ counter-increment:step; position:relative; margin:0 0 10px 0; padding-left:42px; line-height:1.55 }
+    .premium-steps li::before{
+      content:counter(step); position:absolute; left:0; top:2px; width:26px; height:26px; border-radius:9999px;
+      background:#111827; color:#fff; font-size:12px; font-weight:800; display:grid; place-items:center
+    }
+
+    /* callouts */
+    .callout{ border-radius:10px; padding:9px 12px; margin:8px 0; border-left:4px solid #9ca3af; background:#f7fafc; color:#1f2937 }
+    .callout.success{ background:#E8F8ED; border-left-color:#10b981 }
+    .callout.info   { background:#FFF7E5; border-left-color:#f59e0b }
+    .callout.muted  { background:#F3F4F6; border-left-color:#9ca3af; color:#4b5563 }
+    .callout.alt    { background:#E6F3FF; border-left-color:#0ea5e9 }
+  </style>
+  <!-- /PREMIUM INLINE BLOCK -->
+</head>
+<body class="ss">
+
+  <!-- Running header/footer elements (Weasy picks these up via @page) -->
+  <header class="running-header"><div class="brand">StackScore • Plan</div></header>
+  <footer class="running-footer"><span class="brand">StackScore</span> — Everything working in concert for maximum credit gains · © 2025</footer>
+
+  <!-- COVER -->
+  <section class="cover page">
+    <div class="cover-title">Elite Stack Guide</div>
+    <div class="cover-sub">Your personalized activation plan with proven apps and clear steps</div>
+    <div class="cover-props">
+      <span class="pill">100+ point potential</span><span class="pill">30–60 day timeline</span><span class="pill">Premium coverage</span>
+    </div>
+  </section>
+
+  <!-- MAIN -->
+  <main class="page">
+      <section class="services-wrap">
+          <article class="service-card">
+            <div class="service-header">
+              <div class="service-name">Secured Credit Card</div>
+              <div class="service-type">Credit Card</div>
+              <div class="service-cost">35</div>
+            </div>
+            <div class="card-content">
+              <ol class="premium-steps"><li>Apply for a secured credit card online.</li><li>Deposit a refundable security amount.</li><li>Use the card for regular purchases and pay the balance in full each month.</li></ol>
+              <div class="callout success"><strong>Verify it worked</strong> — Monthly payment history reported to credit bureaus.</div>
+              <div class="callout info"><strong>Timing & risks</strong> — Time to first report: 1 month</div>
+                <div class="callout muted">
+                  High utilization • Late payments
+                </div>
+                <div class="callout alt">
+                  <strong>If not available</strong> — Switch to a traditional credit card after 6 months of on-tim
+                </div>
+              <div class="go-to">Go to — <a href="www.examplecreditcard.com">www.examplecreditcard.com</a></div>
+            </div>
+          </article>
+          <article class="service-card">
+            <div class="service-header">
+              <div class="service-name">Credit Builder Loan</div>
+              <div class="service-type">Loan</div>
+              <div class="service-cost">50</div>
+            </div>
+            <div class="card-content">
+              <ol class="premium-steps"><li>Apply for a credit builder loan at a local bank or credit union.</li><li>Make monthly payments on the loan amount.</li><li>Receive the loan amount after the final payment.</li></ol>
+              <div class="callout success"><strong>Verify it worked</strong> — Payments reported to credit bureaus monthly.</div>
+              <div class="callout info"><strong>Timing & risks</strong> — Time to first report: 1 month</div>
+                <div class="callout muted">
+                  Default risk • High debt-to-income ratio
+                </div>
+                <div class="callout alt">
+                  <strong>If not available</strong> — Consider a smaller loan amount if needed
+                </div>
+              <div class="go-to">Go to — <a href="www.examplebank.com">www.examplebank.com</a></div>
+            </div>
+          </article>
+          <article class="service-card">
+            <div class="service-header">
+              <div class="service-name">Rent Reporting Service</div>
+              <div class="service-type">Service</div>
+              <div class="service-cost">120</div>
+            </div>
+            <div class="card-content">
+              <ol class="premium-steps"><li>Sign up for a rent reporting service.</li><li>Provide proof of rent payments for the last 12 months.</li><li>Continue to report monthly rent payments.</li></ol>
+              <div class="callout success"><strong>Verify it worked</strong> — Monthly rent payments reported to credit bureaus.</div>
+              <div class="callout info"><strong>Timing & risks</strong> — Time to first report: 2 months</div>
+                <div class="callout muted">
+                  Inconsistent payment history • High rent-to-income ratio
+                </div>
+                <div class="callout alt">
+                  <strong>If not available</strong> — Use a different reporting service if denied
+                </div>
+              <div class="go-to">Go to — <a href="www.rentreporting.com">www.rentreporting.com</a></div>
+            </div>
+          </article>
+      </section>
+
+    <!-- FINAL TIP -->
+    <section class="final-tip">
+      <div class="tip-title">🧠 Pro Tip: lock in autopay + weekly checks</div>
+      <p class="tip-body">Enable autopay on every app, then check Experian and Credit Karma weekly. If a tradeline isn’t visible after two cycles, recheck connections or use a fallback from your plan.</p>
+    </section>
+  </main>
+
+</body>
+</html>

@@ -1,0 +1,334 @@
+/* StackScore — print-v2.css */
+
+/* 1) Color fidelity */
+* { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+/* 2) Inter Variable (local + absolute fallback) */
+@font-face {
+  font-family: 'Inter';
+  src:
+    url('../fonts/Inter-Variable.woff2') format('woff2-variations'),
+    url('/assets/fonts/Inter-Variable.woff2') format('woff2-variations');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* 3) Base */
+html, body {
+  margin: 0; padding: 0;
+  background: #ffffff; color: #223046;
+  font: 12pt/1.62 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+}
+a { color: #1C4789; text-decoration: underline; }
+
+/* Lime highlight utility (for emphasized words) */
+.hl-lime {
+  background: rgba(128, 230, 98, .20); /* #80E662 @ 20% */
+  border-bottom: 2px solid #80E662;
+  padding: 0 .15em;
+}
+
+/* 4) Page frame (Letter by default) */
+@page {
+  size: Letter;
+  margin: 0.8in;
+
+  @top-center {
+    background: #1C4789;
+    color: #fff;
+    content: element(pageHeader);
+    padding: 0.6em 0;
+    font-weight: 600; font-size: 11pt;
+  }
+  @bottom-center {
+    background: #1C4789;
+    color: #fff;
+    content: element(pageFooter);
+    padding: 0.5em 0;
+    font-weight: 500; font-size: 10pt;
+  }
+  @bottom-right {
+    color: #fff;
+    content: counter(page) " of " counter(pages);
+    font-size: 10pt; font-variant-numeric: tabular-nums;
+    padding-right: 0.8em;
+  }
+  @prince-overlay { content: flow(watermarkflow); }
+}
+
+/* 5) Watermark (optional) */
+#wm {
+  flow: static(watermarkflow);
+  opacity: 0.08;
+  font-weight: 800;
+  font-size: 64pt;
+  letter-spacing: 2px;
+  color: #0f172a;
+  transform: rotate(-30deg);
+  text-transform: uppercase;
+  text-align: center;
+}
+
+/* 6) Screen preview bands + safe padding */
+@media screen {
+  body::before, body::after {
+    content: ""; position: fixed; left: 0; right: 0; z-index: 10;
+    background: linear-gradient(90deg, #1C4789 0%, #6BEDFA 100%);
+  }
+  body::before { top: 0; height: 50px; }
+  body::after  { bottom: 0; height: 40px; }
+  main { position: relative; z-index: 11; padding-top: 64px; padding-bottom: 48px; }
+}
+
+/* 7) Running elements */
+.page-header { position: running(pageHeader); height: 0; overflow: hidden; }
+.page-footer, .footer-source { position: running(pageFooter); height: 0; overflow: hidden; }
+
+/* 8) Type */
+h1 { font-weight: 800; font-size: 28pt; letter-spacing: -0.3px; margin: .3em 0 .2em; color:#0f172a; }
+h2 { font-weight: 700; font-size: 18pt; color:#1C4789; margin: .4em 0 .4em; }
+h3 { font-weight: 700; font-size: 13pt; color:#0f172a; margin: .3em 0 .26em; }
+p  { margin: 0 0 .75em; color:#334155; }
+.subtitle, .sub { font-size: 14pt; color:#EFF5FF; font-weight:500; margin-bottom:.8em; }
+
+/* 9) Cards (base) */
+.card {
+  background:#fff; border:1px solid #E6EDF7; border-radius:15px;
+  box-shadow:0 8px 30px rgba(28,71,137,0.10);
+  padding:1.3em 1.7em; margin:1em 0 1.2em; break-inside:avoid;
+}
+/* Premium framing for cards/services */
+.card, .service {
+  border: 1.5px solid #D9E5F3;
+  border-radius: 16px;
+  box-shadow:
+    0 10px 28px rgba(28,71,137,.08),
+    inset 0 1px 0 rgba(255,255,255,.9);
+}
+
+/* 10) Hero banner */
+.hero.card {
+  color: #fff;
+  background: linear-gradient(128deg, #1C4789 0%, #3C8CD8 40%, #6BEDFA 100%); /* richer */
+  border: 1px solid rgba(255,255,255,.22);
+  border-radius: 22px;
+  box-shadow: 0 14px 44px rgba(28,71,137,.25);
+  padding: 36px 34px 28px;
+}
+.hero .brand { display:flex; align-items:center; gap:12px; margin-bottom:12px; }
+.hero .brand .word { color:#fff; font-weight:700; font-size:14pt; letter-spacing:.25px; opacity:.95; }
+.hero .brand .logo-svg { width:32px; height:32px; display:block; }
+.hero .brand .logo-svg .mark   { fill:#ffffff; }  /* white mark */
+.hero .brand .logo-svg .accent { fill:#80E662; }  /* lime brand accent */
+.hero h1 {
+  color:#fff; font-size: 40pt; letter-spacing: -0.6px; line-height: 1.05;
+  margin: 2px 0 8px;
+}
+.hero .subtitle { color: rgba(255,255,255,.92); font-size: 14pt; margin: 0 0 12px; }
+.hero .pills { margin-top: 8px; }
+.pill { font-weight: 700; }
+/* HERO lime pills with black text */
+.hero .pills .pill {
+  background: #80E662;
+  border: 1px solid #5BB93F;
+  color:#0B0F19;
+}
+
+/* 11) Banner (soft, optional) */
+.banner {
+  background: linear-gradient(120deg, #F8FAFC 0%, #E2E8F0 100%);
+  border:1px solid #E2E8F0; border-radius:18px;
+  box-shadow:0 10px 32px rgba(16,30,54,0.06);
+  padding:12px 16px; margin:10px 0 14px;
+}
+
+/* 12) IMPORTANT callout with lime top bar (#80E662) and yellow icon tone (#FEDF35) */
+.callout {
+  position: relative;
+  display:flex; gap:12px; align-items:flex-start;
+  border:1px solid #F6E7A3; background:#FFFBEB;
+  border-radius:16px; padding:14px 16px; margin:16px 0;
+  box-shadow: 0 6px 20px rgba(146, 64, 14, .08);
+}
+.callout::before{
+  content:""; position:absolute; left:0; right:0; top:0; height:6px; /* stronger */
+  background:#80E662; border-radius:16px 16px 0 0;
+}
+.callout .ico { flex:0 0 22px; width:22px; height:22px; color:#FEDF35; }
+.callout .title { font-weight:700; color:#6B6B2D; margin:0 0 6px; }
+
+/* Make the callout visually touch the hero */
+.hero + .callout {
+  margin-top: -10px;                /* “kiss” the hero */
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  box-shadow:
+    0 -6px 14px rgba(28,71,137,.10),
+    0  8px 20px rgba(146, 64, 14, .08);
+}
+
+/* 12.5) Takeaway box — premium lime look */
+.takeaway {
+  display: block;
+  margin: 12px 0 20px;
+  border: 2px solid #80E662;
+  background:
+    linear-gradient(180deg, rgba(128,230,98,0.06), rgba(128,230,98,0.03)),
+    #F8FFF3;
+  border-radius: 14px;
+  padding: 12px 16px;
+  color: #0F172A;
+  box-shadow:
+    0 8px 24px rgba(128,230,98,0.18),
+    inset 0 1px 0 rgba(255,255,255,.9);
+}
+.takeaway p { margin: 0; font-size: 12.5pt; line-height: 1.55; }
+
+/* subtle left lime accent bar */
+.takeaway { position: relative; }
+.takeaway::before {
+  content: "";
+  position: absolute;
+  left: 10px; top: 10px; bottom: 10px;
+  width: 6px; border-radius: 8px;
+  background: #80E662;
+  box-shadow: 0 0 0 1px rgba(91,185,63,.25);
+}
+.takeaway p { padding-left: 16px; }
+
+/* 13) Chips (default outside hero) */
+.pills { list-style:none; display:flex; flex-wrap:wrap; gap:7px; margin:.6em 0 0; padding:0; }
+.pill  { background:#EEF3FA; border:1px solid #DBE4F4; color:#1C4789; font-weight:600; font-size:10pt; border-radius:99px; padding:4px 14px; }
+
+/* 14) Icons — lock size/baseline + theme color */
+.icon { width:14px; height:14px; display:inline-block; vertical-align:-2px; color:#1C4789; }
+.icon path, .icon circle, .icon rect, .icon polygon { fill: currentColor; }
+
+/* 15) Services (Flexbox) */
+.services { margin-top:18px; counter-reset: svc; }   /* auto-number stacks */
+.service {
+  background:#fff; border:1px solid #E2E8F1; border-radius:14px;
+  box-shadow:0 6px 24px rgba(34,54,94,0.11);
+  padding:12px 14px; margin:10px 0; break-inside:avoid;
+  display:flex; flex-direction:column; counter-increment: svc;
+}
+
+/* 16) Stack title bar + feature pill + price */
+.service .head {
+  position: relative;
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  background: linear-gradient(120deg, #1C4789 0%, #6BECFA 100%);
+  color:#fff;
+  margin: -2px -2px 12px;
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: 14px;
+  padding: 12px 14px;
+  box-shadow: 0 10px 22px rgba(28,71,137,.20);
+}
+.service .head h3 {
+  display:flex; align-items:center; gap:10px; margin:0; color:#fff; letter-spacing: -.2px;
+}
+/* numeric stack bubble (1/2/3…) */
+.service .head h3::before {
+  content: counter(svc);
+  display:inline-flex; align-items:center; justify-content:center;
+  width:22px; height:22px; margin-right:2px;
+  border-radius:999px; color:#fff; font-weight:700; font-size:10pt;
+  background: linear-gradient(135deg, #1C4789, #6BECFA);
+  box-shadow: 0 2px 6px rgba(28,71,137,.25);
+}
+
+/* right side: feature pill + price chip */
+.service .right {
+  flex: 1 1 auto;
+  display:flex; align-items:center; justify-content:space-between;
+  margin-left: 14px;
+}
+.service .head .badge {
+  background: #80E662;              /* lime pill */
+  border: 1px solid #5BB93F;
+  color: #0B0F19;
+}
+.service .head .cost  { color:#fff; min-width: 86px; text-align:right; }
+
+/* 17) A/B/C bullets */
+.steps { list-style:none; counter-reset: step; margin:.2em 0 0; padding:0; position: relative; }
+.steps li {
+  counter-increment: step;
+  position: relative;
+  padding-left: 34px;
+  margin: 8px 0;
+}
+.steps li::before {
+  content: counter(step, upper-alpha);
+  position: absolute; left: 8px; top: 0;
+  width: 20px; height: 20px;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #1C4789;
+  border: 2px solid #1C4789;
+  font-weight: 700; font-size: 10pt;
+  line-height: 20px;
+  text-align: center;
+  box-shadow: 0 1px 2px rgba(28,71,137,.15);
+}
+
+/* 18) Lime “brackets” along the left of the steps */
+.service .steps { position: relative; padding-left: 48px; }
+.service .steps::before,           /* colored pillar */
+.service .steps::after {           /* white cutout */
+  content: ""; position: absolute; left: 8px;
+  width: 10px; border-radius: 12px;
+}
+.service .steps::before {
+  top: -10px; bottom: -10px;
+  background: #80E662;            /* lime */
+  box-shadow: 0 4px 16px rgba(128,230,98,.25);
+  z-index: 0;
+}
+.service .steps::after {
+  top: -12px; bottom: -12px;       /* slightly taller */
+  left: 10px;                      /* small inward offset for “bracket edge” */
+  background: #ffffff;             /* white cut */
+  z-index: 1;
+}
+/* keep list content above the cut/pillar */
+.service .steps > * { position: relative; z-index: 2; }
+
+/* 19) Bracket box (generic) */
+.bracket-box{
+  background:
+    linear-gradient(#1C4789,#1C4789) left 13%/8px 74% no-repeat,
+    linear-gradient(#6BECFA,#6BECFA) right 13%/8px 74% no-repeat,
+    #fff;
+  border:1.5px solid #D9E5F3; border-radius:19px;
+  box-shadow:0 12px 38px rgba(28,71,137,0.13);
+  padding:18px 26px; margin:18px 0; break-inside:avoid; overflow:visible;
+}
+.bracket-box .title   { color:#1C4789; font-weight:700; margin:0 0 .5em; }
+.bracket-box .content { color:#334155; }
+
+/* 20) Sub-note blocks (optional) */
+.subnote { background:#F8FAFC; border:1px solid #E2E8F0; border-left:5px solid #60A5FA;
+  border-radius:10px; padding:8px 12px; margin:8px 0; }
+.subnote.risk    { border-left-color:#F59E0B; background:#FFF7ED; }
+.subnote.success { border-left-color:#22C55E; background:#F0FDF4; }
+.subnote.alt     { border-left-color:#A78BFA; background:#F5F3FF; }
+
+/* 21) Spacing & clamping */
+.hero  { margin:20px 0 12px; }
+.cover { page-break-after:always; margin-top:1in; }
+.clamp-2, .clamp-3 { display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; }
+.clamp-2 { -webkit-line-clamp: 2; }
+.clamp-3 { -webkit-line-clamp: 3; }
+
+/* 22) Page-break hygiene */
+h1, h2, h3, .card, .service, .bracket-box { page-break-after: avoid; break-inside: avoid; }
+ul, ol { page-break-inside: avoid; }
+p, li { widows:3; orphans:3; }
+
+/* 23) (Optional) A4
+@media print { @page { size: A4; } }
+*/

@@ -1,0 +1,136 @@
+/* ============================
+   Fonts (embed Inter if present)
+============================ */
+@font-face{
+    font-family:"Inter";
+    src:url("/templates/fonts/Inter-Variable.woff2") format("woff2");
+    font-weight:100 900; font-style:normal;
+  }
+  
+  html,body{
+    font-family:"Inter",-apple-system,"SF Pro Display","SF Pro Text",Arial,sans-serif;
+    color:#111827; /* slate-900 */
+  }
+  
+  /* ============================
+     Paged media & page numbers
+  ============================ */
+  @page{
+    size: Letter;
+    margin: 24mm 18mm 20mm 18mm;
+    @top-center   { content: element(page-header) }
+    @bottom-center{ content: "Page " counter(page) " of " counter(pages) }
+  }
+  @page:first{
+    @top-center   { content: normal }
+    @bottom-center{ content: normal }
+  }
+  .running-header{ position: running(page-header) }
+  .running-footer{ position: running(page-footer) }
+  .running-header,.running-footer{ font-size:10px; color:#6b7280 } /* slate-500 */
+  .running-footer .brand{ color:#9AFF32; font-weight:700 }
+  
+  /* ============================
+     Brand watermark (vector)
+  ============================ */
+  body::before{
+    content:"";
+    position:fixed; top:50%; left:50%;
+    width:70%; height:70%;
+    transform:translate(-50%,-50%) rotate(-18deg);
+    background:url("/templates/vendor/watermark.svg") center/contain no-repeat;
+    opacity:.06; z-index:0; pointer-events:none;
+  }
+  
+  /* ============================
+     Cover
+  ============================ */
+  .cover{
+    height:90vh; display:grid; place-content:center; text-align:center;
+    color:#fff; background:#0b0f14; page-break-after:always;
+  }
+  .cover-title{ font-size:42px; font-weight:800; letter-spacing:-.2px }
+  .cover-sub  { font-size:18px; opacity:.9; margin-top:4px }
+  .cover .pill{
+    display:inline-block; border-radius:9999px; padding:6px 12px; margin:8px 6px 0 0;
+    background:#101820; border:1px solid #1f2b38; color:#bfeeff;
+  }
+  
+  /* ============================
+     Bracket rails container
+  ============================ */
+  .services-wrap{
+    position:relative; background:#fff; border:1px solid #e5e7eb; /* slate-200 */
+    border-radius:18px; padding:16px 16px 8px; margin-top:8mm; z-index:1;
+  }
+  /* strong print-safe rails */
+  .services-wrap::before{
+    content:""; position:absolute; left:0; top:0; bottom:0; width:10px;
+    background:#111827; border-radius:10px 0 0 10px; /* black */
+  }
+  .services-wrap::after{
+    content:""; position:absolute; left:0; right:0; top:0; height:10px;
+    background:#111827; border-radius:10px 10px 0 0;
+  }
+  
+  /* ============================
+     Service cards + headers (simple gradients OK)
+  ============================ */
+  .service-card{
+    break-inside:avoid; page-break-inside:avoid;
+    border:1px solid #e5e7eb; border-radius:16px;
+    margin:10mm 0 6mm; background:#fff; position:relative; z-index:1;
+  }
+  .service-card::before{
+    content:""; position:absolute; left:0; top:0; bottom:0; width:8px; background:#111827;
+  }
+  .service-header{
+    /* two-stop gradient is Weasy-safe */
+    background: linear-gradient(135deg,#7c3aed,#6366f1); /* violet → indigo */
+    color:#fff; padding:14px 18px 12px; border-radius:16px 16px 0 0;
+  }
+  .service-type,.service-cost{
+    display:inline-block; font-size:11px; font-weight:700; padding:3px 8px; border-radius:9999px;
+    color:#fff; border:1px solid rgba(255,255,255,.35); background:rgba(255,255,255,.18);
+  }
+  .card-content{ padding:12px 18px 16px; position:relative }
+  .card-content::before{
+    content:""; position:absolute; left:0; top:0; bottom:0; width:4px; background:#111827; opacity:.65;
+  }
+  
+  /* ============================
+     Numbered steps (timeline)
+  ============================ */
+  .premium-steps{ list-style:none; counter-reset:step; position:relative; margin:6px 0 8px 0; padding-left:0 }
+  .premium-steps::after{ content:""; position:absolute; left:18px; top:26px; bottom:4px; width:2px; background:#111827 }
+  .premium-steps li{
+    counter-increment:step; position:relative; margin:0 0 10px 0; padding-left:42px; line-height:1.55;
+  }
+  .premium-steps li::before{
+    content:counter(step);
+    position:absolute; left:0; top:2px; width:26px; height:26px; border-radius:9999px;
+    background:#111827; color:#fff; font-size:12px; font-weight:800; display:grid; place-items:center;
+  }
+  
+  /* ============================
+     Callouts
+  ============================ */
+  .callout{ border-radius:10px; padding:9px 12px; margin:8px 0;
+    border-left:4px solid #9ca3af; background:#f7fafc; color:#1f2937; }
+  .callout.success{ background:#E8F8ED; border-left-color:#10b981; }
+  .callout.info   { background:#FFF7E5; border-left-color:#f59e0b; }
+  .callout.muted  { background:#F3F4F6; border-left-color:#9ca3af; color:#4b5563; }
+  .callout.alt    { background:#E6F3FF; border-left-color:#0ea5e9; }
+  
+  /* ============================
+     Links & Final Tip
+  ============================ */
+  .go-to{ margin-top:10px } .go-to a{ color:#2563eb; text-decoration:underline }
+  .final-tip{ margin-top:14mm; padding-top:6mm; border-top:1px solid #e5e7eb }
+  .tip-title{ font-family:-apple-system,"SF Pro Display","SF Pro Text","Inter",Arial,sans-serif; font-weight:800; margin-bottom:4px }
+  
+  /* ============================
+     Print polish
+  ============================ */
+  @media print{ html{ -webkit-font-smoothing: antialiased } }
+  

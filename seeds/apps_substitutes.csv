@@ -1,0 +1,9 @@
+,
+,
+,# ./seeds/apps_substitutes.csv
+,"app_name,app_url,app_description,app_category"
+,"Kikoff,https://kikoff.com,""Low-cost tradeline"",Tradelines"
+,"CreditStrong,https://www.creditstrong.com,""Installment builder loan"",Loans"
+,"Sequin,https://www.sequincard.com,""No-fee card for credit building"",Cards"
+,"Rocket Money,https://www.rocketmoney.com,""Bill negotiation + subs cleanup"",Budgeting"
+,"UltraFICO,https://www.fico.com/ultrafico,""Bank data–based access"",Reporting"

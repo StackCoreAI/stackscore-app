@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>StackScore • {{title}}</title>
+
+  <!-- Local, compiled stylesheet (replaces Tailwind CDN) -->
+  <link rel="stylesheet" href="/templates/stack.css" />
+  <meta name="color-scheme" content="light">
+
+  <style>
+    html { scroll-behavior:smooth }
+    @keyframes fadeIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+    :root{
+      --violet-1:#7c3aed;--violet-2:#6366f1;
+      --teal-1:#14b8a6;--teal-2:#06b6d4;
+      --amber-1:#f59e0b;--amber-2:#f97316;
+      --rose-1:#e11d48;--rose-2:#f43f5e;
+      --bracket-blue-1:#3b82f6;--bracket-blue-2:#2563eb
+    }
+    .value-pill{letter-spacing:.1px}
+    @media print{
+      .value-pill{color:#000!important;background:#fff!important;border:1px solid #9ca3af}
+    }
+    .premium-steps{list-style:none;counter-reset:step;padding-left:0;margin-left:0;position:relative}
+    .premium-steps li{counter-increment:step;position:relative;margin:0 0 1rem 0;padding-left:3.1rem;line-height:1.6}
+    .premium-steps li::before{content:counter(step);position:absolute;left:0;top:.05rem;width:34px;height:34px;border-radius:9999px;background:linear-gradient(135deg,var(--accent2),var(--accent));color:#fff;font-size:14px;font-weight:800;display:grid;place-items:center;box-shadow:0 1px 0 rgba(0,0,0,.08),inset 0 0 0 1px rgba(255,255,255,.15)}
+    .premium-steps li::after{content:"";position:absolute;left:16px;top:2.1rem;bottom:-.6rem;width:4px;background:linear-gradient(180deg,var(--accent2),var(--accent))}
+    .premium-steps li:last-child::after{display:block;bottom:.25rem}
+    .premium-steps::after{content:"";position:absolute;left:16px;bottom:-.2rem;width:8px;height:8px;border-radius:9999px;background:var(--accent);box-shadow:0 0 0 2px #fff}
+    @media (prefers-reduced-motion:no-preference){
+      .premium-steps li::before{transition:transform .15s ease,box-shadow .15s ease}
+      .premium-steps li:hover::before{transform:translateY(-1px) scale(1.02)}
+    }
+    .service-card{--accent:var(--violet-1);--accent2:var(--violet-2);border-radius:16px;background:#fff;position:relative;isolation:isolate;overflow:hidden;box-shadow:0 4px 18px rgba(0,0,0,.07)}
+    .service-card:nth-of-type(4n+2){--accent:var(--teal-1);--accent2:var(--teal-2)}
+    .service-card:nth-of-type(4n+3){--accent:var(--amber-1);--accent2:var(--amber-2)}
+    .service-card:nth-of-type(4n+4){--accent:var(--rose-1);--accent2:var(--rose-2)}
+    .service-card::before{
+      content:"";position:absolute;left:0;top:0;bottom:0;width:8px;background:linear-gradient(180deg,var(--accent),var(--accent2));z-index:1
+    }
+    .service-card::after{
+      content:"";position:absolute;inset:0;pointer-events:none;z-index:1;background:
+      linear-gradient(90deg,var(--accent),var(--accent2)) top left/12px 2px no-repeat,
+      linear-gradient(180deg,var(--accent),var(--accent2)) top left/2px 12px no-repeat,
+      linear-gradient(90deg,var(--accent),var(--accent2)) top right/12px 2px no-repeat,
+      linear-gradient(180deg,var(--accent),var(--accent2)) top right/2px 12px no-repeat,
+      linear-gradient(90deg,var(--accent),var(--accent2)) bottom left/12px 2px no-repeat,
+      linear-gradient(180deg,var(--accent),var(--accent2)) bottom left/2px 12px no-repeat,
+      linear-gradient(90deg,var(--accent),var(--accent2)) bottom right/12px 2px no-repeat,
+      linear-gradient(180deg,var(--accent),var(--accent2)) bottom right/2px 12px no-repeat;opacity:.95
+    }
+    .service-header{border-bottom:none;padding:1.25rem 1.5rem 1rem;margin:0;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border-radius:16px 16px 0 0;position:relative}
+    .service-number{background:rgba(255,255,255,.18)!important;color:#fff!important;border:2px solid rgba(255,255,255,.35);box-shadow:0 2px 8px rgba(0,0,0,.15)}
+    .service-type{background:rgba(255,255,255,.22);color:#fff;border:1px solid rgba(255,255,255,.35)}
+    .service-cost{background:rgba(255,255,255,.18);color:#fff;border:1px solid rgba(255,255,255,.35)}
+    .card-content{padding:1.25rem 1.5rem 1.5rem;position:relative;background:linear-gradient(135deg,#fff 0%,#f8fafc 100%)}
+    .card-content::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,var(--accent2),var(--accent));opacity:.6}
+    .services-wrap{position:relative;border-radius:18px;background:#fff;box-shadow:0 8px 34px rgba(0,0,0,.08);padding:16px 16px 8px;margin-top:.5rem}
+    .services-wrap::before{content:"";position:absolute;left:0;top:0;bottom:0;width:10px;background:linear-gradient(180deg,var(--bracket-blue-1),var(--bracket-blue-2));border-radius:10px 0 0 10px}
+    .services-wrap::after{content:"";position:absolute;left:0;right:0;top:0;height:10px;background:linear-gradient(90deg,var(--bracket-blue-1),var(--bracket-blue-2));border-radius:10px 10px 0 0}
+    .callout{display:flex;align-items:start;gap:.5rem;padding:.75rem 1rem;border-radius:8px;position:relative;color:#1f2937;border-left:4px solid;margin:.5rem 0}
+    .callout-verify{background:linear-gradient(135deg,#f0fdf4,#dcfce7);border-left-color:#10b981;box-shadow:0 1px 3px rgba(16,185,129,.1)}
+    .callout-timing{background:linear-gradient(135deg,#fffbeb,#fef3c7);border-left-color:#f59e0b;box-shadow:0 1px 3px rgba(245,158,11,.1)}
+    .callout-risks{background:linear-gradient(135deg,#f9fafb,#f3f4f6);border-left-color:#6b7280;color:#4b5563;box-shadow:0 1px 3px rgba(107,114,128,.1)}
+    .callout-fallbacks{background:linear-gradient(135deg,#f0f9ff,#e0f2fe);border-left-color:#0ea5e9;box-shadow:0 1px 3px rgba(14,165,233,.1)}
+    .go-to a{position:relative;padding-right:1.1rem;text-decoration:underline}
+    .go-to a::after{
+      content:"";position:absolute;right:0;top:50%;transform:translateY(-50%);width:.9rem;height:.9rem;
+      -webkit-mask:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14L21 3"/></svg>') center/contain no-repeat;
+      mask:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14L21 3"/></svg>') center/contain no-repeat;
+      background:currentColor
+    }
+    @media print{
+      .gradient-header{background:#764ba2!important;-webkit-print-color-adjust:exact;color:#000!important}
+      .feature-banner{box-shadow:none!important;border-color:#000!important}
+      .services-wrap{box-shadow:none!important;border:1px solid #000}
+      .services-wrap::before,.services-wrap::after{background:#000!important}
+      .premium-steps::after{background:#000;box-shadow:none}
+      .premium-steps li::after{background:#000!important;width:2px!important}
+      .premium-steps li::before{background:#000!important;color:#fff!important;box-shadow:none}
+      .service-card{box-shadow:none;border:1px solid #d1d5db;break-inside:avoid}
+      .service-card::before{background:#000!important;width:8px!important}
+      .service-card::after{display:none!important}
+      .service-header{background:#000!important;color:#fff!important}
+      .card-content::before{background:#000!important;opacity:1!important}
+      .callout{background:#fff;border-left-color:#9ca3af}
+      footer{color:#000!important;background:#fff!important;border-top:1px solid #9ca3af}
+    }
+    h2+nav{break-inside:avoid}
+    .service-card .service-header{break-inside:avoid}
+  </style>
+</head>
+<body class="font-sans text-slate-900 bg-gray-50 antialiased">
+  <!-- Header / Hero -->
+  <header class="gradient-header relative text-white" style="background:linear-gradient(100deg,#667eea 0%,#764ba2 100%)">
+    <div class="max-w-[920px] mx-auto px-5 sm:px-10 py-8 flex items-center space-x-3 animate-[fadeIn_0.7s_ease-in-out_0.05s_both]">
+      <span class="inline-flex items-center justify-center h-10 w-10 text-[#9AFF32]" aria-label="StackScore">
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v3H4z"/><path d="M4 10.5h16v3H4z"/><path d="M4 17h16v3H4z"/></svg>
+      </span>
+      <span class="text-2xl font-semibold tracking-tight">StackScore</span>
+    </div>
+    <div class="max-w-[920px] mx-auto px-5 sm:px-10 pb-12 animate-[fadeIn_0.7s_ease-in-out_0.15s_both]">
+      <h1 class="text-4xl sm:text-5xl font-semibold tracking-tight leading-tight" id="tpl-title"></h1>
+      <p class="mt-4 text-lg sm:text-xl opacity-90" id="tpl-subtitle"></p>
+      <div class="hero-props flex flex-wrap gap-2.5 mt-4" id="tpl-pills"></div>
+    </div>
+  </header>
+
+  <!-- Feature-Specific Instructions -->
+  <section class="relative z-10 -mt-6 max-w-[920px] mx-auto px-5 sm:px-10 animate-[fadeIn_0.7s_ease-in-out_0.25s_both]">
+    <div class="feature-banner bg-white border-l-4 border-l-amber-400 rounded-lg shadow-lg overflow-hidden">
+      <div class="p-6 bg-gradient-to-r from-amber-50 to-orange-50">
+        <h2 class="text-lg font-semibold flex items-center gap-2"><span class="text-2xl">⚠️</span> IMPORTANT: Feature-Specific Instructions</h2>
+        <p class="mt-3 text-sm leading-relaxed text-slate-700">
+          We have stacked <strong>specific apps and the specific features in these apps personalized for you</strong>.
+          These apps have many features, so a plan may have similar apps, but it is the
+          <strong>features that we stack</strong> in those plans to drive value and credit score increase for you.
+          So please select <strong>only the features that we recommend</strong>.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SINGLE-STACK SERVICES -->
+  <section class="services-wrap mx-auto max-w-[920px] px-3 sm:px-5 pb-14 print:pb-0">
+    <div id="services-body"></div>
+  </section>
+
+  <!-- Final Tip -->
+  <section class="mx-auto max-w-[920px] px-5 sm:px-10 pb-12 print:pb-8" style="break-inside:avoid">
+    <div class="rounded-2xl px-6 py-6 flex gap-4 items-start text-slate-900 bg-gradient-to-br from-amber-50 to-amber-100 border-l-4 border-l-amber-400 shadow-lg">
+      <div class="text-2xl leading-none select-none">🧠</div>
+      <div>
+        <h3 class="font-semibold tracking-tight mb-1" id="tpl-tip-title"></h3>
+        <p class="text-sm leading-relaxed" id="tpl-tip-body"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="text-sm text-white py-6" style="background:#2c3e50">
+    <div class="mx-auto max-w-[920px] px-5 sm:px-10 flex flex-col sm:flex-row justify-between items-center gap-2">
+      <span>© <span id="tpl-foot-year"></span></span>
+      <span><span class="font-semibold" style="color:#9AFF32">StackScore</span> — <span id="tpl-foot-tag"></span></span>
+    </div>
+  </footer>
+
+  <!-- Handlebars runtime (LOCAL to keep PDF deterministic) -->
+  <script src="/templates/vendor/handlebars.min.js"></script>
+
+  <!-- Service card template -->
+  <script id="tpl-services" type="text/x-handlebars-template">
+    {{#each services}}
+      <article id="svc-{{inc @index}}" class="service-card my-6" style="break-inside:avoid;">
+        <header class="service-header">
+          <div class="flex items-start justify-between gap-4">
+            <div class="flex items-center gap-4">
+              <div class="service-number h-9 w-9 flex items-center justify-center rounded-full text-white text-sm font-bold">{{inc @index}}</div>
+              <div>
+                <h3 class="service-name text-xl font-bold tracking-tight text-white">{{name}}</h3>
+                <span class="service-type uppercase text-[11px] font-medium rounded-md px-2 py-0.5 text-white mt-1 inline-block">{{type}}</span>
+              </div>
+            </div>
+            <span class="service-cost whitespace-nowrap text-sm font-semibold px-3 py-1.5 rounded-full text-white">{{cost}}</span>
+          </div>
+        </header>
+        <div class="card-content">
+          <ol class="premium-steps mt-2 space-y-2 text-sm leading-relaxed pl-4">
+            {{#each steps}}<li>{{this}}</li>{{/each}}
+          </ol>
+          {{#if verification_check}}<div class="callout callout-verify mt-4 text-sm"><strong>Verify it worked</strong> — {{verification_check}}</div>{{/if}}
+          {{#if time_to_first_report}}<div class="callout callout-timing text-sm"><strong>Timing &amp; risks</strong> — Time to first report: {{time_to_first_report}}</div>{{/if}}
+          {{#if risk_flags}}<div class="callout callout-risks text-xs italic">{{join risk_flags " • "}}</div>{{/if}}
+          {{#if fallbacks}}<div class="callout callout-fallbacks text-sm"><strong>If not available</strong> — {{join fallbacks " • "}}</div>{{/if}}
+          {{#if site}}<p class="go-to text-sm mt-4 pl-4"><strong>Go to</strong> — <a href="{{site}}" class="text-blue-600 hover:text-blue-800">{{domain site}}</a></p>{{/if}}
+        </div>
+      </article>
+    {{/each}}
+  </script>
+
+  <!-- Helpers -->
+  <script>
+    Handlebars.registerHelper('inc',  i => i+1 );
+    Handlebars.registerHelper('join', (arr, sep) => (arr||[]).join(sep) );
+    Handlebars.registerHelper('domain', url => { try{ return new URL(url).host.replace(/^www\./,'')}catch(_){return url;} });
+  </script>
+
+  <!-- Data: SELECT which stack to render (default elite). Override with ?plan=foundation|accelerator|growth|elite -->
+  <script id="stacks-data" type="application/json">
+  {
+    "selected_stack_key": "elite",
+    "title": "",
+    "subtitle": "Your personalized activation plan with proven apps and clear steps",
+    "value_props": ["100+ point potential", "30–60 day timeline", "Premium coverage"],
+    "stacks": [
+      {
+        "key": "foundation",
+        "label": "Foundation Stack",
+        "services": [
+          {
+            "name": "Experian Boost",
+            "type": "Streaming & Utility Reporting",
+            "cost": "FREE",
+            "site": "https://www.experian.com/boost",
+            "steps": ["Sign in or create an Experian account.", "Connect the bank used for recurring bills.", "Select eligible streaming/utility transactions and confirm the boost."],
+            "verification_check": "In Experian, confirm added accounts under 'Your Boost results'.",
+            "time_to_first_report": "Instant to 7 days",
+            "risk_flags": ["Experian-only impact", "Requires bank connection"],
+            "fallbacks": ["StellarFi", "Cushion.ai"]
+          },
+          {
+            "name": "Grow Credit",
+            "type": "Subscription Tradeline",
+            "cost": "$0–$9.99/mo",
+            "site": "https://www.growcredit.com",
+            "steps": ["Create an account and pick a plan (Free/Plus).", "Link your bank and route eligible subscriptions.", "Enable autopay; verify on-time posting monthly."],
+            "verification_check": "New subscription tradeline within 1–2 cycles.",
+            "time_to_first_report": "2–6 weeks",
+            "risk_flags": ["Requires paying subscriptions via Grow Credit"],
+            "fallbacks": ["Kikoff Credit Account", "Cushion.ai Protect+"]
+          },
+          {
+            "name": "Boom",
+            "type": "Rent Reporting",
+            "cost": "$2–$10/mo",
+            "site": "https://www.boompay.app",
+            "steps": ["Create an account and verify your lease.", "Link payment method or landlord for verification.", "Enable ongoing reporting; optionally add past history."],
+            "verification_check": "Rent tradeline appears after processing.",
+            "time_to_first_report": "2–8 weeks",
+            "risk_flags": ["Landlord/lease verification may be required"],
+            "fallbacks": ["Rental Kharma", "Piñata"]
+          }
+        ]
+      },
+      {
+        "key": "accelerator",
+        "label": "Accelerator Stack",
+        "services": [
+          {
+            "name": "Cushion.ai (Protect+)",
+            "type": "Subscription Reporting",
+            "cost": "~$15/mo",
+            "site": "https://www.cushion.ai",
+            "steps": ["Sign up and choose Protect+.", "Link the bank/card paying your subscriptions.", "Confirm 3–5 subs are detected and activate reporting."],
+            "verification_check": "Subscription tradeline visible after 1–2 cycles.",
+            "time_to_first_report": "7–14 days",
+            "risk_flags": ["Stable bank link required"],
+            "fallbacks": ["Grow Credit", "Experian Boost"]
+          },
+          {
+            "name": "Self Credit Builder",
+            "type": "Installment Tradeline",
+            "cost": "$25–$150/mo",
+            "site": "https://www.self.inc",
+            "steps": ["Open a credit builder account and choose a monthly amount.", "Enable autopay from your checking account.", "Make on-time payments for the selected term."],
+            "verification_check": "New installment tradeline within 1–2 cycles.",
+            "time_to_first_report": "30–60 days",
+            "risk_flags": ["Missed payments may be reported as negative"],
+            "fallbacks": ["CreditStrong", "Kovo"]
+          },
+          {
+            "name": "Kovo",
+            "type": "Installment Tradeline",
+            "cost": "$10/mo",
+            "site": "https://www.kovo.com",
+            "steps": ["Create an account and choose the Credit Builder plan.", "Enable autopay and confirm banking details.", "Monitor the dashboard for monthly posting."],
+            "verification_check": "Installment tradeline after 1–2 cycles.",
+            "time_to_first_report": "14–30 days",
+            "risk_flags": ["Autopay funding required"],
+            "fallbacks": ["Self", "CreditStrong"]
+          }
+        ]
+      },
+      {
+        "key": "growth",
+        "label": "Growth Stack",
+        "services": [
+          {
+            "name": "Chime Credit Builder",
+            "type": "Secured Charge Card",
+            "cost": "FREE (with qualifying direct deposit)",
+            "site": "https://www.chime.com/credit-builder/",
+            "steps": ["Open a Chime account and set qualifying direct deposit.", "Move funds to your secured builder balance.", "Use for small, frequent charges; enable Safer Credit Building."],
+            "verification_check": "Card tradeline appears after the first cycle.",
+            "time_to_first_report": "30–45 days",
+            "risk_flags": ["Requires qualifying direct deposit"],
+            "fallbacks": ["Secured card from your bank", "Self Visa® (with Self)"]
+          },
+          {
+            "name": "CreditStrong",
+            "type": "Installment Tradeline",
+            "cost": "$15–$40/mo",
+            "site": "https://www.creditstrong.com",
+            "steps": ["Choose a plan and term.", "Connect your bank and enable autopay.", "Let payments build history; avoid early closure unless needed."],
+            "verification_check": "Installment tradeline in 1–2 cycles.",
+            "time_to_first_report": "30–60 days",
+            "risk_flags": ["Early closure may limit history length"],
+            "fallbacks": ["Self", "Kovo"]
+          },
+          {
+            "name": "Rental Kharma",
+            "type": "Rent Reporting",
+            "cost": "$8–$15/mo",
+            "site": "https://rentalkharma.com",
+            "steps": ["Create an account and verify your rental.", "Authorize landlord/bank verification of rent.", "Enable reporting and optionally add past rent history."],
+            "verification_check": "Rent tradeline added after verification.",
+            "time_to_first_report": "2–8 weeks",
+            "risk_flags": ["Landlord/lease documentation may be required"],
+            "fallbacks": ["Boom", "LevelCredit"]
+          }
+        ]
+      },
+      {
+        "key": "elite",
+        "label": "Elite Stack",
+        "services": [
+          {
+            "name": "Cushion.ai (Protect+)",
+            "type": "Subscription Reporting",
+            "cost": "~$15/mo",
+            "site": "https://www.cushion.ai",
+            "steps": ["Enroll in Protect+.", "Link the account paying 3–5 subs.", "Activate reporting and confirm monthly status."],
+            "verification_check": "Subscription tradeline in 1–2 cycles.",
+            "time_to_first_report": "7–14 days",
+            "risk_flags": ["Stable bank link required"],
+            "fallbacks": ["Grow Credit", "Experian Boost"]
+          },
+          {
+            "name": "StellarFi (Prime)",
+            "type": "Utility Bill Reporting",
+            "cost": "$9.99/mo",
+            "site": "https://www.stellarfi.com",
+            "steps": ["Upgrade to Prime if on Lite.", "Add recurring utilities and confirm routing.", "Keep funds available for autopay each cycle."],
+            "verification_check": "Utility tradeline visible after first cycle.",
+            "time_to_first_report": "1–2 cycles",
+            "risk_flags": ["Failed autopay can be negative"],
+            "fallbacks": ["Experian Boost", "Cushion.ai"]
+          },
+          {
+            "name": "Kovo",
+            "type": "Installment Tradeline",
+            "cost": "$10/mo",
+            "site": "https://www.kovo.com",
+            "steps": ["Select Credit Builder and enable autopay.", "Verify payment method and onboarding steps.", "Monitor monthly posts."],
+            "verification_check": "Installment tradeline after 1–2 cycles.",
+            "time_to_first_report": "14–30 days",
+            "risk_flags": ["Missed autopay can be negative"],
+            "fallbacks": ["Self", "CreditStrong"]
+          },
+          {
+            "name": "Dovly AI",
+            "type": "Automated Disputes",
+            "cost": "$0–$39/mo",
+            "site": "https://www.dovly.com",
+            "steps": ["Create account and connect your reports.", "Run guided disputes on inaccurate derogatories.", "Track outcomes and repeat if needed."],
+            "verification_check": "Confirm removals/updates in bureau reports.",
+            "time_to_first_report": "30–60 days",
+            "risk_flags": ["Results depend on creditor response"],
+            "fallbacks": ["Self-service disputes", "CreditRepair.com"]
+          }
+        ]
+      }
+    ],
+    "final_tip": {
+      "title": "Pro Tip: lock in autopay + weekly checks",
+      "content": "Enable autopay on every app, then check Experian and Credit Karma weekly. If a tradeline isn’t visible after two cycles, recheck connections or use a fallback from your plan."
+    },
+    "footer": { "year": "2025", "tagline": "Everything working in concert for maximum credit gains" }
+  }
+  </script>
+
+  <!-- Hydration: render ONLY the selected stack; override with ?plan= -->
+  <script>
+    const $ = id => document.getElementById(id);
+    const data = JSON.parse($('stacks-data').textContent);
+    const urlPlan = new URLSearchParams(location.search).get('plan');
+    const chosenKey = (urlPlan || data.selected_stack_key || '').toLowerCase();
+
+    // Resolve chosen stack + services
+    let chosen = null;
+    if (Array.isArray(data.services)) {
+      chosen = { label: data.title || 'Selected Stack', services: data.services };
+    } else if (Array.isArray(data.stacks)) {
+      chosen = data.stacks.find(s => s.key === chosenKey) || data.stacks[0] || { label:'', services:[] };
+    } else {
+      chosen = { label:'', services:[] };
+    }
+
+    // Header text + sync <title> for browser/PDF metadata
+    const headerTitle = data.title && data.title.trim().length
+      ? data.title
+      : (chosen.label ? `${chosen.label} Guide` : 'Your Stack Guide');
+    document.title = `StackScore • ${headerTitle}`;
+
+    $('tpl-title').textContent    = headerTitle;
+    $('tpl-subtitle').textContent = data.subtitle || '';
+    $('tpl-pills').innerHTML = (data.value_props||[])
+      .map(v => `<span class="value-pill inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-full bg-white/15 text-white ring-1 ring-white/20">${v}</span>`)
+      .join('');
+
+    // Final tip & footer
+    $('tpl-tip-title').textContent = (data.final_tip||{}).title || '';
+    $('tpl-tip-body').textContent  = (data.final_tip||{}).content || '';
+    document.getElementById('tpl-foot-year').textContent = (data.footer||{}).year || '';
+    document.getElementById('tpl-foot-tag').textContent  = (data.footer||{}).tagline || '';
+
+    // Render services
+    const tpl = Handlebars.compile(document.getElementById('tpl-services').textContent);
+    document.getElementById('services-body').innerHTML = tpl({ services: chosen.services || [] });
+  </script>
+</body>
+</html>
+

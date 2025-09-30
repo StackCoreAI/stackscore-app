@@ -1,0 +1,171 @@
+/*─────────────────────────────────────────────────────────────*/
+/* StackScore PDF V1 — Apple-quality, Prince/DocRaptor-tuned   */
+/*─────────────────────────────────────────────────────────────*/
+
+/* 1) Color fidelity */
+* { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+/* 2) Inter Variable */
+@font-face {
+  font-family: 'Inter';
+  src: url('../fonts/Inter-Variable.woff2') format('woff2-variations');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* 3) Base */
+html, body {
+  margin: 0; padding: 0;
+  background: #ffffff;
+  color: #283148;
+  font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  font-size: 12pt; line-height: 1.62;
+  -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+}
+a { color: #2559e4; text-decoration: none; }
+a[href] { text-decoration: underline; }
+
+/* 4) Full-width header/footer bands (Prince) */
+@page {
+  size: Letter;       /* Switch to A4 below if needed */
+  margin: 0.8in;
+
+  /* Header band */
+  @top-center {
+    background: #2559e4;
+    content: element(pageHeader);
+    color: #fff; font-size: 11pt; font-weight: 600;
+    padding: 0.6em 0;
+  }
+  /* Footer band */
+  @bottom-center {
+    background: #2559e4;
+    content: element(pageFooter);
+    color: #fff; font-size: 10pt; font-weight: 500;
+    padding: 0.5em 0;
+  }
+  /* Page counter right */
+  @bottom-right {
+    color: #fff; font-size: 10pt;
+    content: counter(page) " of " counter(pages);
+    font-variant-numeric: tabular-nums;
+    padding-right: 0.8em;
+  }
+}
+
+/* 5) Screen preview bands (so /pdf/preview-v1 matches the PDF vibe) */
+@media screen {
+  body::before, body::after {
+    content: "";
+    position: fixed; left: 0; right: 0;
+    background: linear-gradient(90deg, #2559e4 95%, #233e72 100%);
+    z-index: 10;
+  }
+  body::before { top: 0; height: 50px; }
+  body::after  { bottom: 0; height: 40px; }
+  /* Ensure content is not covered by fixed bands */
+  main { position: relative; z-index: 11; padding-top: 64px; padding-bottom: 48px; }
+}
+
+/* 6) Running elements (fed by HTML) */
+.page-header { position: running(pageHeader); height: 0; overflow: hidden; }
+/* Accept either class name for the footer running element */
+.page-footer, .footer-source { position: running(pageFooter); height: 0; overflow: hidden; }
+
+/* 7) Type scale */
+h1 { font-weight: 800; font-size: 28pt; letter-spacing: -0.3px; margin: 0.3em 0 0.20em; color:#0f172a; }
+h2 { font-weight: 700; font-size: 18pt; color: #2559e4; margin: 0.4em 0 0.4em; }
+h3 { font-weight: 700; font-size: 13pt; margin: 0.3em 0 0.26em; color:#0f172a; }
+p  { margin: 0 0 0.75em; color: #454e5b; font-size: 12pt; }
+.subtitle, .sub { font-size: 16pt; color: #4b5d8d; font-weight: 500; margin-bottom: 0.8em; }
+ul, ol { margin: 0.4em 0 0.7em 1.2em; }
+
+/* 8) Cards */
+.card {
+  background: #fff; border-radius: 15px; border: 1px solid #e9ecf3;
+  box-shadow: 0 8px 30px rgba(30,53,94,0.10);
+  padding: 1.3em 1.7em; margin: 1em 0 1.2em; break-inside: avoid;
+}
+
+/* 9) Chips / pills */
+.pills {
+  list-style: none; margin: 0.6em 0 0; padding: 0;
+  display: flex; flex-wrap: wrap; gap: 7px;
+}
+.pill, .pills li {
+  display: inline-block; border-radius: 99px;
+  background: #eef3fa; border: 1px solid #dbe4f4; color: #2559e4;
+  font-weight: 600; font-size: 10pt; padding: 4px 14px; letter-spacing: 0.08px;
+}
+
+/* 10) Icons (inline SVG) — bulletproof size + baseline alignment */
+.icon { width: 14px; height: 14px; display:inline-block; vertical-align:-2px; color:#2559e4; }
+.icon path, .icon circle, .icon rect, .icon polygon { fill: currentColor; }
+
+/* 11) Services */
+.services { margin-top: 18px; }
+.service {
+  background: #fff; border: 1px solid #e2e8f1; border-radius: 14px;
+  box-shadow: 0 6px 24px rgba(34,54,94,0.11);
+  padding: 1.1em 1.35em; margin: 0.8em 0; break-inside: avoid;
+  display: flex; flex-direction: column;
+}
+.service .head {
+  display: flex; gap: 10px; align-items: center; justify-content: space-between;
+  margin-bottom: 0.45em;
+}
+.service .head h3 { display:flex; align-items:center; gap:8px; margin:0; }
+.service .right { display:flex; align-items:center; gap:8px; }
+.badge {
+  font-size: 9.5pt; padding: 3px 12px; border-radius: 96px;
+  border: 1px solid #e2e8f0; background: #f2f6fc; color: #2559e4; font-weight: 600;
+  margin-left: auto; margin-right: 0.05em;
+}
+.cost { font-size: 10.5pt; color: #233e72; font-weight: 600; margin-left: 0.35em; }
+.steps { margin: 0.16em 0 0 1.04em; padding: 0; }
+.goto  { margin-top: 0.38em; color: #345c99; font-size: 10pt; }
+
+/* 12) Bracket box — internal gradient bars (no child div required) */
+.bracket-box {
+  position: relative;
+  background:
+    linear-gradient(#4971eb,#4971eb) left 13%/8px 74% no-repeat,
+    linear-gradient(#50b2fc,#50b2fc) right 13%/8px 74% no-repeat,
+    #ffffff;
+  padding: 18px 26px;               /* room for bars */
+  border: 1.5px solid #dbe4f4; border-radius: 19px;
+  box-shadow: 0 12px 38px rgba(34,54,94,0.13);
+  margin: 18px 0; break-inside: avoid; overflow: visible;
+}
+.bracket-box .title { color: #2559e4; font-size: 1.03em; font-weight: 700; margin: 0 0 0.5em; }
+.bracket-box .content { color: #354464; font-size: 12pt; }
+/* Optional legacy .bars child still supported (overlays the internal bars) */
+.bracket-box .bars {
+  position: absolute; left: 10px; top: 20px; bottom: 20px; width: 8px;
+  background: linear-gradient(180deg,#50b2fc 0%,#2559e4 100%);
+  border-radius: 8px; opacity: .4; z-index: 2; box-shadow: 0 2px 8px #2559e422;
+}
+.final-tip { background: #f9fcff; padding: 14px 18px; border-radius: 17px; margin-top: 20px; }
+
+/* 13) Hero & cover spacing */
+.hero { margin: 20px 0 12px; }
+.cover { page-break-after: always; margin-top: 1in; }
+.hero .sub, .cover .sub, .hero .subtitle, .cover .subtitle { font-size: 12pt; color:#334155; }
+
+/* 14) Watermark (optional) */
+.watermark {
+  position: fixed; top: 50%; left: 50%;
+  transform: translate(-50%, -50%) rotate(-16deg);
+  opacity: 0.09; z-index: 0; pointer-events: none;
+  width: 520px; height: auto;
+}
+
+/* 15) Page-break hygiene */
+h1, h2, h3, .card, .service, .bracket-box { page-break-after: avoid; break-inside: avoid; }
+ul, ol { page-break-inside: avoid; }
+p, li { widows: 3; orphans: 3; }
+
+/* 16) (Optional) Quick switch to A4
+@media print { @page { size: A4; } }
+*/

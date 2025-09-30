@@ -1,0 +1,138 @@
+/* ================================
+   StackScore — app.src.css (Tailwind v4.1)
+   ================================ */
+
+/* Tell Tailwind where to look (after moving to /assets) */
+@source "./safelist.txt";
+@source "../public/**/*.html";
+@source "../public/templates/**/*.mustache";
+@source "../server/templates/**/*.mustache";
+@source "../src/**/*.{html,js,jsx,ts,tsx}";
+@source "../generated-page (82).html";
+
+/* 2) Theme tokens */
+@theme inline {
+  /* brand palette */
+  --color-brand-lime:    #a3e635; /* lime-400 */
+  --color-brand-emerald: #34d399; /* emerald-400 */
+  --color-brand-cyan:    #22d3ee; /* cyan-400 */
+
+  /* surfaces */
+  --color-panel-outline: rgba(255,255,255,.10);
+
+  /* typography */
+  --font-sans: Inter, ui-sans-serif, system-ui, sans-serif;
+
+  /* radii */
+  --radius-card: .75rem;
+}
+
+/* 3) Dark mode & forced-colors variants (manual toggle / attribute-based) */
+@custom-variant dark (&:where(.dark, .dark *));
+@custom-variant fc (&:where([data-forced-colors], [data-forced-colors] *));
+
+/* 4) Tailwind layers */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 5) Base (Preflight-aware nudges) */
+@layer base {
+  html { scroll-behavior: smooth; }
+  body { font-family: var(--font-sans); }
+
+  /* Links */
+  a{ color:#d4d4d4; text-decoration:none }
+  a:hover{ color:#fff }
+
+  /* SR-friendly lists when role=list */
+  ul[role="list"], ol[role="list"] { list-style: none; }
+
+  /* Forced-colors escape hatch */
+  fc\:keep { forced-color-adjust: none; }
+}
+
+/* 6) Components */
+@layer components {
+  .badge {
+    display:inline-flex; align-items:center; gap:.375rem;
+    padding:.25rem .6rem; border-radius:9999px;
+    background-color:rgba(255,255,255,.10);
+    outline:1px solid rgba(255,255,255,.10);
+    transition:background-color .15s ease, color .15s ease, outline-color .15s ease;
+  }
+  .badge:hover { color:#fff }
+
+  /* slightly brighter body for legibility */
+  .panel, .card {
+    border-radius: var(--radius-card);
+    outline: 1px solid rgba(255,255,255,.12);
+    background-color: color-mix(in oklab, #ffffff 6%, transparent);
+  }
+}
+
+/* 7) Motion & icon baseline (page-82 parity) */
+@keyframes fadeInUp {
+  0% { opacity:0; transform:translateY(28px) }
+  100% { opacity:1; transform:translateY(0) }
+}
+
+/* Hide only when JS is enabled; otherwise keep content visible */
+.js .init-opacity { opacity: 0; }
+
+/* Stronger rule: when .show is added, override init-opacity */
+.js .init-opacity.show {
+  opacity: 1 !important;
+  animation: fadeInUp .9s cubic-bezier(.22,1,.36,1) forwards;
+}
+
+/* Fallback: .show works even without init-opacity */
+.show {
+  opacity: 1 !important;
+  animation: fadeInUp .9s cubic-bezier(.22,1,.36,1) forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .js .init-opacity.show,
+  .show { animation: none !important; opacity: 1 !important; }
+}
+
+svg.lucide { stroke:currentColor; stroke-width:1.5; fill:none; }
+
+/* 8) Glass surface for hero/panels */
+.glass {
+  background-color: rgba(255,255,255,.05);
+  backdrop-filter: blur(8px) brightness(0.95);
+  -webkit-backdrop-filter: blur(8px) brightness(0.95);
+  border-radius: var(--radius-card);
+  outline: 1px solid rgba(255,255,255,.10);
+}
+
+/* 9) Gradient text helper */
+.gradient-brand-text{
+  background-image: linear-gradient(
+    to right,
+    var(--color-brand-lime),
+    var(--color-brand-emerald),
+    var(--color-brand-cyan)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  display: inline-block;
+  forced-color-adjust: auto;
+}
+
+/* 10) Utility shims referenced in templates */
+.text-transparent{color:transparent}
+.bg-clip-text{-webkit-background-clip:text;background-clip:text}
+/* DEV BRIGHT — remove before production */
+.force-bright, .force-bright * {
+  opacity: 1 !important;
+  filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  -webkit-mask: none !important;
+  mask: none !important;
+  mix-blend-mode: normal !important;
+}

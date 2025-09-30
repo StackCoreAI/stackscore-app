@@ -1,8 +1,11 @@
-// /src/main.jsx
+// src/main.jsx
+import "./app.src.css";   // ⬅️ add this FIRST and remove ./index.css
+
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import "./index.css";
+// (no other global CSS imports)
+
 
 // Pages (all lowercase to satisfy Linux/Vercel case sensitivity)
 import Hero from "./pages/hero.jsx";

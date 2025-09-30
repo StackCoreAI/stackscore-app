@@ -1,0 +1,57 @@
+{
+  "$schema": "https://raw.githubusercontent.com/xataio/client-ts/main/schema.json",
+  "databaseName": "stackscore_core",
+  "tables": [
+    {
+      "name": "apps",
+      "columns": [
+        { "name": "app_name", "type": "string", "notNull": true },
+        { "name": "app_url", "type": "string" },
+        { "name": "app_description", "type": "text" },
+        { "name": "app_category", "type": "string" },
+        { "name": "is_active", "type": "bool", "defaultValue": true }
+      ],
+      "primaryKey": "id"
+    },
+    {
+      "name": "plans",
+      "columns": [
+        { "name": "user_hash", "type": "string" },
+        { "name": "status", "type": "string", "defaultValue": "draft" },
+        { "name": "title", "type": "string" },
+        { "name": "summary", "type": "text" },
+        { "name": "plan_tier", "type": "string", "defaultValue": "A" },
+        { "name": "build_id", "type": "string" },
+        { "name": "preview_json", "type": "text" }
+      ],
+      "primaryKey": "id"
+    },
+    {
+      "name": "plan_apps",
+      "columns": [
+        { "name": "plan_id", "type": "link", "link": { "table": "plans" }, "notNull": true },
+        { "name": "app_id", "type": "link", "link": { "table": "apps" }, "notNull": true },
+        { "name": "role", "type": "string", "defaultValue": "primary" },
+        { "name": "sort_order", "type": "int" },
+        { "name": "notes", "type": "text" }
+      ],
+      "primaryKey": "id"
+    },
+    {
+      "name": "entitlements",
+      "columns": [
+        { "name": "email", "type": "string", "notNull": true },
+        { "name": "plan_id", "type": "link", "link": { "table": "plans" } },
+        { "name": "product_id", "type": "string" },
+        { "name": "stripe_customer_id", "type": "string" },
+        { "name": "stripe_price_id", "type": "string" },
+        { "name": "stripe_subscription_id", "type": "string" },
+        { "name": "status", "type": "string", "defaultValue": "pending" },
+        { "name": "shortio_link", "type": "string" },
+        { "name": "expires_at", "type": "datetime" },
+        { "name": "last_event_id", "type": "string" }
+      ],
+      "primaryKey": "id"
+    }
+  ]
+}

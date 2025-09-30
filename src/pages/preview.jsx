@@ -4,11 +4,10 @@ import { useNavigate } from "react-router-dom";
 import Loader from "../components/Loader.jsx";
 import PreviewHeader from "../components/PreviewHeader.jsx";
 import PlanGrid from "../components/PlanGrid.jsx";
-
-// NEW: global header/footer (logo is a home link on every page)
 import SiteHeader from "../components/SiteHeader.jsx";
 import SiteFooter from "../components/SiteFooter.jsx";
 
+// fallback answers shape (used only for header chips)
 const BLANK = { housing: "", subs: [], tools: "", employment: "", goal: "", budget: "45" };
 
 function loadAnswers() {
@@ -39,8 +38,8 @@ export default function Preview() {
   const nav = useNavigate();
 
   const [answers, setAnswers] = useState(null);
-  const [plan, setPlan] = useState(null);
-  const [status, setStatus] = useState("idle"); 
+  const [planSet, setPlanSet] = useState(null); // <-- { user_profile, plans: [...] }
+  const [status, setStatus] = useState("idle");
   const [error, setError] = useState("");
   const [refreshedAt, setRefreshedAt] = useState(
     Number(sessionStorage.getItem("ss_refreshed_at") || 0) || undefined
@@ -48,47 +47,55 @@ export default function Preview() {
   const [unlocking, setUnlocking] = useState(false);
   const [unlockErr, setUnlockErr] = useState("");
 
-  async function runFetch(useAnswers, tryMock = true) {
-    setStatus("loading");
-    const payload = {
+  // --- API helpers (new endpoints) ---
+  async function fetchPlanSet() {
+    // GET /api/plan/:id → { ok, data }
+    const r = await fetch("/api/plan/any-id");
+    if (!r.ok) throw new Error(`API ${r.status}`);
+    const j = await r.json();
+    if (!j.ok || !j.data) throw new Error(j.error || "Invalid API payload");
+    return j.data;
+  }
+
+  async function generatePlanSet(profile) {
+    // POST /api/plan/generate → { ok, plan_id, data }
+    const r = await fetch("/api/plan/generate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ answers: useAnswers || {} }),
-    };
+      body: JSON.stringify({ user_profile: profile || {} }),
+    });
+    if (!r.ok) throw new Error(`API ${r.status}`);
+    const j = await r.json();
+    if (!j.ok || !j.data) throw new Error(j.error || "Invalid API payload");
+    return j.data;
+  }
 
+  async function runFetch(useAnswers, { forceGenerate = false } = {}) {
+    setStatus("loading");
     try {
-      const r = await fetch("/api/gpt-plan", payload);
-      if (!r.ok) throw new Error(`API ${r.status}`);
-      const data = await r.json();
-      setPlan(data);
+      const data = forceGenerate
+        ? await generatePlanSet({
+            // map your answers → profile fields as needed
+            starting_fico: 510,
+            monthly_budget_usd: Number(useAnswers?.budget || 45),
+            constraints: ["soft pull only"],
+          })
+        : await fetchPlanSet();
+
+      setPlanSet(data);
       sessionStorage.setItem("ss_plan", JSON.stringify(data));
       const t = Date.now();
       setRefreshedAt(t);
       sessionStorage.setItem("ss_refreshed_at", String(t));
       setStatus("done");
     } catch (e) {
-      console.error("Live plan failed:", e);
-      if (tryMock) {
-        try {
-          const r2 = await fetch("/api/gpt-plan?mock=1", payload);
-          if (!r2.ok) throw new Error(`Mock API ${r2.status}`);
-          const data2 = await r2.json();
-          setPlan(data2);
-          sessionStorage.setItem("ss_plan", JSON.stringify(data2));
-          const t2 = Date.now();
-          setRefreshedAt(t2);
-          sessionStorage.setItem("ss_refreshed_at", String(t2));
-          setStatus("done");
-          return;
-        } catch (e2) {
-          console.error("Mock fallback failed:", e2);
-        }
-      }
-      setError(e.message || "Failed to build plan");
+      console.error("Plan load failed:", e);
+      setError(e.message || "Failed to load plan");
       setStatus("error");
     }
   }
 
+  // Initial load
   useEffect(() => {
     window.scrollTo(0, 0);
     const a = loadAnswers();
@@ -97,7 +104,7 @@ export default function Preview() {
     const cached = sessionStorage.getItem("ss_plan");
     if (cached) {
       try {
-        setPlan(JSON.parse(cached));
+        setPlanSet(JSON.parse(cached));
         const t = Number(sessionStorage.getItem("ss_refreshed_at") || 0);
         if (t) setRefreshedAt(t);
         setStatus("done");
@@ -105,7 +112,7 @@ export default function Preview() {
       } catch {}
     }
 
-    runFetch(a);
+    runFetch(a); // GET /api/plan/any-id
   }, []);
 
   function handleRefresh(updates) {
@@ -119,7 +126,8 @@ export default function Preview() {
       localStorage.setItem("ss_answers", JSON.stringify(merged));
       sessionStorage.removeItem("ss_plan");
     } catch {}
-    runFetch(merged);
+    // call generator (POST) so users feel it "rebuilds"
+    runFetch(merged, { forceGenerate: true });
   }
 
   const resetAll = () => {
@@ -135,20 +143,19 @@ export default function Preview() {
 
   const editAnswers = () => nav("/wizard", { replace: false });
 
-  // ✅ No localhost — relative path works in dev & prod
   async function handleUnlockClick() {
     setUnlockErr("");
     setUnlocking(true);
     try {
       const planKey = getSelectedPlanKey();
-      const res = await fetch("/api/checkout", {
+      const res = await fetch("/api/checkout/session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ planKey })
+        body: JSON.stringify({ planKey }),
       });
       const { url, error } = await res.json().catch(() => ({}));
       if (!res.ok || !url) throw new Error(error || "No checkout URL returned");
-      window.location.href = url; 
+      window.location.href = url;
     } catch (e) {
       console.error(e);
       setUnlockErr(e?.message || "Couldn’t start checkout. Please try again.");
@@ -185,12 +192,13 @@ export default function Preview() {
             </div>
           )}
 
-          {status === "done" && plan && (
+          {status === "done" && planSet && (
             <>
               <div className="mt-6">
                 <PlanGrid
-                  plans={plan.plans}
-                  fallbackStack={plan.stack}
+                  plans={planSet.plans}
+                  // keep your previous prop if used elsewhere
+                  fallbackStack={planSet.stack}
                   onUnlock={handleUnlockClick}
                 />
               </div>
