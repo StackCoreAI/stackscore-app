@@ -8,3 +8,15 @@ node_modules/
 .DS_Store
 coverage/
 .cache/
+# build artefacts
+dist/
+public/mock/
+*.map
+
+# outputs / docs
+*.pdf
+
+# local env / tools
+.tmp/
+.venv/
+.DS_Store
