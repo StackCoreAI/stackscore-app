@@ -1,143 +1,232 @@
-/* Tailwind v4 single-file setup */
-@import "tailwindcss";
+/* ──────────────────────────────────────────────────────────────
+   Tailwind v4 single-file setup
+   ────────────────────────────────────────────────────────────── */
+   @import "tailwindcss";
 
-/* Scan paths — relative to THIS file (src/app.src.css) */
-@source "../index.html";
-@source "./**/*.{html,js,jsx,ts,tsx}";
-@source "./safelist.txt";
-
-
-
-
-
-/* --- Theme tokens --- */
-@theme inline {
-  --color-brand-lime:    #a3e635; /* lime-400 */
-  --color-brand-emerald: #34d399; /* emerald-400 */
-  --color-brand-cyan:    #22d3ee; /* cyan-400 */
-  --color-panel-outline: rgba(255,255,255,.10);
-  --font-sans: Inter, ui-sans-serif, system-ui, sans-serif;
-  --radius-card: .75rem;
-}
-
-/* Variants */
-@custom-variant dark (&:where(.dark, .dark *));
-@custom-variant fc (&:where([data-forced-colors], [data-forced-colors] *));
-
-/* ---- Base tweaks ---- */
-html { scroll-behavior: smooth; }
-body { font-family: var(--font-sans); }
-a{ color:#d4d4d4; text-decoration:none }
-a:hover{ color:#fff }
-ul[role="list"], ol[role="list"] { list-style: none; }
-fc\:keep { forced-color-adjust: none; }
-
-/* ---- Components ---- */
-.badge {
-  display:inline-flex; align-items:center; gap:.375rem;
-  padding:.25rem .6rem; border-radius:9999px;
-  background-color:rgba(255,255,255,.10);
-  outline:1px solid rgba(255,255,255,.10);
-  transition:background-color .15s ease, color .15s ease, outline-color .15s ease;
-}
-.badge:hover { color:#fff }
-
-.panel, .card {
-  border-radius: var(--radius-card);
-  outline: 1px solid rgba(255,255,255,.12);
-  background-color: color-mix(in oklab, #ffffff 6%, transparent);
-}
-
-/* ---- Motion helpers ---- */
-@keyframes fadeInUp {
-  0% { opacity:0; transform:translateY(28px) }
-  100% { opacity:1; transform:translateY(0) }
-}
-.js .init-opacity { opacity: 0; }
-.js .init-opacity.show {
-  opacity: 1 !important;
-  animation: fadeInUp .9s cubic-bezier(.22,1,.36,1) forwards;
-}
-.show { opacity: 1 !important; animation: fadeInUp .9s cubic-bezier(.22,1,.36,1) forwards; }
-@media (prefers-reduced-motion: reduce) {
-  .js .init-opacity.show, .show { animation: none !important; opacity: 1 !important; }
-}
-svg.lucide { stroke:currentColor; stroke-width:1.5; fill:none; }
-
-/* ---- Glass helper ---- */
-.glass {
-  background-color: rgba(255,255,255,.05);
-  backdrop-filter: blur(8px) brightness(0.95);
-  -webkit-backdrop-filter: blur(8px) brightness(0.95);
-  border-radius: var(--radius-card);
-  outline: 1px solid rgba(255,255,255,.10);
-}
-
-/* ---- Gradient text ---- */
-.gradient-brand-text{
-  background-image: linear-gradient(
-    to right,
-    var(--color-brand-lime),
-    var(--color-brand-emerald),
-    var(--color-brand-cyan)
-  );
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  display: inline-block;
-  forced-color-adjust: auto;
-}
-
-/* ---- Utility shims referenced in templates ---- */
-.text-transparent{color:transparent}
-.bg-clip-text{-webkit-background-clip:text;background-clip:text}
-
-/* ====== MOVED FROM your src/index.css ====== */
-/* Wizard step transitions */
-.wizard-stage { position: relative; min-height: 440px; }
-.wizard-panel {
-  opacity: 0; transform: translateX(24px);
-  position: absolute; inset: 0;
-  transition: opacity .28s ease, transform .28s ease;
-}
-.wizard-panel.active { opacity: 1; transform: translateX(0); position: relative; }
-.wizard-panel.exiting { opacity: 0; transform: translateX(-24px); pointer-events: none; }
-
-/* Floating numbers: fade + drift */
-@keyframes ss-float-in-out {
-  0%   { opacity: 0; transform: translateY(10px) scale(.98); }
-  10%  { opacity: 1; transform: translateY(0) scale(1); }
-  70%  { opacity: 1; transform: translateY(-12px) scale(1.02); }
-  100% { opacity: 0; transform: translateY(-22px) scale(1.02); }
-}
-
-/* Score burst (wizard step 6) */
-.score-burst {
-  position: relative;
-  width: min(520px, 86vw);
-  height: 3.5rem;
-  margin: -20px auto 0;
-  pointer-events: none;
-  user-select: none;
-}
-
-@keyframes ssFloat {
-  0%   { transform: translateY(10px); opacity: 0; }
-  20%  { opacity: 1; }
-  80%  { opacity: 1; }
-  100% { transform: translateY(-10px); opacity: 0; }
-}
-.ss-floating-number {
-  position: absolute;
-  font-weight: 800;
-  color: #bef264;              /* lime-300 */
-  text-shadow: 0 8px 28px rgba(163,230,53,.35);
-  will-change: transform, opacity;
-  animation-name: ssFloat;
-  animation-timing-function: ease-in-out;
-  animation-iteration-count: infinite;
-  animation-duration: var(--duration, 4.6s);
-  animation-delay: var(--delay, 0s);
-}
-.ss-floating-number.em { color:#a3e635; }      /* lime-400 */
-.ss-floating-number.strong { color:#84cc16; }  /* lime-500 */
+   /* What files Tailwind should scan (relative to THIS file) */
+   @source "../index.html";
+   @source "./**/*.{html,js,jsx,ts,tsx}";
+   @source "./pages/**/*.{js,jsx,ts,tsx}";
+   @source "./components/**/*.{js,jsx,ts,tsx}";
+   @source "./shared/**/*.{js,jsx,ts,tsx}";
+   @source "./safelist.txt";
+   
+   /* ──────────────────────────────────────────────────────────────
+      Theme tokens
+      ────────────────────────────────────────────────────────────── */
+   @theme inline {
+     --color-brand-lime:    #a3e635; /* lime-400 */
+     --color-brand-emerald: #34d399; /* emerald-400 */
+     --color-brand-cyan:    #22d3ee; /* cyan-400 */
+     --color-panel-outline: rgba(255,255,255,.10);
+     --font-sans: Inter, ui-sans-serif, system-ui, sans-serif;
+     --radius-card: .75rem;
+   }
+   
+   /* Useful variants */
+   @custom-variant dark (&:where(.dark, .dark *));
+   @custom-variant fc (&:where([data-forced-colors], [data-forced-colors] *));
+   
+   /* ──────────────────────────────────────────────────────────────
+      Global base (safe + minimal)
+      ────────────────────────────────────────────────────────────── */
+   html { scroll-behavior: smooth; }
+   body { font-family: var(--font-sans); }
+   
+   /* Always allow vertical scroll; nice on iOS too */
+   html, body, #root {
+     min-height: 100%;
+     overflow-y: auto;
+     -webkit-overflow-scrolling: touch;
+   }
+   
+   /* Fixed-header anchor offset (match header height) */
+   :root { --header-h: 88px; }
+   .section { scroll-margin-top: var(--header-h); }
+   
+   /* If a top-level wrapper accidentally uses h-screen, keep page scrollable */
+   :where(.h-screen){ height: auto; min-height: 100vh; }
+   
+   /* Links: subtle default, bright on hover */
+   a { color:#d4d4d4; text-decoration:none }
+   a:hover { color:#fff }
+   
+   /* Lists used for semantic grouping, no bullets */
+   ul[role="list"], ol[role="list"] { list-style: none; }
+   
+   /* Respect forced colors where needed */
+   fc\:keep { forced-color-adjust: none; }
+   
+   /* ──────────────────────────────────────────────────────────────
+      Components
+      ────────────────────────────────────────────────────────────── */
+   .badge {
+     display:inline-flex; align-items:center; gap:.375rem;
+     padding:.25rem .6rem; border-radius:9999px;
+     background-color:rgba(255,255,255,.10);
+     outline:1px solid rgba(255,255,255,.10);
+     transition:background-color .15s ease, color .15s ease, outline-color .15s ease;
+   }
+   .badge:hover { color:#fff }
+   
+   .panel, .card {
+     border-radius: var(--radius-card);
+     outline: 1px solid rgba(255,255,255,.12);
+     background-color: color-mix(in oklab, #ffffff 6%, transparent);
+   }
+   
+   /* Motion helpers */
+   @keyframes fadeInUp {
+     0% { opacity:0; transform:translateY(28px) }
+     100% { opacity:1; transform:translateY(0) }
+   }
+   .js .init-opacity { opacity: 0; }
+   .js .init-opacity.show,
+   .show {
+     opacity: 1 !important;
+     animation: fadeInUp .9s cubic-bezier(.22,1,.36,1) forwards;
+   }
+   @media (prefers-reduced-motion: reduce) {
+     .js .init-opacity.show, .show { animation: none !important; opacity: 1 !important; }
+   }
+   svg.lucide { stroke:currentColor; stroke-width:1.5; fill:none; }
+   
+   /* Glass helper */
+   .glass {
+     background-color: rgba(255,255,255,.05);
+     backdrop-filter: blur(8px) brightness(0.95);
+     -webkit-backdrop-filter: blur(8px) brightness(0.95);
+     border-radius: var(--radius-card);
+     outline: 1px solid rgba(255,255,255,.10);
+   }
+   
+   /* Gradient text */
+   .gradient-brand-text {
+     background-image: linear-gradient(
+       to right,
+       var(--color-brand-lime),
+       var(--color-brand-emerald),
+       var(--color-brand-cyan)
+     );
+     -webkit-background-clip: text;
+     background-clip: text;
+     color: transparent;
+     display: inline-block;
+     forced-color-adjust: auto;
+   }
+   
+   /* Utility shims used in templates */
+   .text-transparent { color: transparent }
+   .bg-clip-text { -webkit-background-clip:text; background-clip:text }
+   
+   /* ──────────────────────────────────────────────────────────────
+      Wizard bits (migrated from old index.css)
+      ────────────────────────────────────────────────────────────── */
+   .wizard-stage { position: relative; min-height: 440px; }
+   .wizard-panel {
+     position: absolute; inset: 0;
+     opacity: 0; transform: translateX(24px);
+     transition: opacity .28s ease, transform .28s ease;
+   }
+   .wizard-panel.active  { position: relative; opacity: 1; transform: translateX(0); }
+   .wizard-panel.exiting { opacity: 0; transform: translateX(-24px); pointer-events: none; }
+   
+   /* Floating numbers animation */
+   @keyframes ssFloat {
+     0% { transform: translateY(10px); opacity: 0; }
+     20%,80% { opacity: 1; }
+     100% { transform: translateY(-10px); opacity: 0; }
+   }
+   .ss-floating-number {
+     position: absolute; font-weight: 800;
+     color: #bef264; /* lime-300 */
+     text-shadow: 0 8px 28px rgba(163,230,53,.35);
+     will-change: transform, opacity;
+     animation: ssFloat var(--duration,4.6s) ease-in-out infinite;
+     animation-delay: var(--delay,0s);
+   }
+   .ss-floating-number.em     { color:#a3e635; } /* lime-400 */
+   .ss-floating-number.strong { color:#84cc16; } /* lime-500 */
+   
+   /* ──────────────────────────────────────────────────────────────
+      Buttons — single source of truth
+      ────────────────────────────────────────────────────────────── */
+   
+   /* design tokens for buttons */
+   :root {
+     --btn-text: #0f172a; /* slate-900: dark text on light gradient */
+   }
+   
+   /* Primary gradient button — brand standard everywhere */
+   .btn-primary {
+     display: inline-flex;
+     align-items: center;
+     justify-content: center;
+     border-radius: 9999px;
+     padding: 0.625rem 1.25rem; /* px-5 py-2.5 */
+     font-weight: 600;
+   
+     /* Light horizontal gradient (lime-200 → emerald-200 → sky-200) */
+     background-image: linear-gradient(to right, #d9f99d, #a7f3d0, #bae6fd);
+     color: var(--btn-text);
+   
+     /* Focus + subtle elevation */
+     box-shadow:
+       inset 0 1px 0 rgba(255,255,255,.35),
+       0 8px 24px rgba(0,0,0,.25);
+     transition:
+       filter .15s ease,
+       transform .15s ease,
+       box-shadow .15s ease,
+       background-position .15s ease;
+     background-size: 200% 100%; /* gentle hover shift */
+     background-position: 0% 0%;
+   }
+   .btn-primary:hover {
+     filter: brightness(1.02);
+     background-position: 100% 0%;
+   }
+   .btn-primary:focus-visible {
+     outline: 2px solid rgba(52, 211, 153, .7); /* emerald-300 ring */
+     outline-offset: 2px;
+   }
+   .btn-primary:active {
+     transform: translateY(0.5px);
+   }
+   
+   /* Secondary outline (ghost) button */
+   .btn-secondary {
+     display: inline-flex;
+     align-items: center;
+     justify-content: center;
+     border-radius: 9999px;
+     padding: 0.625rem 1.25rem; /* px-5 py-2.5 */
+     border: 1px solid rgba(255,255,255,.15);
+     color: rgba(255,255,255,.90);
+     background-color: rgba(255,255,255,.05);
+     transition: background-color .15s ease, color .15s ease, border-color .15s ease;
+   }
+   .btn-secondary:hover {
+     color: #fff;
+     background-color: rgba(255,255,255,.10);
+     border-color: rgba(255,255,255,.25);
+   }
+   .btn-secondary:focus-visible {
+     outline: 2px solid rgba(148, 163, 184, .6); /* slate-400-ish */
+     outline-offset: 2px;
+   }
+   
+   /* (Optional) keep the old green CTA available if you explicitly need it) */
+   .btn-primary--old {
+     display: inline-flex;
+     align-items: center;
+     justify-content: center;
+     border-radius: 9999px;
+     padding: 0.625rem 1.25rem; /* px-5 py-2.5 */
+     font-weight: 600;
+     background-image: linear-gradient(to bottom, #bef264, #65a30d); /* lime-300 → lime-600 feel */
+     color: #000;
+     transition: filter .15s ease, transform .15s ease;
+   }
+   .btn-primary--old:hover { filter: brightness(1.05); }
+   .btn-primary--old:active { transform: translateY(0.5px); }

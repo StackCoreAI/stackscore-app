@@ -79,3 +79,34 @@
 /* Optional subtle color/size variation */
 .ss-floating-number.em { color:#a3e635; }      /* lime-400 */
 .ss-floating-number.strong { color:#84cc16; }  /* lime-500 */
+/* ── Scroll unlock + anchor offset hardening (StackScore) ───── */
+html, body {
+  height: auto !important;
+  min-height: 100%;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* If any page uses in-page anchors + a fixed header */
+:root { --header-h: 88px; }
+.section { scroll-margin-top: var(--header-h); }
+
+/* Neutralize full-screen locks on top wrappers */
+:where(.h-screen){ height:auto; min-height:100vh; }
+
+/* Safety: if some global reset clipped scroll */
+:where(html, body){ overflow: auto; }
+
+/* ── GLOBAL SCROLL UNLOCK (Vite app) ─────────────────────────── */
+html, body, #root, #app {
+  height: auto !important;
+  min-height: 100% !important;
+  overflow-y: auto !important;
+  overflow-x: clip;
+  position: static !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+:where(.h-screen){ height:auto; min-height:100vh; }
+:where(.overflow-hidden){ overflow:visible; }
+

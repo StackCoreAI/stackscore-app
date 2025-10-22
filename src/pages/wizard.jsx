@@ -2,6 +2,7 @@
 import React, { useEffect, useRef, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import ResetBanner from "./resetbanner.jsx";
+import Button from "@/components/ui/Button";
 
 // Step model (0..5 are counted as "1..6"; 6 is the summary screen)
 const STEPS = [
@@ -39,12 +40,7 @@ export default function Wizard() {
   // Floating numbers config (randomized once)
   const floatTokens = useMemo(() => {
     const tok = (text, top, side, pos, size, hue, baseDelay) => ({
-      text,
-      top,
-      side,
-      pos,
-      size,
-      hue,
+      text, top, side, pos, size, hue,
       delay: +(baseDelay + Math.random() * 0.6).toFixed(2),
       duration: +(2.8 + Math.random() * 1.6).toFixed(2),
     });
@@ -59,20 +55,31 @@ export default function Wizard() {
     ];
   }, []);
 
-  // Initial load: handle ?fresh=1, restore from localStorage otherwise
+  // Initial load: handle ?reset=1 / ?fresh=1, else restore from localStorage
   useEffect(() => {
     const url = new URL(window.location.href);
+    const reset = url.searchParams.get("reset");
     const fresh = url.searchParams.get("fresh");
 
+    // 1) Hard reset when coming from Pricing (or any route using ?reset=1)
+    if (reset === "1") {
+      hardReset(false); // silent reset (no banner)
+      url.searchParams.delete("reset");
+      window.history.replaceState({}, "", url.toString());
+      setTimeout(() => setIsVisible(true), 60);
+      return;
+    }
+
+    // 2) Fresh start (same behavior as before)
     if (fresh === "1") {
-      // silent reset on first arrival (no banner)
-      hardReset(false);
+      hardReset(false); // silent reset (no banner)
       url.searchParams.delete("fresh");
       window.history.replaceState({}, "", url.toString());
       setTimeout(() => setIsVisible(true), 60);
       return;
     }
 
+    // 3) Otherwise, restore from saved state
     try {
       const saved = JSON.parse(localStorage.getItem("stackscoreUserData") || "{}");
       if (saved && typeof saved === "object") {
@@ -80,7 +87,7 @@ export default function Wizard() {
         if (typeof saved.step === "number") setCurrentStep(saved.step);
       }
     } catch {
-      // ignore
+      // ignore storage errors
     }
 
     setTimeout(() => setIsVisible(true), 60);
@@ -201,6 +208,7 @@ export default function Wizard() {
   const Panel = ({ idx, children }) => {
     const isActive = idx === currentStep;
     const isExiting = idx === prevStep;
+
     const cls =
       "wizard-panel " +
       (isActive
@@ -208,6 +216,7 @@ export default function Wizard() {
         : isExiting
         ? "exiting z-10 pointer-events-none"
         : "z-0 pointer-events-none");
+
     return (
       <section className={cls} data-step={idx}>
         {children}
@@ -273,17 +282,13 @@ export default function Wizard() {
 
         {/* Step dots (hide on summary) */}
         <div
-          className={`flex justify-center gap-2 mt-4 ${
-            currentStep >= countedSteps ? "invisible" : ""
-          }`}
+          className={`flex justify-center gap-2 mt-4 ${currentStep >= countedSteps ? "invisible" : ""}`}
           aria-hidden="true"
         >
           {Array.from({ length: countedSteps }, (_, i) => (
             <span
               key={`dot-${i}`}
-              className={`w-2.5 h-2.5 rounded-full ${
-                i === currentStep ? "bg-lime-500" : "bg-gray-600"
-              }`}
+              className={`w-2.5 h-2.5 rounded-full ${i === currentStep ? "bg-lime-500" : "bg-gray-600"}`}
             />
           ))}
         </div>
@@ -295,9 +300,7 @@ export default function Wizard() {
 
         {/* Step label */}
         <p
-          className={`text-center text-neutral-400 text-sm ${
-            currentStep >= countedSteps ? "invisible" : ""
-          }`}
+          className={`text-center text-neutral-400 text-sm ${currentStep >= countedSteps ? "invisible" : ""}`}
           aria-live="polite"
         >
           Step {Math.min(currentStep + 1, countedSteps)} of {countedSteps}
@@ -309,7 +312,7 @@ export default function Wizard() {
         <Panel idx={0}>
           <h2 className="text-2xl font-semibold mb-3">Living situation</h2>
 
-          {/* NEW: gentle instructions / no-charge notice */}
+          {/* gentle instructions / no-charge notice */}
           <div className="mb-6 rounded-lg border border-neutral-700 bg-neutral-800/60 px-4 py-3 text-sm text-neutral-300">
             <p className="font-medium">How this works</p>
             <ul className="mt-1 ml-5 list-disc space-y-1">
@@ -322,11 +325,7 @@ export default function Wizard() {
             </ul>
           </div>
 
-          <div
-            className={`space-y-4 p-2 rounded-lg ${
-              validationMsg && currentStep === 0 ? "ring-2 ring-amber-400/70 bg-amber-400/5" : ""
-            }`}
-          >
+          <div className={`space-y-4 p-2 rounded-lg ${validationMsg && currentStep === 0 ? "ring-2 ring-amber-400/70 bg-amber-400/5" : ""}`}>
             {["rent", "mortgage", "neither"].map((opt) => (
               <label key={opt} className="flex items-center space-x-3 cursor-pointer">
                 <input
@@ -351,13 +350,7 @@ export default function Wizard() {
           </div>
 
           <div className="mt-10 flex justify-end">
-            <button
-              type="button"
-              onClick={nextFromStep0}
-              className="relative z-30 px-6 py-2 rounded-full text-black font-semibold bg-gradient-to-r from-lime-400 to-lime-500 hover:brightness-110 transition-all pointer-events-auto"
-            >
-              Next
-            </button>
+            <Button size="md" onClick={nextFromStep0}>Next</Button>
           </div>
         </Panel>
 
@@ -375,8 +368,8 @@ export default function Wizard() {
                   onChange={(e) => handleInputChange("subs", e.target.value, true)}
                   className="sr-only peer"
                 />
-                <span className="w-5 h-5 rounded border-2 border-neutral-600 peer-checked:bg-lime-500 peer-checked:border-lime-500 transition-all duration-200 flex items-center justify-center">
-                  <svg className="w-3 h-3 text-white hidden peer-checked:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                <span className="flex h-5 w-5 items-center justify-center rounded border-2 border-neutral-600 transition-all duration-200 peer-checked:border-lime-500 peer-checked:bg-lime-500">
+                  <svg className="hidden h-3 w-3 text-white peer-checked:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
                     <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </span>
@@ -386,31 +379,15 @@ export default function Wizard() {
           </div>
 
           <div className="mt-10 flex justify-between">
-            <button
-              type="button"
-              onClick={goBack}
-              className="relative z-30 px-6 py-2 rounded-full border border-white/30 text-white bg-neutral-900 hover:bg-neutral-800 transition-all pointer-events-auto"
-            >
-              Back
-            </button>
-            <button
-              type="button"
-              onClick={nextStep}
-              className="relative z-30 px-6 py-2 rounded-full text-black font-semibold bg-gradient-to-r from-lime-400 to-lime-500 hover:brightness-110 transition-all pointer-events-auto"
-            >
-              Next
-            </button>
+            <Button variant="secondary" size="md" onClick={goBack}>Back</Button>
+            <Button size="md" onClick={nextStep}>Next</Button>
           </div>
         </Panel>
 
         {/* Step 2 */}
         <Panel idx={2}>
           <h2 className="text-2xl font-semibold mb-6">Tool preference</h2>
-          <div
-            className={`space-y-4 p-2 rounded-lg ${
-              validationMsg && currentStep === 2 ? "ring-2 ring-amber-400/70 bg-amber-400/5" : ""
-            }`}
-          >
+          <div className={`space-y-4 p-2 rounded-lg ${validationMsg && currentStep === 2 ? "ring-2 ring-amber-400/70 bg-amber-400/5" : ""}`}>
             {[
               { value: "auto", label: "Automated (recommended)" },
               { value: "manual", label: "Manual" },
@@ -439,31 +416,15 @@ export default function Wizard() {
           </div>
 
           <div className="mt-10 flex justify-between">
-            <button
-              type="button"
-              onClick={goBack}
-              className="relative z-30 px-6 py-2 rounded-full border border-white/30 text-white bg-neutral-900 hover:bg-neutral-800 transition-all pointer-events-auto"
-            >
-              Back
-            </button>
-            <button
-              type="button"
-              onClick={nextStep}
-              className="relative z-30 px-6 py-2 rounded-full text-black font-semibold bg-gradient-to-r from-lime-400 to-lime-500 hover:brightness-110 transition-all pointer-events-auto"
-            >
-              Next
-            </button>
+            <Button variant="secondary" size="md" onClick={goBack}>Back</Button>
+            <Button size="md" onClick={nextStep}>Next</Button>
           </div>
         </Panel>
 
         {/* Step 3 */}
         <Panel idx={3}>
           <h2 className="text-2xl font-semibold mb-6">Employment status</h2>
-          <div
-            className={`space-y-4 p-2 rounded-lg ${
-              validationMsg && currentStep === 3 ? "ring-2 ring-amber-400/70 bg-amber-400/5" : ""
-            }`}
-          >
+          <div className={`space-y-4 p-2 rounded-lg ${validationMsg && currentStep === 3 ? "ring-2 ring-amber-400/70 bg-amber-400/5" : ""}`}>
             {["employed", "self-employed", "unemployed", "student"].map((s) => (
               <label key={s} className="flex items-center space-x-3 cursor-pointer">
                 <input
@@ -488,31 +449,15 @@ export default function Wizard() {
           </div>
 
           <div className="mt-10 flex justify-between">
-            <button
-              type="button"
-              onClick={goBack}
-              className="relative z-30 px-6 py-2 rounded-full border border-white/30 text-white bg-neutral-900 hover:bg-neutral-800 transition-all pointer-events-auto"
-            >
-              Back
-            </button>
-            <button
-              type="button"
-              onClick={nextStep}
-              className="relative z-30 px-6 py-2 rounded-full text-black font-semibold bg-gradient-to-r from-lime-400 to-lime-500 hover:brightness-110 transition-all pointer-events-auto"
-            >
-              Next
-            </button>
+            <Button variant="secondary" size="md" onClick={goBack}>Back</Button>
+            <Button size="md" onClick={nextStep}>Next</Button>
           </div>
         </Panel>
 
         {/* Step 4 */}
         <Panel idx={4}>
           <h2 className="text-2xl font-semibold mb-6">Goal timeline</h2>
-          <div
-            className={`space-y-4 p-2 rounded-lg ${
-              validationMsg && currentStep === 4 ? "ring-2 ring-amber-400/70 bg-amber-400/5" : ""
-            }`}
-          >
+          <div className={`space-y-4 p-2 rounded-lg ${validationMsg && currentStep === 4 ? "ring-2 ring-amber-400/70 bg-amber-400/5" : ""}`}>
             {[
               { value: "30", label: "ASAP (30 days)" },
               { value: "90", label: "90 Days" },
@@ -541,35 +486,19 @@ export default function Wizard() {
           </div>
 
           <div className="mt-10 flex justify-between">
-            <button
-              type="button"
-              onClick={goBack}
-              className="relative z-30 px-6 py-2 rounded-full border border-white/30 text-white bg-neutral-900 hover:bg-neutral-800 transition-all pointer-events-auto"
-            >
-              Back
-            </button>
-            <button
-              type="button"
-              onClick={nextStep}
-              className="relative z-30 px-6 py-2 rounded-full text-black font-semibold bg-gradient-to-r from-lime-400 to-lime-500 hover:brightness-110 transition-all pointer-events-auto"
-            >
-              Next
-            </button>
+            <Button variant="secondary" size="md" onClick={goBack}>Back</Button>
+            <Button size="md" onClick={nextStep}>Next</Button>
           </div>
         </Panel>
 
         {/* Step 5 */}
         <Panel idx={5}>
           <h2 className="text-2xl font-semibold mb-6">What's your StackScore budget?</h2>
-          <p className="text-neutral-400 mb-8">
+          <p className="mb-8 text-neutral-400">
             Tell us what you can comfortably invest monthly. We'll customize
             your plan to give you the most boost for your budget.
           </p>
-          <div
-            className={`p-2 rounded-lg ${
-              validationMsg && currentStep === 5 ? "ring-2 ring-amber-400/70 bg-amber-400/5" : ""
-            }`}
-          >
+          <div className={`p-2 rounded-lg ${validationMsg && currentStep === 5 ? "ring-2 ring-amber-400/70 bg-amber-400/5" : ""}`}>
             <input
               type="range"
               min="20"
@@ -581,43 +510,31 @@ export default function Wizard() {
               aria-invalid={!!validationMsg && currentStep === 5}
               aria-describedby={validationMsg && currentStep === 5 ? "step5-error" : undefined}
             />
-            <p className="mt-4 text-lg font-medium text-center">
+            <p className="mt-4 text-center text-lg font-medium">
               ${formData.budget} / month
             </p>
-            <p className="mt-2 text-sm text-neutral-400 text-center">
+            <p className="mt-2 text-center text-sm text-neutral-400">
               {budgetLabel(formData.budget)}
             </p>
             {validationMsg && currentStep === 5 && (
-              <p id="step5-error" role="alert" className="mt-3 text-sm text-amber-300 text-center">
+              <p id="step5-error" role="alert" className="mt-3 text-center text-sm text-amber-300">
                 {validationMsg}
               </p>
             )}
           </div>
 
           <div className="mt-10 flex justify-between">
-            <button
-              type="button"
-              onClick={goBack}
-              className="relative z-30 px-6 py-2 rounded-full border border-white/30 text-white bg-neutral-900 hover:bg-neutral-800 transition-all pointer-events-auto"
-            >
-              Back
-            </button>
-            <button
-              type="button"
-              onClick={nextStep}
-              className="relative z-30 px-6 py-2 rounded-full text-black font-semibold bg-gradient-to-r from-lime-400 to-lime-500 hover:brightness-110 transition-all pointer-events-auto"
-            >
-              Next
-            </button>
+            <Button variant="secondary" size="md" onClick={goBack}>Back</Button>
+            <Button size="md" onClick={nextStep}>Next</Button>
           </div>
         </Panel>
 
         {/* Step 6 (summary / ready) */}
         <Panel idx={6}>
-          <div className="text-center space-y-10 max-w-md mx-auto">
+          <div className="mx-auto max-w-md space-y-10 text-center">
             {/* Floating numbers banner */}
             <div
-              className="pointer-events-none w-full select-none relative"
+              className="pointer-events-none relative w-full select-none"
               style={{ margin: "-20px 0", height: "3.5rem" }}
               aria-hidden="true"
             >
@@ -641,23 +558,17 @@ export default function Wizard() {
               })}
             </div>
 
-            <h1 className="text-3xl font-bold -mt-2 mb-1">Your Stack is Ready</h1>
-            <p className="text-lg text-gray-400 mb-2">
+            <h1 className="mb-1 -mt-2 text-3xl font-bold">Your Stack is Ready</h1>
+            <p className="mb-2 text-lg text-gray-400">
               Here's the custom lineup of apps we've prepared to help you
               boost your credit score.
             </p>
 
-            <div className="flex flex-col gap-4 items-stretch">
-              {[
-                "SUBSCRIPTION TRACKERS",
-                "CREDIT BUILDERS",
-                "DISPUTE TOOLS",
-                "UTILITY REPORTING",
-                "AI INSIGHTS",
-              ].map((item, i) => (
+            <div className="flex flex-col items-stretch gap-4">
+              {["SUBSCRIPTION TRACKERS","CREDIT BUILDERS","DISPUTE TOOLS","UTILITY REPORTING","AI INSIGHTS"].map((item, i) => (
                 <div
                   key={item}
-                  className="h-14 flex items-center justify-center rounded-lg bg-gradient-to-b from-neutral-800 to-neutral-900 border-4 border-lime-500 text-slate-300 font-bold tracking-wider text-sm uppercase animate-pulse shadow-lg shadow-lime-500/25"
+                  className="flex h-14 items-center justify-center rounded-lg border-4 border-lime-500 bg-gradient-to-b from-neutral-800 to-neutral-900 text-sm font-bold uppercase tracking-wider text-slate-300 shadow-lg shadow-lime-500/25 animate-pulse"
                   style={{ animationDelay: `${i * 0.1}s` }}
                 >
                   {item}
@@ -665,13 +576,9 @@ export default function Wizard() {
               ))}
             </div>
 
-            <button
-              type="button"
-              onClick={finalizeAndGo}
-              className="relative z-30 inline-block px-6 py-3 bg-gradient-to-r from-lime-400 to-emerald-500 text-black font-semibold rounded-full hover:brightness-110 transition pointer-events-auto"
-            >
+            <Button size="lg" onClick={finalizeAndGo}>
               🚀 View Your Plans
-            </button>
+            </Button>
           </div>
         </Panel>
       </div>

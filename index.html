@@ -6,26 +6,21 @@
 
     <title>StackScore</title>
     <meta name="description" content="Build a smarter credit-improvement stack in minutes. StackScore recommends proven apps and step-by-step actions tailored to your budget and goals." />
-    <!-- Single source of truth for tab/URL bar color -->
     <meta name="theme-color" content="#A6FF66" />
     <meta name="robots" content="index,follow" />
     <link rel="canonical" href="/" />
 
     <!-- Favicons -->
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <!-- Fallback for older browsers -->
     <link rel="icon" href="/favicon.png" sizes="any" />
-    <!-- Optional Apple touch icon (add this file when ready) -->
-    <!-- <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" /> -->
-
     <link rel="manifest" href="/site.webmanifest" />
 
-    <!-- Fonts (Inter via Tailwind font-sans) -->
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 
-    <!-- Social (Open Graph / Twitter) -->
+    <!-- Social -->
     <meta property="og:title" content="StackScore" />
     <meta property="og:description" content="Build a smarter credit-improvement stack in minutes." />
     <meta property="og:type" content="website" />
@@ -36,20 +31,44 @@
     <meta name="twitter:description" content="Build a smarter credit-improvement stack in minutes." />
     <meta name="twitter:image" content="/og-image.png" />
 
-    <!-- Ensure relative paths resolve from root in SPA deployments -->
+    <!-- SPA base -->
     <base href="/" />
+
+    <!-- Tiny pre-CSS hardening -->
+    <style>
+      html, body, #root { min-height: 100%; }
+      html { scroll-behavior: smooth; }
+    </style>
   </head>
 
   <body class="bg-neutral-950 text-white antialiased font-sans">
+    <!-- React mount point -->
     <div id="root"></div>
 
     <noscript>
-      <div style="padding:1rem;max-width:720px;margin:2rem auto;background:#111;border:1px solid #222;border-radius:12px;color:#ddd;font-family:system-ui, -apple-system, Segoe UI, Roboto, Inter, sans-serif;">
+      <div style="padding:1rem;max-width:720px;margin:2rem auto;background:#111;border:1px solid #222;border-radius:12px;color:#ddd;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,sans-serif;">
         <strong>JavaScript is required.</strong> Please enable JavaScript to use StackScore.
       </div>
     </noscript>
 
-    <!-- Vite entry -->
-    <script type="module" src="/src/main.jsx"></script>
+    <!-- Vite entry (direct, with cache-bust) -->
+    <script type="module" src="/src/main.jsx?v=boot1"></script>
+
+    <!-- Defensive bootstrap: runs even if something strips the tag above -->
+    <script type="module">
+      console.debug("[Vite] inline bootstrap start");
+      try {
+        let mount = document.getElementById("root");
+        if (!mount) {
+          mount = document.createElement("div");
+          mount.id = "root";
+          document.body.appendChild(mount);
+        }
+        await import("/src/main.jsx?v=boot1");
+        console.debug("[Vite] inline bootstrap imported /src/main.jsx");
+      } catch (e) {
+        console.error("[Vite] bootstrap import failed", e);
+      }
+    </script>
   </body>
 </html>

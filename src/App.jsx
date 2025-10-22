@@ -1,7 +1,7 @@
 // src/App.jsx
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { Outlet } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
 
+import Landing from "./pages/landing.jsx";   // new: set as home
 import Hero from "./pages/hero.jsx";
 import Wizard from "./pages/wizard.jsx";
 import Preview from "./pages/preview.jsx";
@@ -25,9 +25,11 @@ export default function App() {
       <Routes>
         <Route element={<Layout />}>
           {/* Main */}
-          <Route index element={<Hero />} />
+          <Route index element={<Landing />} />          {/* home */}
+          <Route path="/hero" element={<Hero />} />      {/* optional: keep hero accessible */}
           <Route path="/wizard" element={<Wizard />} />
           <Route path="/preview" element={<Preview />} />
+          <Route path="/stacks" element={<Preview />} /> {/* alias for preview */}
           <Route path="/thankyou" element={<ThankYou />} />
 
           {/* Informational */}
@@ -51,7 +53,7 @@ export default function App() {
           <Route path="/build" element={<Navigate to="/wizard" replace />} />
 
           {/* Fallback */}
-          <Route path="*" element={<Hero />} />
+          <Route path="*" element={<Landing />} />
         </Route>
       </Routes>
     </BrowserRouter>

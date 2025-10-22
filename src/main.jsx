@@ -1,13 +1,12 @@
 // src/main.jsx
-import "./app.src.css";   // ⬅️ add this FIRST and remove ./index.css
-
+import "./app.src.css";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-// (no other global CSS imports)
 
+import Landing from "./pages/landing.jsx";     // long, scrollable home
 
-// Pages (all lowercase to satisfy Linux/Vercel case sensitivity)
+// Keep the rest of your pages available
 import Hero from "./pages/hero.jsx";
 import Wizard from "./pages/wizard.jsx";
 import Preview from "./pages/preview.jsx";
@@ -23,6 +22,7 @@ import Refund from "./pages/refund.jsx";
 import Cookies from "./pages/cookies.jsx";
 import Contact from "./pages/contact.jsx";
 
+// Lightweight 404
 function NotFound() {
   return (
     <main className="min-h-screen grid place-items-center bg-neutral-950 text-white">
@@ -37,8 +37,13 @@ function NotFound() {
   );
 }
 
+console.log("[boot] before router init");
 const router = createBrowserRouter([
-  { path: "/", element: <Hero />, errorElement: <NotFound /> },
+  // Home = long single page with anchors
+  { path: "/", element: <Landing />, errorElement: <NotFound /> },
+
+  // (optional) keep legacy/other pages
+  { path: "/hero", element: <Hero /> },
   { path: "/wizard", element: <Wizard /> },
   { path: "/preview", element: <Preview /> },
   { path: "/pricing", element: <Pricing /> },
@@ -55,9 +60,29 @@ const router = createBrowserRouter([
   { path: "/contact", element: <Contact /> },
   { path: "*", element: <NotFound /> },
 ]);
+console.log("[boot] after router init");
 
-ReactDOM.createRoot(document.getElementById("root")).render(
+// Resilient mount
+const mount =
+  document.getElementById("root") ||
+  document.getElementById("app") ||
+  document.body.appendChild(Object.assign(document.createElement("div"), { id: "root" }));
+
+const root = ReactDOM.createRoot(mount);
+root.render(
   <React.StrictMode>
     <RouterProvider router={router} />
   </React.StrictMode>
 );
+console.log("[boot] after render");
+
+// One-time scroll unlock (handles any stray overflow locks)
+requestAnimationFrame(() => {
+  [document.documentElement, document.body].forEach((el) => {
+    el.style.overflow = "auto";
+    el.style.overflowY = "auto";
+    el.style.position = "static";
+    el.style.height = "auto";
+    el.style.minHeight = "100%";
+  });
+});

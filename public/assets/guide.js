@@ -5,30 +5,22 @@ document.documentElement.classList.add('js');
 
 /** ────────────────────────────────────────────────────────────────────────────
  * Icons + Reveal
- *  - Stagger any [data-anim] blocks
- *  - Safety net: ensure ANY .init-opacity becomes visible (even without [data-anim])
- *  - Runs once on DOMContentLoaded
  * ─────────────────────────────────────────────────────────────────────────── */
 function initIconsAndAnim() {
-  // Initialize lucide icons first so we don't animate empty <i> placeholders
   try {
     if (window.lucide && typeof window.lucide.createIcons === 'function') {
       window.lucide.createIcons();
     }
   } catch {}
 
-  // Stagger reveal for [data-anim]
   const anim = document.querySelectorAll('[data-anim]');
   anim.forEach((el, i) => {
-    // Avoid re-applying if already visible (e.g., during hot reloads)
     if (!el.classList.contains('show')) {
       setTimeout(() => el.classList.add('show'), i * 120);
     }
   });
 
-  // Safety net: guarantee visibility for any node that still has .init-opacity
-  const hidden = document.querySelectorAll('.init-opacity');
-  hidden.forEach(el => el.classList.add('show'));
+  document.querySelectorAll('.init-opacity').forEach(el => el.classList.add('show'));
 }
 
 /** ────────────────────────────────────────────────────────────────────────────
@@ -153,9 +145,57 @@ function initLearnMore() {
  * Boot (DOMContentLoaded)
  * ─────────────────────────────────────────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded', () => {
-  // NOTE: order matters a little — reveal near the top so UX doesn't feel “muted”
-  initIconsAndAnim();       // reveals BOTH [data-anim] and .init-opacity  ← merged safety net
+  initIconsAndAnim();
   initLocalProgress();
   initInstructionsBinder();
   initLearnMore();
 });
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Buy button → prompt for email → redirect to Stripe Checkout via /api/checkout/buy
+// ──────────────────────────────────────────────────────────────────────────────
+(function () {
+  function getParam(name, fallback) {
+    const usp = new URLSearchParams(location.search);
+    return usp.get(name) || fallback;
+  }
+  function isEmail(v) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(v || "").trim());
+  }
+
+  // Change this to your API origin in prod if different (e.g., https://api.stackscore.ai)
+  const API_BASE = window.location.origin;
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const btn = document.getElementById("buy-now");
+    if (!btn) return;
+
+    btn.addEventListener("click", () => {
+      const stackKey = getParam("stackKey", "foundation");
+
+      // Namespace email cache by stackKey so different stacks can remember different emails
+      const cacheKey = `ss_email:${stackKey}`;
+      let email = (window.__SS_EMAIL__ || localStorage.getItem(cacheKey) || "").trim();
+
+      if (!isEmail(email)) {
+        email = (window.prompt("Email to receive your magic access link:", email) || "").trim();
+        if (!isEmail(email)) {
+          alert("Please enter a valid email address.");
+          return;
+        }
+      }
+
+      // Cache for next time
+      localStorage.setItem(cacheKey, email);
+
+      // Disable to prevent double clicks and signal busy state
+      btn.disabled = true;
+      btn.setAttribute("aria-busy", "true");
+
+      // Redirect to your GET helper (dev uses Vite proxy /api → 3001)
+      const url = `${API_BASE}/api/checkout/buy?email=${encodeURIComponent(email)}&stackKey=${encodeURIComponent(stackKey)}`;
+      window.location.assign(url);
+      // no finally re-enable; we expect a navigation
+    });
+  });
+})();

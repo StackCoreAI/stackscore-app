@@ -1,30 +1,42 @@
 // src/components/PlanGrid.jsx
 import { useEffect, useMemo, useState } from "react";
+import Button from "@/components/ui/Button";
+
+const CANON = ["foundation", "growth", "accelerator", "elite"];
 
 /**
- * Four plans w/ narratives.
- * - R1 enforced: only "growth" may reveal a single anchor app.
- * - No effort meter, no category counts; value-forward copy only.
- * - Selected plan persists in sessionStorage.selectedPlanKey
+ * Four plans with narratives.
+ * - Shows cards in canonical order.
+ * - Selection persists to sessionStorage["ss_selected"] (JSON string) and legacy "selectedPlanKey".
+ * - Growth may reveal a single anchor app (R1 rule).
  */
-export default function PlanGrid({ plans, fallbackStack }) {
+export default function PlanGrid({ plans, fallbackStack, onUnlock }) {
   const normalized = useNormalizePlans(plans, fallbackStack);
-  const [selected, setSelected] = useState(
-    () => sessionStorage.getItem("selectedPlanKey") || ""
-  );
+
+  const [selected, setSelected] = useState(() => {
+    const fromNew = safeParse(sessionStorage.getItem("ss_selected"));
+    if (typeof fromNew === "string" && fromNew) return fromNew;
+    const legacy = sessionStorage.getItem("selectedPlanKey");
+    return (legacy || "").toLowerCase();
+  });
 
   useEffect(() => {
-    if (selected) sessionStorage.setItem("selectedPlanKey", selected);
+    if (!selected) return;
+    try {
+      sessionStorage.setItem("ss_selected", JSON.stringify(selected)); // canonical
+      sessionStorage.setItem("selectedPlanKey", selected);             // legacy
+    } catch {}
   }, [selected]);
 
   return (
     <div className="grid gap-6 md:grid-cols-2">
-      {normalized.map((p) => (
+      {normalized.map((p, i) => (
         <PlanCard
-          key={p.key}
+          key={`${p.key}-${i}`}
           plan={p}
           selected={selected === p.key}
           onSelect={() => setSelected(p.key)}
+          onUnlock={onUnlock}
         />
       ))}
     </div>
@@ -33,19 +45,25 @@ export default function PlanGrid({ plans, fallbackStack }) {
 
 /* ---------- Card ---------- */
 
-function PlanCard({ plan, selected, onSelect }) {
+function PlanCard({ plan, selected, onSelect, onUnlock }) {
   const lockCount = computeLockCount(plan);
   const style = subtitleStyles(plan.key);
+  const label = plan.displayName || plan.label || friendlyLabel(plan.key);
 
   return (
     <div
-      className={`rounded-2xl border p-5 bg-neutral-900/60 border-white/10 ${
-        selected ? "ring-2 ring-lime-400" : ""
+      className={`rounded-2xl border p-5 bg-neutral-900/60 border-white/10 transition ${
+        selected ? "ring-2 ring-lime-400" : "hover:border-white/20"
       }`}
+      role="group"
+      aria-label={`${label} card`}
+      onClick={onSelect}
+      tabIndex={0}
+      onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && onSelect()}
     >
       <div className="flex items-start justify-between gap-2">
         <div>
-          <h3 className="text-xl font-semibold">{plan.label}</h3>
+          <h3 className="text-xl font-semibold">{label}</h3>
           {plan.subtitle && (
             <span
               className={`mt-1 inline-flex items-center gap-1 text-xs rounded-full px-2 py-0.5 ${style.bg} ${style.border} ${style.text}`}
@@ -56,19 +74,25 @@ function PlanCard({ plan, selected, onSelect }) {
           )}
         </div>
 
-        {/* Top-right: impact + time (no Effort) */}
+        {/* Top-right: impact + time */}
         <div className="text-right text-sm text-neutral-300">
-          <div>
-            <b>Impact:</b> {plan.projectedGain}
-          </div>
-          <div>
-            <b>Time:</b> {plan.timeToImpactDays} days
-          </div>
+          {plan.projectedGain && (
+            <div>
+              <b>Impact:</b> {formatPts(plan.projectedGain)}
+            </div>
+          )}
+          {plan.timeToImpactDays && (
+            <div>
+              <b>Time:</b> {plan.timeToImpactDays} days
+            </div>
+          )}
         </div>
       </div>
 
       {/* Narrative only – no counts */}
-      <p className="mt-3 text-sm text-neutral-300">{plan.narrative}</p>
+      {plan.narrative && (
+        <p className="mt-3 text-sm text-neutral-300">{plan.narrative}</p>
+      )}
 
       {/* Reveal strip (Growth only) */}
       {plan.revealApp && (
@@ -77,13 +101,14 @@ function PlanCard({ plan, selected, onSelect }) {
             href={plan.revealApp.url || "#"}
             target="_blank"
             rel="noreferrer"
+            onClick={(e) => e.stopPropagation()}
             className="flex-1 rounded-lg border border-white/15 bg-white/5 px-3 py-2"
           >
             <div className="text-xs text-neutral-400">Revealed app</div>
             <div className="font-medium">{plan.revealApp.name}</div>
           </a>
           {lockCount > 0 && (
-            <div className="flex-1 rounded-lg border border-dashed border-white/15 bg-white/2 px-3 py-2 text-neutral-400 text-sm">
+            <div className="flex-1 rounded-lg border border-dashed border-white/15 bg-white/5 px-3 py-2 text-sm text-neutral-400">
               +{lockCount} locked — unlock with StackScore Access
             </div>
           )}
@@ -91,26 +116,101 @@ function PlanCard({ plan, selected, onSelect }) {
       )}
 
       {/* CTA row */}
-      <div className="mt-4 flex items-center justify-between">
-        {selected ? (
-          <span className="text-lime-300 text-sm">Selected</span>
-        ) : (
-          <button
-            onClick={onSelect}
-            className="rounded-full bg-gradient-to-r from-lime-400 to-emerald-500 text-black px-4 py-2 font-semibold hover:brightness-110"
+    {/* CTA row */}
+<div className="mt-4 flex items-center justify-between gap-3">
+  {selected ? (
+    <span
+      className="inline-flex items-center gap-1.5 rounded-full border border-lime-400/30 bg-lime-500/15 px-2.5 py-1 text-sm font-medium text-lime-300"
+      aria-label={`${label} selected`}
+    >
+      <svg
+        className="h-4 w-4"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M20 6L9 17l-5-5" />
+      </svg>
+      Selected
+    </span>
+  ) : (
+    <Button
+      variant="secondary"
+      size="sm"
+      onClick={(e) => {
+        e.stopPropagation();
+        onSelect();
+      }}
+    >
+      Select this stack
+    </Button>
+  )}
+
+  <button
+    onClick={(e) => e.stopPropagation()}
+    className="text-xs text-neutral-400 underline underline-offset-4 hover:text-neutral-200"
+    type="button"
+    aria-label={`Compare details for ${label}`}
+  >
+    Compare details
+  </button>
+</div>
+
+
+      {/* Per-card unlock (if provided) */}
+      {typeof onUnlock === "function" && (
+        <div className="mt-3">
+          <Button
+            size="sm"
+            className="w-full"
+            onClick={(e) => {
+              e.stopPropagation();
+              // selection first, then unlock
+              onSelect?.();
+              onUnlock();
+            }}
           >
-            Select this stack
-          </button>
-        )}
-        <button className="text-xs text-neutral-400 hover:text-neutral-200 underline underline-offset-4">
-          Compare details
-        </button>
-      </div>
+            Unlock with this stack
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
 
 /* ---------- Helpers ---------- */
+
+function safeParse(v) {
+  try {
+    return JSON.parse(v);
+  } catch {
+    return v;
+  }
+}
+
+function friendlyLabel(key) {
+  switch ((key || "").toLowerCase()) {
+    case "foundation":
+      return "Foundation Stack";
+    case "growth":
+      return "Growth Stack";
+    case "accelerator":
+      return "Accelerator Stack";
+    case "elite":
+      return "Elite Stack";
+    default:
+      return "Recommended Stack";
+  }
+}
+
+function formatPts(v) {
+  const s = String(v || "").trim();
+  return /pts$/i.test(s) ? s : `${s} pts`;
+}
 
 function computeLockCount(p) {
   const totalFromCounts = p.counts
@@ -127,42 +227,66 @@ function computeLockCount(p) {
 }
 
 function subtitleStyles(key) {
-  switch (key) {
+  switch ((key || "").toLowerCase()) {
     case "growth":
-      return { bg: "bg-amber-500/15", border: "border border-amber-400/20", text: "text-amber-300" }; // 🔥
+      return { bg: "bg-amber-500/15", border: "border border-amber-400/20", text: "text-amber-300" };
     case "elite":
-      return { bg: "bg-cyan-500/15", border: "border border-cyan-400/20", text: "text-cyan-300" }; // 💎
+      return { bg: "bg-cyan-500/15", border: "border border-cyan-400/20", text: "text-cyan-300" };
     case "accelerator":
-      return { bg: "bg-violet-500/15", border: "border border-violet-400/20", text: "text-violet-300" }; // ⚡
+      return { bg: "bg-violet-500/15", border: "border border-violet-400/20", text: "text-violet-300" };
     case "foundation":
     default:
-      return { bg: "bg-lime-500/15", border: "border border-lime-400/20", text: "text-lime-300" }; // 🔰
+      return { bg: "bg-lime-500/15", border: "border border-lime-400/20", text: "text-lime-300" };
   }
 }
 
 function useNormalizePlans(plans, stack) {
   return useMemo(() => {
+    // Canonical badges
     const subtitleDefaults = {
-      foundation: { emoji: "🔰", text: "Best Value" },
+      foundation: { emoji: "💰", text: "Best Value" },
       growth: { emoji: "🔥", text: "Popular Choice" },
-      accelerator: { emoji: "⚡", text: "Power Boost" },
+      accelerator: { emoji: "🚀", text: "Power Boost" },
       elite: { emoji: "💎", text: "Premium" },
     };
 
+    const timeDefaults = {
+      foundation: "30–60",
+      growth: "45–75",
+      accelerator: "45–60",
+      elite: "30–60",
+    };
+    const ptsDefaults = {
+      foundation: "+10–30",
+      growth: "+40–70",
+      accelerator: "+80–100",
+      elite: "100+",
+    };
+
     if (Array.isArray(plans) && plans.length) {
-      return plans.map((p) => ({
-        key: p.key,
-        label: p.label,
-        subtitle: p.subtitle || subtitleDefaults[p.key] || null,
-        projectedGain: p.projectedGain || "",
-        timeToImpactDays: p.timeToImpactDays || "45–75",
-        counts: p.counts || undefined, // retained only for lock count calc
-        revealApp: p.key === "growth" ? p.revealApp || null : null,
-        narrative: enhanceNarrative(p.narrative, p.key),
-      }));
+      // Put incoming plans into a map, then emit in canonical order
+      const byKey = new Map();
+      for (const p of plans) {
+        const key = String(p.key || p.planKey || "").toLowerCase();
+        if (!byKey.has(key)) byKey.set(key, p);
+      }
+      return CANON.map((k) => {
+        const src = byKey.get(k) || {};
+        return {
+          key: k,
+          label: src.label || src.name || undefined,
+          displayName: src.displayName || src.label || src.name || friendlyLabel(k),
+          subtitle: src.subtitle || subtitleDefaults[k] || null,
+          projectedGain: src.projectedGain || ptsDefaults[k] || "",
+          timeToImpactDays: src.timeToImpactDays || timeDefaults[k] || "45–75",
+          counts: src.counts || undefined,
+          revealApp: k === "growth" ? src.revealApp || null : null, // Growth only
+          narrative: enhanceNarrative(src.narrative, k),
+        };
+      });
     }
 
-    // Fallback synthesis (old mock)
+    // Fallback synthesis (legacy)
     const s = stack || {};
     const firstBuilder =
       (s.creditBuilders && s.creditBuilders[0]) ||
@@ -172,7 +296,7 @@ function useNormalizePlans(plans, stack) {
     return [
       {
         key: "foundation",
-        label: "Foundation Stack",
+        displayName: "Foundation Stack",
         subtitle: subtitleDefaults.foundation,
         projectedGain: "+10–30",
         timeToImpactDays: "30–60",
@@ -185,7 +309,7 @@ function useNormalizePlans(plans, stack) {
       },
       {
         key: "growth",
-        label: "Growth Stack",
+        displayName: "Growth Stack",
         subtitle: subtitleDefaults.growth,
         projectedGain: "+40–70",
         timeToImpactDays: "45–75",
@@ -198,7 +322,7 @@ function useNormalizePlans(plans, stack) {
       },
       {
         key: "accelerator",
-        label: "Accelerator Stack",
+        displayName: "Accelerator Stack",
         subtitle: subtitleDefaults.accelerator,
         projectedGain: "+80–100",
         timeToImpactDays: "45–60",
@@ -211,7 +335,7 @@ function useNormalizePlans(plans, stack) {
       },
       {
         key: "elite",
-        label: "Elite Stack",
+        displayName: "Elite Stack",
         subtitle: subtitleDefaults.elite,
         projectedGain: "100+",
         timeToImpactDays: "30–60",
@@ -230,7 +354,7 @@ function enhanceNarrative(n, key) {
   const trimmed = (n || "").trim();
   if (trimmed) return trimmed;
 
-  switch (key) {
+  switch ((key || "").toLowerCase()) {
     case "foundation":
       return "A chef’s-kiss starter: low-lift essentials that quietly build history, add continuous reporting, and block common gotchas.";
     case "growth":

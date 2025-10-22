@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>{{stack_title}}</title>
+
+  <!-- Self-hosted CSS & Icons (CSP: 'self' only) -->
+  <link rel="stylesheet" href="/assets/app.css?v=dev3" />
+  <script src="/assets/lucide.min.js" defer></script>
+</head>
+<body class="min-h-screen bg-neutral-950 text-white antialiased">
+  <!-- Fixed Header -->
+  <header class="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-neutral-950/70 backdrop-blur">
+    <div class="mx-auto max-w-6xl px-4 h-16 flex items-center justify-between">
+      <a href="#hero" class="flex items-center gap-2 font-semibold">
+        <span class="inline-block h-6 w-6" data-lucide="layers"></span>
+        <span>StackScore</span>
+      </a>
+      <nav class="hidden md:flex items-center gap-6 text-sm">
+        <a href="#features" class="hover:text-lime-300/90">Features</a>
+        <a href="#results" class="hover:text-lime-300/90">Results</a>
+        <a href="#plans" class="hover:text-lime-300/90">Plans</a>
+        <a href="#pricing" class="hover:text-lime-300/90">Pricing</a>
+        <a href="#faq" class="hover:text-lime-300/90">FAQ</a>
+        <a href="#build" class="hover:text-lime-300/90">Build</a>
+      </nav>
+      <a href="#pricing" class="inline-flex items-center gap-2 rounded-xl border border-white/10 px-3 py-1.5 text-sm hover:bg-white/5">
+        <span>Get StackScore</span>
+        <span class="h-4 w-4" data-lucide="arrow-right"></span>
+      </a>
+    </div>
+  </header>
+
+  <main id="home">
+    <!-- HERO -->
+    <section id="hero" class="section pt-32 md:pt-40 pb-24">
+      <div class="mx-auto max-w-6xl px-4 grid md:grid-cols-2 gap-10 items-center">
+        <div>
+          <h1 class="text-4xl md:text-6xl font-extrabold leading-tight">
+            Credit-building plans that <span class="text-lime-300">actually ship</span>
+          </h1>
+          <p class="mt-4 text-lg text-white/80 max-w-prose">
+            Choose Foundation, Growth, Accelerator, or Elite. We assemble a verified app stack and a step-by-step guide tailored to you.
+          </p>
+          <div class="mt-8 flex gap-3">
+            <a href="#plans" class="rounded-2xl bg-lime-400/90 text-neutral-900 font-semibold px-5 py-3 hover:bg-lime-300">Explore plans</a>
+            <a href="#results" class="rounded-2xl border border-white/10 px-5 py-3 hover:bg-white/5">See results</a>
+          </div>
+        </div>
+        <div class="rounded-3xl border border-white/10 bg-gradient-to-br from-white/5 to-white/0 p-6">
+          <div class="aspect-video rounded-2xl border border-white/10 bg-black/40 grid place-items-center text-white/60">
+            <span class="h-8 w-8" data-lucide="line-chart"></span>
+            <span class="sr-only">Preview</span>
+          </div>
+        </div>
+      </div>
+      <div class="mt-12 text-center">
+        <a href="#features" class="inline-flex items-center gap-2 text-white/70 hover:text-white">
+          <span class="h-5 w-5" data-lucide="chevron-down"></span>
+          <span>Next section</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- FEATURES -->
+    <section id="features" class="section py-20">
+      <div class="mx-auto max-w-6xl px-4">
+        <h2 class="text-3xl md:text-4xl font-bold mb-6">Features</h2>
+        <p class="text-white/80 mb-10 max-w-prose">Verified app database • Guided steps • Substitutes if an app is unavailable • Printable premium PDF guide.</p>
+        <div class="grid md:grid-cols-3 gap-6">
+          <article class="rounded-2xl border border-white/10 p-6">
+            <div class="h-6 w-6 mb-3" data-lucide="database"></div>
+            <h3 class="font-semibold mb-1">Verified app engine</h3>
+            <p class="text-white/70 text-sm">Continuously updated library powering every plan.</p>
+          </article>
+          <article class="rounded-2xl border border-white/10 p-6">
+            <div class="h-6 w-6 mb-3" data-lucide="list-checks"></div>
+            <h3 class="font-semibold mb-1">Clear, actionable steps</h3>
+            <p class="text-white/70 text-sm">Follow the sequence; no guesswork.</p>
+          </article>
+          <article class="rounded-2xl border border-white/10 p-6">
+            <div class="h-6 w-6 mb-3" data-lucide="file-text"></div>
+            <h3 class="font-semibold mb-1">Premium PDF export</h3>
+            <p class="text-white/70 text-sm">Investor-grade design you can save and print.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- RESULTS -->
+    <section id="results" class="section py-20">
+      <div class="mx-auto max-w-6xl px-4">
+        <h2 class="text-3xl md:text-4xl font-bold mb-6">Results</h2>
+        <p class="text-white/80 max-w-prose">Realistic timelines and what to expect in your first 30–90 days.
+        </p>
+      </div>
+    </section>
+
+    <!-- PLANS -->
+    <section id="plans" class="section py-20">
+      <div class="mx-auto max-w-6xl px-4">
+        <h2 class="text-3xl md:text-4xl font-bold mb-6">Choose your stack</h2>
+        <div class="grid md:grid-cols-4 gap-6">
+          <!-- Cards are static; checkout happens in Pricing -->
+          <article class="rounded-2xl border border-white/10 p-6">
+            <h3 class="font-semibold">Foundation</h3>
+            <p class="text-sm text-white/70 mt-2">Baseline stack for quick wins.</p>
+          </article>
+          <article class="rounded-2xl border border-white/10 p-6">
+            <h3 class="font-semibold">Growth</h3>
+            <p class="text-sm text-white/70 mt-2">Adds reporting breadth and stabilization.</p>
+          </article>
+          <article class="rounded-2xl border border-white/10 p-6">
+            <h3 class="font-semibold">Accelerator</h3>
+            <p class="text-sm text-white/70 mt-2">Aggressive credit mix and pacing.</p>
+          </article>
+          <article class="rounded-2xl border border-white/10 p-6">
+            <h3 class="font-semibold">Elite</h3>
+            <p class="text-sm text-white/70 mt-2">Hands-on polish with premium substitutes.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- PRICING (Buy lives here) -->
+    <section id="pricing" class="section py-20">
+      <div class="mx-auto max-w-6xl px-4">
+        <h2 class="text-3xl md:text-4xl font-bold mb-6">Pricing</h2>
+        <div class="grid md:grid-cols-4 gap-6">
+          <div class="rounded-2xl border border-white/10 p-6 flex flex-col">
+            <h3 class="font-semibold">Foundation</h3>
+            <p class="text-sm text-white/70">Starter plan</p>
+            <div class="mt-4 text-3xl font-extrabold">$29</div>
+            <a href="/api/checkout/buy?stackKey=foundation" class="mt-6 inline-flex items-center justify-center rounded-2xl bg-lime-400/90 text-neutral-900 font-semibold px-4 py-2 hover:bg-lime-300">Buy Foundation</a>
+          </div>
+          <div class="rounded-2xl border border-white/10 p-6 flex flex-col">
+            <h3 class="font-semibold">Growth</h3>
+            <p class="text-sm text-white/70">Balanced expansion</p>
+            <div class="mt-4 text-3xl font-extrabold">$49</div>
+            <a href="/api/checkout/buy?stackKey=growth" class="mt-6 inline-flex items-center justify-center rounded-2xl bg-lime-400/90 text-neutral-900 font-semibold px-4 py-2 hover:bg-lime-300">Buy Growth</a>
+          </div>
+          <div class="rounded-2xl border border-white/10 p-6 flex flex-col">
+            <h3 class="font-semibold">Accelerator</h3>
+            <p class="text-sm text-white/70">Aggressive pacing</p>
+            <div class="mt-4 text-3xl font-extrabold">$79</div>
+            <a href="/api/checkout/buy?stackKey=accelerator" class="mt-6 inline-flex items-center justify-center rounded-2xl bg-lime-400/90 text-neutral-900 font-semibold px-4 py-2 hover:bg-lime-300">Buy Accelerator</a>
+          </div>
+          <div class="rounded-2xl border border-white/10 p-6 flex flex-col">
+            <h3 class="font-semibold">Elite</h3>
+            <p class="text-sm text-white/70">White-glove stack</p>
+            <div class="mt-4 text-3xl font-extrabold">$129</div>
+            <a href="/api/checkout/buy?stackKey=elite" class="mt-6 inline-flex items-center justify-center rounded-2xl bg-lime-400/90 text-neutral-900 font-semibold px-4 py-2 hover:bg-lime-300">Buy Elite</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section id="faq" class="section py-20">
+      <div class="mx-auto max-w-6xl px-4">
+        <h2 class="text-3xl md:text-4xl font-bold mb-6">FAQ</h2>
+        <div class="divide-y divide-white/10 border border-white/10 rounded-2xl">
+          <details class="p-6 group open:bg-white/2">
+            <summary class="flex cursor-pointer list-none items-center justify-between font-medium">What happens after I buy?
+              <span class="h-5 w-5 text-white/50 group-open:rotate-180 transition" data-lucide="chevron-down"></span>
+            </summary>
+            <p class="mt-3 text-white/70">You’ll be redirected to a Thank‑You page that verifies your payment and gives you a link to open your guide.</p>
+          </details>
+          <details class="p-6 group open:bg-white/2">
+            <summary class="flex cursor-pointer list-none items-center justify-between font-medium">Can I print the guide?
+              <span class="h-5 w-5 text-white/50 group-open:rotate-180 transition" data-lucide="chevron-down"></span>
+            </summary>
+            <p class="mt-3 text-white/70">Yes. The guide is designed for premium PDF export and printing.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- BUILD (social proof / how we build) -->
+    <section id="build" class="section py-20">
+      <div class="mx-auto max-w-6xl px-4">
+        <h2 class="text-3xl md:text-4xl font-bold mb-6">How we build</h2>
+        <p class="text-white/80 max-w-prose">Xata‑backed plans, strict CSP, and zero inline scripts. Marketing sections use anchors for fast mobile navigation.</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-white/10 py-10 text-center text-white/60">
+    <div class="mx-auto max-w-6xl px-4">
+      <p>&copy; {{year}} StackScore. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- No inline scripts (CSP). Lucide will hydrate icons automatically since it's loaded with defer. -->
+</body>
+</html>

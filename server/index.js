@@ -10,6 +10,9 @@ import compression from "compression";
 import rateLimit from "express-rate-limit";
 import fetch from "node-fetch";
 import mustacheExpress from "mustache-express";
+import { upsertEntitlement } from "./lib/entitlements.js";
+import { createShortLink } from "./lib/shortio.js";
+
 
 // API routers
 import { router as planRouter } from "./routes/plan.js";
@@ -373,6 +376,34 @@ app.use(magicLinks);
 
 // Legacy simple health (kept) + new /api/health from router
 app.get("/healthz", (_req, res) => res.status(200).json({ ok: true }));
+
+// ───────────────────────────────────────────────────────────────────────────────
+// Home (single-page anchors) + Legacy route redirects
+// (place BEFORE the SPA fallback catch-all)
+// ───────────────────────────────────────────────────────────────────────────────
+
+// Home page
+app.get("/", (req, res) => {
+  res.render("home", {
+    stack_title: "StackScore — Credit Stacks",
+    year: new Date().getFullYear(),
+  });
+});
+
+// Legacy routes → anchor sections
+const anchorRedirects = {
+  "/features": "/#features",
+  "/results":  "/#results",
+  "/pricing":  "/#pricing",
+  "/faq":      "/#faq",
+  "/plans":    "/#plans", // only if you don't have a standalone /plans page
+};
+Object.entries(anchorRedirects).forEach(([from, to]) => {
+  app.get(from, (_req, res) => res.redirect(301, to));
+});
+
+
+
 
 // SPA fallback for any other route (served from /dist)
 app.use(
