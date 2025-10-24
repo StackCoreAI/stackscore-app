@@ -1,0 +1,17 @@
+# netlify.toml (at repo root)
+[build]
+  command = "npm run build"
+  publish = "dist"
+  functions = "netlify/functions"
+
+# Pretty route → static guide file
+[[redirects]]
+  from = "/guide/82"
+  to   = "/guides/82.html"
+  status = 200
+
+# SPA fallback (keep last)
+[[redirects]]
+  from = "/*"
+  to   = "/index.html"
+  status = 200

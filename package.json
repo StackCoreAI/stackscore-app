@@ -23,7 +23,7 @@
       "generate-safelist": "node scripts/generate-safelist.mjs",
       "prebuild:css": "node scripts/generate-safelist.mjs",
       "css:dev": "tailwindcss -i ./assets/app.src.css -o ./public/assets/app.css --watch --minify --content './public/**/*.html' --content './public/templates/**/*.mustache' --content './server/templates/**/*.mustache' --content './src/**/*.{html,js,jsx,ts,tsx}' --content './**/*.{html,js,jsx,ts,tsx,mustache}' --content '!./node_modules/**/*' --content '!./dist/**/*'",
-      "css:build": "tailwindcss -i ./assets/app.src.css -o ./public/assets/app.css --minify --content './public/**/*.html' --content './public/templates/**/*.mustache' --content './server/templates/**/*.mustache' --content './src/**/*.{html,js,jsx,ts,tsx}' --content './**/*.{html,js,jsx,ts,tsx,mustache}' --content '!./node_modules/**/*' --content '!./dist/**/*'",
+      "css:build":"tailwindcss -i ./src/assets/app.css -o ./public/assets/app.css --minify ...",
       "build": "npm run prebuild:css && npm run css:build && npm run build:guide && vite build",
       "build:guide": "scripts/bin/tailwindcss -i public/assets/guide.src.css -o public/assets/guide.css --minify",
       "watch:guide": "scripts/bin/tailwindcss -i public/assets/guide.src.css -o public/assets/guide.css --watch",
