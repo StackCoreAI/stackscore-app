@@ -26,7 +26,7 @@
   "css:dev": "tailwindcss -i ./src/app.src.css -o ./public/assets/app.css --watch --minify --content './public/**/*.html' --content './public/templates/**/*.mustache' --content './server/templates/**/*.mustache' --content './src/**/*.{html,js,jsx,ts,tsx}' --content './**/*.{html,js,jsx,ts,tsx,mustache}' --content '!./node_modules/**/*' --content '!./dist/**/*'",
   "css:build": "tailwindcss -i ./src/app.src.css -o ./public/assets/app.css --minify --content './public/**/*.html' --content './public/templates/**/*.mustache' --content './server/templates/**/*.mustache' --content './src/**/*.{html,js,jsx,ts,tsx}' --content './**/*.{html,js,jsx,ts,tsx,mustache}' --content '!./node_modules/**/*' --content '!./dist/**/*'",
 
-  "build": "npm run prebuild:css && npm run css:build && npm run build:guide && vite build",
+  "build": "npm run prebuild:css && npm run css:build && npm run build:guide && npm run build:js && vite build",
   "build:guide": "scripts/bin/tailwindcss -i public/assets/guide.src.css -o public/assets/guide.css --minify",
   "watch:guide": "scripts/bin/tailwindcss -i public/assets/guide.src.css -o public/assets/guide.css --watch",
   "preview": "vite preview",
