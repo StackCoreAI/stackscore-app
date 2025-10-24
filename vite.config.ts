@@ -1,18 +1,20 @@
 // vite.config.ts
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import path from 'node:path'
 
 export default defineConfig({
   plugins: [react()],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, 'src'),
+    },
+  },
   build: {
-    // Allow top-level await; modern output
-    target: 'esnext',        // (or 'esnext')
-    modulePreload: { polyfill: false }, // avoid legacy polyfill
-    // outDir, rollupOptions, etc. can stay as-is
+    target: 'es2022',
+    modulePreload: { polyfill: false },
   },
   optimizeDeps: {
-    esbuildOptions: {
-      target: 'esnext',
-    },
+    esbuildOptions: { target: 'es2022' },
   },
 })
