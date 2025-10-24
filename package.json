@@ -15,7 +15,7 @@
         "dev:web": "vite",
         "dev": "concurrently -n API,WEB -c green,cyan \"npm:dev:api\" \"npm:dev:web\"",
         "start:api": "NODE_ENV=production node server/index.js",
-        "lint:case": "git ls-files src/pages | grep -E '[A-Z].*\\.jsx$' && (echo '❌ Case issue found in src/pages (uppercase JSX filename)'; exit 1) || echo '✅ case clean')",
+        "lint:case": "git ls-files src/pages | grep -E '[A-Z].*\\.jsx$' && echo '❌ Case issue found in src/pages (uppercase JSX filename)' && exit 1 || echo '✅ case clean'",
         "lint:imports-case": "git grep -nE 'from \\\"\\./pages/.*[A-Z]' src && (echo '❌ Uppercase import path found'; exit 1) || echo '✅ imports case clean')",
         "prebuild": "npm run lint:case && npm run lint:imports-case",
         "generate-safelist": "node scripts/generate-safelist.mjs",
