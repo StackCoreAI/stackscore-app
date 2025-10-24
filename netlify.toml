@@ -4,6 +4,12 @@
   publish = "dist"
   functions = "netlify/functions"
 
+# Bundle settings for serverless functions (OpenAI, etc.)
+[functions]
+  node_bundler = "esbuild"
+  external_node_modules = ["openai"]
+  timeout = 20
+
 # Pretty route → static guide file
 [[redirects]]
   from = "/guide/82"
