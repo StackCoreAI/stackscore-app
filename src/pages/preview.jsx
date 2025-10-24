@@ -1,7 +1,7 @@
 // src/pages/preview.jsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Layers, BarChart3, Rocket, Crown } from "lucide-react";
+import { Layers, BarChart3, Rocket, Crown, Info } from "lucide-react";
 import Loader from "../components/Loader.jsx";
 import PreviewHeader from "../components/PreviewHeader.jsx";
 import PlanGrid from "../components/PlanGrid.jsx";
@@ -9,7 +9,9 @@ import SiteHeader from "../components/SiteHeader.jsx";
 import SiteFooter from "../components/SiteFooter.jsx";
 import Button from "@/components/ui/Button";
 
-// ---- Stack metadata (single source for names/icons/accents) ----
+/* ------------------------------------------------------------------ */
+/* Stack metadata (names/icons/accents)                               */
+/* ------------------------------------------------------------------ */
 const STACKS = [
   { key: "foundation",  name: "Foundation",  icon: Layers,    accent: "ring-lime-400"  },
   { key: "growth",      name: "Growth",      icon: BarChart3, accent: "ring-cyan-400"  },
@@ -18,14 +20,17 @@ const STACKS = [
 ];
 const STACK_BY_KEY = Object.fromEntries(STACKS.map((s) => [s.key, s]));
 
-// fallback answers shape (used only for header chips)
+/* ------------------------------------------------------------------ */
+/* Answers helpers (chips only; no PII)                                */
+/* ------------------------------------------------------------------ */
 const BLANK = { housing: "", subs: [], tools: "", employment: "", goal: "", budget: "45" };
 
 function loadAnswers() {
   try {
     const raw =
       localStorage.getItem("stackscoreUserData") ||
-      localStorage.getItem("ss_answers");
+      localStorage.getItem("ss_answers") ||
+      localStorage.getItem("stackscore_answers");
     if (!raw) return null;
     return { ...BLANK, ...JSON.parse(raw) };
   } catch {
@@ -33,72 +38,102 @@ function loadAnswers() {
   }
 }
 
-function getSelectedPlanKey() {
-  const raw = sessionStorage.getItem("ss_selected");
-  if (!raw) return "growth";
-  try {
-    const v = JSON.parse(raw);
-    if (typeof v === "string") return v || "growth";
-    return (v?.planKey || v?.key || "growth").toLowerCase();
-  } catch {
-    return (raw || "growth").toLowerCase();
-  }
+function answersForApi(a) {
+  if (!a) return {};
+  return {
+    living: a.living || a.housing || "",
+    budget: a.budget || "",
+    timeline: a.timeline || a.goal || "",
+    employment: a.employment || "",
+    rent_backdate: a.rent_backdate || "",
+  };
 }
 
-/* ---------- Normalization (canonical 4 stacks, unique keys) ---------- */
+/* ------------------------------------------------------------------ */
+/* “Why these apps” explainer                                          */
+/* ------------------------------------------------------------------ */
+function rationaleLines(a) {
+  const out = [];
+  const living = (a?.living || a?.housing || "").toLowerCase();
+  const budget = (a?.budget || "").toLowerCase();
+  const timeline = (a?.timeline || a?.goal || "").toLowerCase();
+  const employment = (a?.employment || "").toLowerCase();
+  const backdate = (a?.rent_backdate || "").toLowerCase();
 
-const CANON = ["foundation", "growth", "accelerator", "elite"];
-const keyMap = { lite: "foundation", core: "growth", boosted: "accelerator", max: "elite" };
+  if (timeline.includes("asap") || timeline.includes("fast"))
+    out.push("Fast timeline → we prioritize instant-impact utilities and low-friction builders.");
+  else if (timeline.includes("steady"))
+    out.push("Steady timeline → we emphasize installment builders that compound over time.");
+  else if (timeline.includes("aggressive"))
+    out.push("Aggressive goal → we add dispute automation + 4–5 item stacks.");
 
-function normalizePlanSet(data) {
-  if (import.meta.env.DEV) {
-    console.log("[normalize] incoming:", Array.isArray(data?.plans) ? data.plans.length : 0);
+  if (living.includes("rent"))
+    out.push("Renter → rent-reporting options are included, with backdating when available.");
+  if (living.includes("own"))
+    out.push("Homeowner → utilities/streaming reporting used for quick tradelines.");
+
+  if (budget.includes("$0") || budget.includes("0") || budget.includes("free"))
+    out.push("Budget-sensitive → free/low-cost options are ranked higher.");
+  else if (budget.includes("10")) out.push("Budget ≈ $10–$25 → mid-tier builders are considered.");
+  else out.push("Flexible budget → broader mix of builders is considered.");
+
+  if (employment.includes("self"))
+    out.push("Self-employed → prefer low-doc / bank-link friendly builders.");
+  if (employment.includes("employ")) out.push("Employed → any builder types are suitable.");
+
+  if (backdate.includes("yes"))
+    out.push("Backdate requested → rent reporters that support backdating are prioritized.");
+
+  if (!out.length) out.push("Your answers drive the picks: timeline, living situation, budget, employment, and rent backdate.");
+  return out;
+}
+
+/* ------------------------------------------------------------------ */
+/* API: Netlify Function calls                                         */
+/* ------------------------------------------------------------------ */
+async function fetchStackPlan(stackKey, answers) {
+  const res = await fetch("/.netlify/functions/generate-plan", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Accept: "application/json" },
+    body: JSON.stringify({ stackKey, answers: answersForApi(answers) }),
+  });
+  const text = await res.text();
+  const ct = (res.headers.get("content-type") || "").toLowerCase();
+  if (!ct.includes("application/json")) {
+    console.error("Preview → Plan API returned non-JSON:", text.slice(0, 200));
+    throw new Error("Plan API returned HTML/invalid JSON");
   }
+  return JSON.parse(text);
+}
 
-  const incoming = Array.isArray(data?.plans) ? data.plans : [];
+async function buildPlanSet(answers) {
+  const keys = ["foundation", "growth", "accelerator", "elite"];
+  const results = await Promise.all(keys.map((k) => fetchStackPlan(k, answers).catch((e) => ({ error: e }))));
 
-  // Deduplicate by normalized key (first one wins)
-  const byKey = new Map();
-  for (const p of incoming) {
-    const raw = String(p.key || p.planKey || p.slug || "").toLowerCase();
-    const k = keyMap[raw] || raw;
-    if (!k) continue;
-    if (!byKey.has(k)) byKey.set(k, p);
-  }
-
-  // Compose final list in canonical order, filling missing entries
-  const plans = CANON.map((k) => {
-    const src = byKey.get(k) || {};
+  const plans = keys.map((k, i) => {
     const meta = STACK_BY_KEY[k] || {};
+    const data = results[i] || {};
+    const apps = Array.isArray(data?.apps) ? data.apps.slice(0, 5) : [];
     return {
-      ...src,
-      key: k, // stable, unique
-      displayName: meta.name || src.name || friendly(k),
+      key: k,
+      displayName: meta.name,
       icon: meta.icon || BarChart3,
       accent: meta.accent || "ring-cyan-400",
+      apps,
     };
   });
 
-  return { ...data, plans };
+  return { plans };
 }
 
-function friendly(k) {
-  switch (k) {
-    case "foundation": return "Foundation";
-    case "growth": return "Growth";
-    case "accelerator": return "Accelerator";
-    case "elite": return "Elite";
-    default: return "Growth";
-  }
-}
-
-/* -------------------------------------------------------------------- */
-
+/* ------------------------------------------------------------------ */
+/* Component                                                           */
+/* ------------------------------------------------------------------ */
 export default function Preview() {
   const nav = useNavigate();
 
   const [answers, setAnswers] = useState(null);
-  const [planSet, setPlanSet] = useState(null); // <-- { user_profile, plans: [...] }
+  const [planSet, setPlanSet] = useState(null);
   const [status, setStatus] = useState("idle");
   const [error, setError] = useState("");
   const [refreshedAt, setRefreshedAt] = useState(
@@ -107,63 +142,21 @@ export default function Preview() {
   const [unlocking, setUnlocking] = useState(false);
   const [unlockErr, setUnlockErr] = useState("");
 
-  // 🔑 Email capture state (persist across sessions)
+  // 🔑 Email capture state
   const [email, setEmail] = useState(() => localStorage.getItem("ss_email") || "");
   const [showEmail, setShowEmail] = useState(false);
   const [emailErr, setEmailErr] = useState("");
 
-  // --- API helpers (new endpoints) ---
-  async function fetchPlanSet() {
-    const r = await fetch("/api/plan/any-id");
-    if (!r.ok) throw new Error(`API ${r.status}`);
-    const j = await r.json();
-    if (!j.ok || !j.data) throw new Error(j.error || "Invalid API payload");
-    return j.data;
-  }
-
-  async function generatePlanSet(profile) {
-    const r = await fetch("/api/plan/generate", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ user_profile: profile || {} }),
-    });
-    if (!r.ok) throw new Error(`API ${r.status}`);
-    const j = await r.json();
-    if (!j.ok || !j.data) throw new Error(j.error || "Invalid API payload");
-    return j.data;
-  }
-
-  async function runFetch(useAnswers, { forceGenerate = false } = {}) {
+  const runFetch = useCallback(async (useAnswers) => {
     setStatus("loading");
     try {
-      const rawData = forceGenerate
-        ? await generatePlanSet({
-            starting_fico: 510,
-            monthly_budget_usd: Number(useAnswers?.budget || 45),
-            constraints: ["soft pull only"],
-          })
-        : await fetchPlanSet();
+      const data = await buildPlanSet(useAnswers);
+      setPlanSet(data);
 
-      if (import.meta.env.DEV) {
-        console.log("[plan:raw]", rawData?.plans?.map((p) => p.key || p.planKey || p.slug || p.name));
-      }
-
-      const normalized = normalizePlanSet(rawData);
-
-      if (import.meta.env.DEV) {
-        console.log("[plan:normalized]", normalized.plans.map((p) => p.key));
-      }
-
-      setPlanSet(normalized);
-
-      sessionStorage.setItem("ss_plan", JSON.stringify(normalized));
+      sessionStorage.setItem("ss_plan", JSON.stringify(data));
       const t = Date.now();
       setRefreshedAt(t);
       sessionStorage.setItem("ss_refreshed_at", String(t));
-
-      if (import.meta.env.DEV) {
-        console.log("[cache:set] ss_plan bytes=", JSON.stringify(normalized).length);
-      }
 
       setStatus("done");
     } catch (e) {
@@ -171,9 +164,8 @@ export default function Preview() {
       setError(e.message || "Failed to load plan");
       setStatus("error");
     }
-  }
+  }, []);
 
-  // Initial load
   useEffect(() => {
     window.scrollTo(0, 0);
     const a = loadAnswers();
@@ -183,19 +175,15 @@ export default function Preview() {
     if (cached) {
       try {
         const parsed = JSON.parse(cached);
-        const normalized = normalizePlanSet(parsed); // ensure older cache still normalizes
-        setPlanSet(normalized);
+        setPlanSet(parsed);
         const t = Number(sessionStorage.getItem("ss_refreshed_at") || 0);
         if (t) setRefreshedAt(t);
         setStatus("done");
         return;
-      } catch {
-        // fall through to fetch
-      }
+      } catch {}
     }
-
     runFetch(a);
-  }, []);
+  }, [runFetch]);
 
   function handleRefresh(updates) {
     const merged = { ...(answers || {}), ...(updates || {}) };
@@ -203,15 +191,19 @@ export default function Preview() {
     try {
       localStorage.setItem("stackscoreUserData", JSON.stringify({ ...merged, step: 6 }));
       localStorage.setItem("ss_answers", JSON.stringify(merged));
+      localStorage.setItem("stackscore_answers", JSON.stringify(merged));
       sessionStorage.removeItem("ss_plan");
     } catch {}
-    runFetch(merged, { forceGenerate: true });
+    runFetch(merged);
   }
+
+  const editAnswers = () => nav("/wizard", { replace: false });
 
   const resetAll = () => {
     try {
       localStorage.removeItem("stackscoreUserData");
       localStorage.removeItem("ss_answers");
+      localStorage.removeItem("stackscore_answers");
       sessionStorage.removeItem("ss_plan");
       sessionStorage.removeItem("ss_selected");
       sessionStorage.removeItem("ss_refreshed_at");
@@ -219,15 +211,10 @@ export default function Preview() {
     nav("/wizard?fresh=1", { replace: true });
   };
 
-  const editAnswers = () => nav("/wizard", { replace: false });
-
-  // Basic email validator (single declaration)
   const isValidEmail = (v) => /\S+@\S+\.\S+/.test(String(v || "").trim());
 
-  // Unlock flow: validate, persist, POST, redirect
   async function handleUnlockClick() {
     setUnlockErr("");
-
     const clean = String(email || "").trim();
     if (!isValidEmail(clean)) {
       setEmailErr("Please enter a valid email.");
@@ -238,18 +225,15 @@ export default function Preview() {
     setUnlocking(true);
     try {
       localStorage.setItem("ss_email", clean);
-
-      const planKey = getSelectedPlanKey() || "growth";
-
       const res = await fetch("/api/checkout/session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          planKey,
-          plan: planKey,            // alias for some backends
-          email: clean,             // common name
-          customer_email: clean,    // stripe-style
-          source: "stackscore-web", // breadcrumb for logs
+          planKey: "growth",
+          plan: "growth",
+          email: clean,
+          customer_email: clean,
+          source: "stackscore-web",
         }),
       });
 
@@ -266,6 +250,7 @@ export default function Preview() {
     }
   }
 
+  const lines = rationaleLines(answers || {});
   return (
     <div className="flex min-h-screen flex-col bg-neutral-950 text-white">
       <SiteHeader />
@@ -305,6 +290,24 @@ export default function Preview() {
                 />
               </div>
 
+              {/* Why these apps (explainer) */}
+              <div className="mt-6 rounded-xl border border-white/10 bg-white/[0.04] p-4">
+                <div className="flex items-center gap-2 mb-1">
+                  <Info className="w-4 h-4 text-emerald-300" />
+                  <h3 className="text-sm font-semibold text-white">Why these apps</h3>
+                </div>
+                <p className="text-sm text-neutral-300">
+                  Your stack is personalized from your answers. We balance quick impact with durable growth and cost.
+                </p>
+                <ul className="mt-2 space-y-1 text-sm text-neutral-300 list-disc pl-5">
+                  {lines.map((l, i) => (<li key={i}>{l}</li>))}
+                </ul>
+                <p className="mt-2 text-xs text-neutral-400">
+                  Foundation emphasizes utilities + builders, Growth adds installment depth, Accelerator layers dispute automation,
+                  and Elite adds higher-leverage tradelines alongside builders.
+                </p>
+              </div>
+
               <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
                 <Button
                   size="lg"
@@ -314,7 +317,6 @@ export default function Preview() {
                 >
                   {unlocking ? "Redirecting…" : "Unlock your optimized stack"}
                 </Button>
-
                 {unlockErr && <span className="text-sm text-red-300">{unlockErr}</span>}
               </div>
             </>
@@ -361,11 +363,13 @@ export default function Preview() {
               <Button variant="secondary" onClick={() => setShowEmail(false)}>Cancel</Button>
               <Button
                 onClick={() => {
-                  if (!isValidEmail(email)) {
+                  const clean = String(email || "").trim();
+                  const ok = /\S+@\S+\.\S+/.test(clean);
+                  if (!ok) {
                     setEmailErr("Please enter a valid email.");
                     return;
                   }
-                  localStorage.setItem("ss_email", String(email || "").trim());
+                  localStorage.setItem("ss_email", clean);
                   setShowEmail(false);
                   handleUnlockClick();
                 }}
