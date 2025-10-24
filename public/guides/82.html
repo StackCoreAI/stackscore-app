@@ -9,7 +9,8 @@
   <link rel="stylesheet" href="/assets/guide.css">
   <script defer src="/assets/lucide.min.js"></script>
   <script defer src="/assets/guide.js"></script>
-  <script defer src="/assets/plan.runtime.js?v=1"></script>
+  <!-- plan.runtime.js (POST → Netlify Function). Cache-bust with v=2 -->
+  <script defer src="/assets/plan.runtime.js?v=2"></script>
 
   <style>
     html { scroll-behavior:smooth }
@@ -25,24 +26,11 @@
     /* --- Print styles --- */
     @media print {
       .no-print, nav, header, .site-nav, .builder, .sticky-cta, .footer-cta { display:none !important; }
-
-      html, body {
-        background:#fff !important; color:#000 !important;
-        -webkit-print-color-adjust: exact; print-color-adjust: exact;
-      }
-
-      .deck-safe, .container, .content, .guide-inner {
-        max-width:100% !important; width:100% !important;
-        padding:0 !important; margin:0 !important; box-shadow:none !important; background:transparent !important;
-      }
-
-      .card, .app, .section, .panel, .grid > * {
-        break-inside: avoid; page-break-inside: avoid;
-      }
-
+      html, body { background:#fff !important; color:#000 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .deck-safe, .container, .content, .guide-inner { max-width:100% !important; width:100% !important; padding:0 !important; margin:0 !important; box-shadow:none !important; background:transparent !important; }
+      .card, .app, .section, .panel, .grid > * { break-inside: avoid; page-break-inside: avoid; }
       .page-break { break-before: page; page-break-before: always; }
     }
-
     @page { size: Letter; margin: 12mm; }
 
     /* helpers */
@@ -173,7 +161,6 @@
             Apps include many capabilities, but only certain features move the needle for your profile. Follow the features we highlighted to unlock the full benefit of your plan.
           </div>
         </details>
-        
       </div>
 
       <!-- content grid -->
@@ -182,8 +169,6 @@
         <aside class="page-break col-span-1 lg:col-span-3 lg:p-6 bg-gradient-to-b from-white/5 to-white/10 border-r border-white/10 pt-4 pr-4 pb-4 pl-4">
           <div class="space-y-3 mb-6">
             <h3 class="text-xs font-medium text-zinc-400 uppercase tracking-wider">Apps in Your Stack.</h3>
-
-            <!-- Sidebar slot populated by SSR and/or plan.runtime.js -->
             <div class="space-y-2" id="sidebar-slot"></div>
           </div>
 
@@ -224,32 +209,33 @@
 
           <!-- Form the runtime hydrates -->
           <form class="space-y-4">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <label class="block">
-                <span class="text-xs text-zinc-400">Website:</span>
-                <input type="url" placeholder="https://"
-                  class="mt-1 w-full rounded-md bg-black/40 border border-white/10 px-3 py-2 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-lime-500/40" />
-              </label>
-            </div>
+            <!-- Website -->
+            <label class="block">
+              <span class="text-xs text-zinc-400">Website:</span>
+              <input type="url" placeholder="https://"
+                class="mt-1 w-full rounded-md bg-black/40 border border-white/10 px-3 py-2 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-lime-500/40" />
+            </label>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <label class="block">
-                <span class="text-xs text-zinc-400">1st:</span>
-                <input type="text" placeholder="First step"
-                  class="mt-1 w-full rounded-md bg-black/40 border border-white/10 px-3 py-2 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-lime-500/40" />
-              </label>
-              <label class="block">
-                <span class="text-xs text-zinc-400">2nd:</span>
-                <input type="text" placeholder="Second step"
-                  class="mt-1 w-full rounded-md bg-black/40 border border-white/10 px-3 py-2 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-lime-500/40" />
-              </label>
-              <label class="block">
-                <span class="text-xs text-zinc-400">3rd:</span>
-                <input type="text" placeholder="Third step"
-                  class="mt-1 w-full rounded-md bg-black/40 border border-white/10 px-3 py-2 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-lime-500/40" />
-              </label>
-            </div>
+            <!-- Steps: vertical & multiline -->
+            <label class="block">
+              <span class="text-xs text-zinc-400">1st:</span>
+              <textarea rows="3" placeholder="First step"
+                class="mt-1 w-full rounded-md bg-black/40 border border-white/10 px-3 py-2 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-lime-500/40"></textarea>
+            </label>
 
+            <label class="block">
+              <span class="text-xs text-zinc-400">2nd:</span>
+              <textarea rows="3" placeholder="Second step"
+                class="mt-1 w-full rounded-md bg-black/40 border border-white/10 px-3 py-2 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-lime-500/40"></textarea>
+            </label>
+
+            <label class="block">
+              <span class="text-xs text-zinc-400">3rd:</span>
+              <textarea rows="3" placeholder="Third step"
+                class="mt-1 w-full rounded-md bg-black/40 border border-white/10 px-3 py-2 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-lime-500/40"></textarea>
+            </label>
+
+            <!-- Pro tip -->
             <label class="block">
               <span class="text-xs text-zinc-400">Pro tip / Notes:</span>
               <textarea rows="4" placeholder="Any specific feature, toggle, or caveat to watch for…"
@@ -276,5 +262,18 @@
       that your credit score will increase.
     </div>
   </footer>
+
+  <!-- Compose the page using the Netlify Function -->
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      const u = new URL(location.href);
+      const stackKey = u.searchParams.get('stackKey') || 'foundation';
+      if (window.composeGuide) {
+        window.composeGuide(stackKey);
+      } else {
+        console.error('composeGuide not found on window');
+      }
+    });
+  </script>
 </body>
 </html>
