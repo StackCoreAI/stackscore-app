@@ -1,22 +1,32 @@
-# netlify.toml (at repo root)
+# netlify.toml (repo root)
 [build]
   command = "npm run build"
   publish = "dist"
   functions = "netlify/functions"
 
-# Bundle settings for serverless functions (OpenAI, etc.)
 [functions]
   node_bundler = "esbuild"
   external_node_modules = ["openai"]
+
+# Per-function timeouts (Netlify compatible)
+[functions."stripe-webhook"]
   timeout = 20
 
-# Pretty route → static guide file
-[[redirects]]
-  from = "/guide/82"
-  to   = "/guides/82.html"
-  status = 200
+[functions."create-checkout-session"]
+  timeout = 20
 
-# SPA fallback (keep last)
+[functions."get-checkout-session"]
+  timeout = 20
+
+[functions."preview-copy"]
+  timeout = 20
+
+[[redirects]]
+  from = "/guide/:id"
+  to   = "/guides/:id.html"
+  status = 200
+  force = true
+
 [[redirects]]
   from = "/*"
   to   = "/index.html"
