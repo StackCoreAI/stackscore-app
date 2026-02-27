@@ -1,7 +1,6 @@
 // src/sections/PricingSection.jsx
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Lock, RotateCcw } from "lucide-react";
-import { Link } from "react-router-dom";
 import Button from "@/components/ui/Button";
 
 export default function PricingSection() {
@@ -38,13 +37,9 @@ export default function PricingSection() {
           isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
         }`}
       >
-        <h2 className="text-3xl md:text-4xl font-semibold text-lime-400 tracking-tight">
-          Simple Pricing
-        </h2>
+        <h2 className="text-3xl md:text-4xl font-semibold text-lime-400 tracking-tight">Simple Pricing</h2>
 
-        <p className="text-xl md:text-2xl text-white font-medium">
-          One-Time Access — Just $29
-        </p>
+        <p className="text-xl md:text-2xl text-white font-medium">One-Time Access — Just $29</p>
 
         <p className="text-sm text-neutral-400">
           Your StackScore plan is tailored to you — and always just{" "}
@@ -67,19 +62,21 @@ export default function PricingSection() {
           </ul>
         </div>
 
-        {/* CTAs with stacked logos */}
+        {/* CTAs with stacked logos (router-agnostic: anchors, not Link) */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-6">
           <div className="hidden sm:block">
             <StackScoreLogo className="w-5 h-5 sm:w-6 sm:h-6" />
           </div>
 
-          <Link to="/wizard?reset=1">
+          <a href="/wizard?reset=1" className="inline-flex" aria-label="Start wizard and get your StackScore">
             <Button size="lg">Get Your StackScore</Button>
-          </Link>
+          </a>
 
-          <Link to="/faq">
-            <Button variant="secondary" size="lg">Learn How It Works</Button>
-          </Link>
+          <a href="/faq" className="inline-flex" aria-label="Learn how it works">
+            <Button variant="secondary" size="lg">
+              Learn How It Works
+            </Button>
+          </a>
 
           <div className="hidden sm:block">
             <StackScoreLogo className="w-5 h-5 sm:w-6 sm:h-6" />
@@ -105,8 +102,8 @@ export default function PricingSection() {
         </p>
 
         <div className="bg-neutral-900 border border-neutral-700 p-4 rounded-lg text-sm text-neutral-300 italic max-w-xl mx-auto">
-          “Seasons shift. So do your goals. Refresh your StackScore after 4 months to reflect what’s next —
-          whether it’s a new move, new job, or a bigger goal.”
+          “Seasons shift. So do your goals. Refresh your StackScore after 4 months to reflect what’s next — whether it’s
+          a new move, new job, or a bigger goal.”
         </div>
 
         <div className="pt-2">

@@ -22,17 +22,17 @@ export default function Hero() {
 
   // Canonical gains tiles
   const GAINS = [
-    { key: "foundation", name: "Foundation Stack",  pts: "+10–30 pts",  tone: "lime",   badge: { icon: "💰", label: "Best Value" } },
-    { key: "growth",     name: "Growth Stack",      pts: "+40–70 pts",  tone: "amber",  badge: { icon: "🔥", label: "Popular Choice" } },
-    { key: "accelerator",name: "Accelerator Stack", pts: "+80–100 pts", tone: "cyan",   badge: { icon: "🚀", label: "Power Boost" } },
-    { key: "elite",      name: "Elite Stack",       pts: "100+ pts",    tone: "yellow", badge: { icon: "💎", label: "Premium" } },
+    { key: "foundation", name: "Foundation Route", pts: "+10–30 pts", tone: "lime", badge: { icon: "💰", label: "Best Value" } },
+    { key: "growth", name: "Growth Route", pts: "+40–70 pts", tone: "amber", badge: { icon: "🔥", label: "Popular Choice" } },
+    { key: "accelerator", name: "Accelerator Route", pts: "+80–100 pts", tone: "cyan", badge: { icon: "🚀", label: "Power Boost" } },
+    { key: "elite", name: "Elite Route", pts: "100+ pts", tone: "yellow", badge: { icon: "💎", label: "Premium" } },
   ];
-  const toneBorder = { lime:"border-lime-400/30", amber:"border-amber-400/30", cyan:"border-cyan-400/30", yellow:"border-yellow-300/30" };
-  const toneText   = { lime:"text-lime-300",      amber:"text-amber-300",      cyan:"text-cyan-300",      yellow:"text-yellow-300" };
-  const toneBadge  = {
-    lime:   "border-lime-400/20 bg-lime-500/15 text-lime-300",
-    amber:  "border-amber-400/20 bg-amber-500/15 text-amber-300",
-    cyan:   "border-cyan-400/20 bg-cyan-500/15 text-cyan-300",
+  const toneBorder = { lime: "border-lime-400/30", amber: "border-amber-400/30", cyan: "border-cyan-400/30", yellow: "border-yellow-300/30" };
+  const toneText = { lime: "text-lime-300", amber: "text-amber-300", cyan: "text-cyan-300", yellow: "text-yellow-300" };
+  const toneBadge = {
+    lime: "border-lime-400/20 bg-lime-500/15 text-lime-300",
+    amber: "border-amber-400/20 bg-amber-500/15 text-amber-300",
+    cyan: "border-cyan-400/20 bg-cyan-500/15 text-cyan-300",
     yellow: "border-yellow-300/20 bg-yellow-400/10 text-yellow-300",
   };
 
@@ -59,16 +59,26 @@ export default function Hero() {
 
         {/* Links */}
         <nav className="flex flex-col items-start gap-4 md:flex-row md:items-center md:gap-8">
-          <Link to="/" className="text-neutral-300 transition-colors hover:text-white">Home</Link>
-          <Link to="/sixsimple" className="text-neutral-300 transition-colors hover:text-white">Features</Link>
-          <Link to="/preview" className="text-neutral-300 transition-colors hover:text-white">Results</Link>
-          <Link to="/pricing" className="text-neutral-300 transition-colors hover:text-white">Pricing</Link>
-          <Link to="/faq" className="text-neutral-300 transition-colors hover:text-white">FAQ</Link>
+          <Link to="/" className="text-neutral-300 transition-colors hover:text-white">
+            Home
+          </Link>
+          <Link to="/sixsimple" className="text-neutral-300 transition-colors hover:text-white">
+            Features
+          </Link>
+          <Link to="/preview" className="text-neutral-300 transition-colors hover:text-white">
+            Results
+          </Link>
+          <Link to="/pricing" className="text-neutral-300 transition-colors hover:text-white">
+            Pricing
+          </Link>
+          <Link to="/faq" className="text-neutral-300 transition-colors hover:text-white">
+            FAQ
+          </Link>
 
           {/* Build CTA (primary) */}
-          <Link to="/wizard?fresh=1" aria-label="Build" className="mt-1 inline-flex md:mt-0">
-            <Button size="sm">🚀 Build</Button>
-          </Link>
+          <Link to="/wizard?fresh=1" aria-label="Start my credit route" className="mt-1 inline-flex md:mt-0">
+  <Button size="sm">🚀 Start My Credit Route</Button>
+</Link>
         </nav>
       </header>
 
@@ -82,43 +92,56 @@ export default function Hero() {
         <div className="space-y-6 lg:col-span-6">
           <div className="inline-flex items-center gap-2 rounded-full border border-lime-400/30 bg-gradient-to-r from-lime-400/10 to-emerald-500/10 px-3 py-1 text-xs text-lime-300">
             <svg width="16" height="16" viewBox="0 0 24 24" className="text-lime-300" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M12 3l2.4 4.9L20 9l-4 3.9.9 5.6L12 16.9 7.1 18.5 8 12.9 4 9l5.6-1.1L12 3z" />
+              <path d="M4 4h16v3H4z" />
+              <path d="M4 10.5h16v3H4z" />
+              <path d="M4 17h16v3H4z" />
             </svg>
-            AI-Powered Financial Stack
+            StackScore is <span className="font-semibold text-white">Credit Routing</span>
           </div>
 
           <h1 className="text-3xl font-light leading-tight tracking-tight sm:text-4xl md:text-5xl lg:text-6xl">
-            Build a Better Credit Score<br />
-            <span className="bg-gradient-to-r from-lime-400 via-emerald-400 to-cyan-400 bg-clip-text font-semibold text-transparent">
-              in&nbsp;6&nbsp;Clicks
-            </span>
+            Route your credit score upward.
           </h1>
 
-          <p className="max-w-md text-lg text-slate-300">
-            Discover your personalized AI credit-stacking plan. Verified apps. Instant results. No guesswork.
+          <p className="max-w-xl text-lg text-slate-300">
+            StackScore maps your highest-impact{" "}
+            <span className="text-white font-medium">Point Moves</span>{" "}
+            in the right order — with built-in reroutes.
+          </p>
+
+          <p className="text-sm text-neutral-400 mt-2">
+            Powered by intelligent feature recombination across multiple apps.
           </p>
 
           {/* CTA block */}
-          <div className="flex flex-col gap-4 pt-2 sm:flex-row">
-            <Button
-              size="lg"
-              onClick={goWizard}
-              aria-label="Start building my credit stack"
-            >
-              🚀 Build My Stack
-            </Button>
+          <div className="flex flex-col gap-4 pt-2 sm:flex-row sm:items-center">
+            <div className="flex flex-col gap-2">
+              <Button size="lg" onClick={goWizard} aria-label="Find my first point move">
+                🚀 Find My First Point Move
+              </Button>
+              <p className="text-xs text-slate-500">
+                Takes less than 60 seconds · No credit pull · Based on your habits and preferences
+              </p>
+            </div>
 
-            <Link to="/faq" aria-label="Learn how StackScore works" className="inline-flex">
-              <Button variant="secondary" size="lg">📘 Learn How It Works</Button>
+            <Link to="/sixsimple" aria-label="See how credit routing works" className="inline-flex">
+              <Button variant="secondary" size="lg">
+                📘 See How It Works
+              </Button>
             </Link>
           </div>
+
+          {/* Trust line */}
+          <p className="text-xs text-slate-500">
+            Privacy-first. No sensitive financial data required. Results vary by credit profile and reporting timelines.
+          </p>
         </div>
 
         {/* Right — Gains card */}
         <div className="lg:col-span-6">
           <div className="space-y-6 rounded-xl border border-white/10 bg-white/5 p-6 shadow-md backdrop-blur-sm">
             <h3 className="text-center text-lg font-semibold tracking-tight text-white">
-              StackScore Gains
+              Possible Credit Routes
             </h3>
 
             <div className="grid grid-cols-2 gap-3">
@@ -130,8 +153,12 @@ export default function Hero() {
                   <p className={`font-semibold ${toneText[g.tone]}`}>{g.name}</p>
                   <p className="text-xs text-slate-300">{g.pts}</p>
 
-                  <span className={`mt-2 inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium ${toneBadge[g.tone]}`}>
-                    <span aria-hidden="true" className="text-sm leading-none">{g.badge.icon}</span>
+                  <span
+                    className={`mt-2 inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium ${toneBadge[g.tone]}`}
+                  >
+                    <span aria-hidden="true" className="text-sm leading-none">
+                      {g.badge.icon}
+                    </span>
                     <span className="leading-none">{g.badge.label}</span>
                   </span>
                 </div>
@@ -139,7 +166,7 @@ export default function Hero() {
             </div>
 
             <div className="space-y-1 text-center">
-              <p className="text-lime-300">Stack Impact: ★★★★★</p>
+              <p className="text-lime-300">Route Strength: ★★★★★</p>
               <p className="text-emerald-400">Synergy Score: High</p>
               <p className="text-xs text-slate-500">Based on verified user reports. Results may vary.</p>
             </div>
