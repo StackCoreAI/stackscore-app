@@ -26,3 +26,6 @@ public/mock/
 
 # Binaries
 scripts/bin/
+
+# Python venv
+.venv/
