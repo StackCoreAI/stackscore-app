@@ -23,8 +23,8 @@ export default function Header() {
           <Link to="/contact" className="text-white/85 hover:text-white">Contact</Link>
 
           {!onWizard && (
-            <Link to="/wizard?fresh=1" className="hidden md:block" aria-label="Build my stack">
-              <Button>🚀 Build my stack</Button>
+            <Link to="/wizard?fresh=1" className="hidden md:block" aria-label="Start my Credit Route">
+              <Button>🚀 Start my Credit Route</Button>
             </Link>
           )}
         </nav>
@@ -34,7 +34,7 @@ export default function Header() {
           <Link
             to="/wizard?fresh=1"
             className="md:hidden rounded-full border border-white/15 bg-white/5 px-4 py-2 text-xs font-semibold text-white/90 hover:bg-white/10"
-            aria-label="Build my stack"
+            aria-label="Start my Credit Route"
           >
             Build
           </Link>

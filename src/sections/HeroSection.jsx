@@ -34,7 +34,7 @@ export default function HeroSection() {
             <svg width="16" height="16" viewBox="0 0 24 24" className="text-lime-300" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
               <path d="M12 3l2.4 4.9L20 9l-4 3.9.9 5.6L12 16.9 7.1 18.5 8 12.9 4 9l5.6-1.1L12 3z" />
             </svg>
-            AI-Powered Financial Stack
+            AI-Powered Credit Routing
           </div>
 
           <h1 className="text-3xl font-light leading-tight tracking-tight sm:text-4xl md:text-5xl lg:text-6xl">
@@ -52,7 +52,7 @@ export default function HeroSection() {
           <div className="flex flex-col gap-4 pt-2 sm:flex-row">
             {/* Primary CTA → Wizard */}
             <Link to="/wizard?fresh=1">
-              <Button size="lg">🚀 Build My Stack</Button>
+              <Button size="lg">🚀 Start my Credit Route</Button>
             </Link>
 
             {/* Secondary CTA → FAQ */}
