@@ -20,3 +20,9 @@ public/mock/
 .tmp/
 .venv/
 .DS_Store
+
+# Local Netlify folder
+.netlify
+
+# Binaries
+scripts/bin/
