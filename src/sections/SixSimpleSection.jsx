@@ -18,25 +18,25 @@ export default function SixSimpleSection() {
     { title: "Utilities",       description: "Power, water, and gas bills that boost your credit file.", delay: "0.5s" },
     { title: "Phone Plan",      description: "Every on-time payment becomes a credit signal.", delay: "0.7s" },
     { title: "Budget",          description: "Connect your bank and auto-tune your utilization and spending.", delay: "0.9s" },
-    { title: "Credit Repair",   description: "Tell the bureaus: \"Fix my report\" with AI-driven disputing tools.", delay: "1.1s" }
+    { title: "Credit Repair",   description: 'Tell the bureaus: "Fix my report" with AI-driven disputing tools.', delay: "1.1s" }
   ];
 
   const barData = [
-    { name: "Rent",     height: "h-48", color: "bg-cyan-400",   delay: "0.1s"  },
-    { name: "Subs",     height: "h-40", color: "bg-green-400",  delay: "0.25s" },
-    { name: "Utilities",height: "h-44", color: "bg-pink-500",   delay: "0.4s"  },
-    { name: "Phone",    height: "h-36", color: "bg-purple-500", delay: "0.55s" },
-    { name: "Budget",   height: "h-52", color: "bg-yellow-400", delay: "0.7s"  },
-    { name: "Repair",   height: "h-48", color: "bg-orange-400", delay: "0.85s" }
+    { name: "Rent",      height: "h-48", color: "bg-cyan-400",   delay: "0.1s"  },
+    { name: "Subs",      height: "h-40", color: "bg-green-400",  delay: "0.25s" },
+    { name: "Utilities", height: "h-44", color: "bg-pink-500",   delay: "0.4s"  },
+    { name: "Phone",     height: "h-36", color: "bg-purple-500", delay: "0.55s" },
+    { name: "Budget",    height: "h-52", color: "bg-yellow-400", delay: "0.7s"  },
+    { name: "Repair",    height: "h-48", color: "bg-orange-400", delay: "0.85s" }
   ];
 
   const legendData = [
-    { name: "Rent",   color: "bg-cyan-400"   },
-    { name: "Subs",   color: "bg-green-400"  },
-    { name: "Utilities", color: "bg-pink-500" },
-    { name: "Phone",  color: "bg-purple-500" },
-    { name: "Budget", color: "bg-yellow-400" },
-    { name: "Repair", color: "bg-orange-400" }
+    { name: "Rent",      color: "bg-cyan-400"   },
+    { name: "Subs",      color: "bg-green-400"  },
+    { name: "Utilities", color: "bg-pink-500"   },
+    { name: "Phone",     color: "bg-purple-500" },
+    { name: "Budget",    color: "bg-yellow-400" },
+    { name: "Repair",    color: "bg-orange-400" }
   ];
 
   // Keep the anchor id as "features" so existing header links (#features) still work.
@@ -46,7 +46,7 @@ export default function SixSimpleSection() {
         {/* Left — Checklist */}
         <div className="md:w-1/2">
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold leading-tight tracking-tight mb-8">
-            Your StackScore Plan, in <span className="text-cyan-400">6&nbsp;Simple&nbsp;Clicks</span>
+            Your Credit Route, in <span className="text-cyan-400">6&nbsp;Simple&nbsp;Clicks</span>
           </h2>
 
           <ul className="space-y-6 text-lg">
@@ -83,7 +83,7 @@ export default function SixSimpleSection() {
 
         {/* Right — Bars + legend */}
         <div className="md:w-1/2 flex flex-col items-center text-center">
-          <h3 className="text-2xl sm:text-3xl font-semibold mb-6">Smart StackScore Preview</h3>
+          <h3 className="text-2xl sm:text-3xl font-semibold mb-6">Smart Credit Route Preview</h3>
 
           <div className="flex justify-center items-end gap-3 h-64 w-full max-w-md">
             {barData.map((bar, i) => (
@@ -109,7 +109,7 @@ export default function SixSimpleSection() {
 
           <div className="mt-6 space-y-2 text-center">
             <p className="text-sm">
-              <span className="font-semibold">Stack Impact:</span>
+              <span className="font-semibold">Route Strength:</span>
               <span className="text-green-400 text-xl drop-shadow-md ml-2">★★★★★</span>
             </p>
             <p className="text-sm">

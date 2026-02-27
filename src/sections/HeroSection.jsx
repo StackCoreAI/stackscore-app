@@ -5,10 +5,10 @@ import Button from "@/components/ui/Button";
 
 export default function HeroSection() {
   const GAINS = [
-    { key: "foundation", name: "Foundation Stack", badge: { icon: "💰", title: "Best Value" }, points: "+10–30 pts", tone: "lime" },
-    { key: "growth", name: "Growth Stack", badge: { icon: "🔥", title: "Popular Choice" }, points: "+40–70 pts", tone: "amber" },
-    { key: "accelerator", name: "Accelerator Stack", badge: { icon: "🚀", title: "Power Boost" }, points: "+80–100 pts", tone: "cyan" },
-    { key: "elite", name: "Elite Stack", badge: { icon: "💎", title: "Premium" }, points: "100+ pts", tone: "yellow" },
+    { key: "foundation", name: "Foundation Route", badge: { icon: "💰", title: "Best Value" }, points: "+10–30 pts", tone: "lime" },
+    { key: "growth", name: "Growth Route", badge: { icon: "🔥", title: "Popular Choice" }, points: "+40–70 pts", tone: "amber" },
+    { key: "accelerator", name: "Accelerator Route", badge: { icon: "🚀", title: "Power Boost" }, points: "+80–100 pts", tone: "cyan" },
+    { key: "elite", name: "Elite Route", badge: { icon: "💎", title: "Premium" }, points: "100+ pts", tone: "yellow" },
   ];
 
   const toneBorder = {
@@ -31,7 +31,16 @@ export default function HeroSection() {
         {/* Left column */}
         <div className="space-y-6 lg:col-span-6">
           <div className="inline-flex items-center gap-2 rounded-full border border-lime-400/30 bg-gradient-to-r from-lime-400/10 to-emerald-500/10 px-3 py-1 text-xs text-lime-300">
-            <svg width="16" height="16" viewBox="0 0 24 24" className="text-lime-300" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              className="text-lime-300"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              aria-hidden="true"
+            >
               <path d="M12 3l2.4 4.9L20 9l-4 3.9.9 5.6L12 16.9 7.1 18.5 8 12.9 4 9l5.6-1.1L12 3z" />
             </svg>
             AI-Powered Credit Routing
@@ -46,7 +55,7 @@ export default function HeroSection() {
           </h1>
 
           <p className="max-w-md text-lg text-slate-300">
-            Discover your personalized AI credit-stacking plan. Verified apps. Instant results. No guesswork.
+            Discover your personalized AI credit-routing plan. Verified apps. Instant results. No guesswork.
           </p>
 
           <div className="flex flex-col gap-4 pt-2 sm:flex-row">
@@ -57,7 +66,9 @@ export default function HeroSection() {
 
             {/* Secondary CTA → FAQ */}
             <Link to="/faq">
-              <Button variant="secondary" size="lg">📘 Learn How It Works</Button>
+              <Button variant="secondary" size="lg">
+                📘 Learn How It Works
+              </Button>
             </Link>
           </div>
         </div>
@@ -65,7 +76,9 @@ export default function HeroSection() {
         {/* Right column — Gains card */}
         <div className="lg:col-span-6">
           <div className="space-y-6 rounded-xl border border-white/10 bg-white/5 p-6 shadow-md backdrop-blur-sm">
-            <h3 className="text-center text-lg font-semibold tracking-tight text-white">StackScore Gains</h3>
+            <h3 className="text-center text-lg font-semibold tracking-tight text-white">
+              Credit Route Gains
+            </h3>
 
             <div className="grid grid-cols-2 gap-3">
               {GAINS.map((g) => (
@@ -93,7 +106,7 @@ export default function HeroSection() {
             </div>
 
             <div className="text-center space-y-1">
-              <p className="text-lime-300">Stack Impact: ★★★★★</p>
+              <p className="text-lime-300">Route Strength: ★★★★★</p>
               <p className="text-emerald-400">Synergy Score: High</p>
               <p className="text-xs text-slate-500">Based on verified user reports. Results may vary.</p>
             </div>
@@ -103,4 +116,3 @@ export default function HeroSection() {
     </section>
   );
 }
-

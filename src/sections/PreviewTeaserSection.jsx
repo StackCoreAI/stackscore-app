@@ -7,15 +7,15 @@ import Button from "@/components/ui/Button";
 const PLANS = [
   {
     key: "foundation",
-    label: "Foundation Stack",
+    label: "Foundation Route",
     gain: "+10–30 pts",
     emoji: "💰",
-    chip: { text: "Best Value",    style: "bg-lime-500/15 border border-lime-400/20 text-lime-300" },
+    chip: { text: "Best Value", style: "bg-lime-500/15 border border-lime-400/20 text-lime-300" },
     accent: "ring-lime-400",
   },
   {
     key: "growth",
-    label: "Growth Stack",
+    label: "Growth Route",
     gain: "+40–70 pts",
     emoji: "🔥",
     chip: { text: "Popular Choice", style: "bg-amber-500/15 border border-amber-400/20 text-amber-300" },
@@ -23,18 +23,18 @@ const PLANS = [
   },
   {
     key: "accelerator",
-    label: "Accelerator Stack",
+    label: "Accelerator Route",
     gain: "+80–100 pts",
     emoji: "🚀",
-    chip: { text: "Power Boost",   style: "bg-violet-500/15 border border-violet-400/20 text-violet-300" },
+    chip: { text: "Power Boost", style: "bg-violet-500/15 border border-violet-400/20 text-violet-300" },
     accent: "ring-violet-400",
   },
   {
     key: "elite",
-    label: "Elite Stack",
+    label: "Elite Route",
     gain: "100+ pts",
     emoji: "💎",
-    chip: { text: "Premium",       style: "bg-cyan-500/15 border border-cyan-400/20 text-cyan-300" },
+    chip: { text: "Premium", style: "bg-cyan-500/15 border border-cyan-400/20 text-cyan-300" },
     accent: "ring-amber-400",
   },
 ];
@@ -43,10 +43,10 @@ export default function PreviewTeaserSection() {
   return (
     <section id="results" className="mx-auto max-w-6xl px-6 py-16">
       <h2 className="text-3xl md:text-4xl font-black tracking-tight">
-        Preview Your <span className="text-lime-400">Stacks</span>
+        Preview Your <span className="text-lime-400">Credit Routes</span>
       </h2>
       <p className="mt-2 text-white/70">
-        Here’s a peek at what your AI-assembled stacks look like. We reveal the first app in the full preview.
+        Here’s a peek at what your AI-assembled credit routes look like. We reveal the first app in the full preview.
       </p>
 
       <div className="mt-8 grid gap-7 md:grid-cols-2 md:gap-6 xl:grid-cols-4">
@@ -89,7 +89,7 @@ export default function PreviewTeaserSection() {
 
             <div className="mt-4">
               <Link to="/preview" aria-label={`Open full preview for ${label}`} className="inline-flex w-full">
-                <Button size="sm" className="w-full">Open full preview</Button>
+                <Button size="sm" className="w-full">Open full route preview</Button>
               </Link>
             </div>
           </article>
