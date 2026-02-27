@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>StackScore — Payment Confirmed</title>
+  <link rel="stylesheet" href="/assets/app.css?v=boot1" />
+</head>
+<body class="min-h-screen bg-black text-white flex items-center justify-center p-8">
+  <div class="max-w-lg w-full rounded-2xl border border-white/10 bg-white/5 p-6">
+    <h1 class="text-2xl font-semibold mb-2">Payment confirmed ✅</h1>
+    <div style="font-size:12px;opacity:.6;margin-bottom:8px;">success.html v2 (session_id)</div>
+    <p class="text-white/80 mb-4">We’re unlocking your StackScore plan now.</p>
+    <div id="status" class="text-white/70 text-sm mb-4">Checking access…</div>
+    <button id="go" class="px-4 py-2 rounded-xl bg-lime-500 text-black font-semibold hidden">
+      Continue to your plan
+    </button>
+  </div>
+<script>
+  const params = new URLSearchParams(location.search);
+  const sessionId = params.get("session_id");
+
+  const statusEl = document.getElementById("status");
+  const goBtn = document.getElementById("go");
+
+  async function getSessionDetails() {
+    const res = await fetch(`/.netlify/functions/get-checkout-session?session_id=${encodeURIComponent(sessionId)}`);
+    return res.json();
+  }
+
+  async function checkEntitlement(email, stackKey) {
+    const res = await fetch("/.netlify/functions/check-entitlement", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, stackKey })
+    });
+    return res.json();
+  }
+
+  async function run() {
+    try {
+      if (!sessionId) {
+        statusEl.textContent = "Missing session_id. Please return to the checkout flow.";
+        return;
+      }
+
+      // Pull email + stackKey from Stripe session
+      const sessionData = await getSessionDetails();
+      const email = (sessionData.email || "").trim();
+      const stackKey = String(sessionData.stackKey || "foundation").toLowerCase();
+
+      if (!email) {
+        statusEl.textContent = "Could not read email from Stripe session. Please contact support.";
+        return;
+      }
+
+      // Poll because webhook can arrive slightly after redirect
+      for (let i = 0; i < 10; i++) {
+        const ent = await checkEntitlement(email, stackKey);
+        if (ent.paid) {
+          localStorage.setItem("stackscore_paid", "1");
+          localStorage.setItem("stackscore_paid_email", email);
+          statusEl.textContent = "Unlocked. Redirecting…";
+          setTimeout(() => {
+            location.href = `/guides/82.html?stackKey=${encodeURIComponent(stackKey)}&paid=1`;
+          }, 600);
+          return;
+        }
+        statusEl.textContent = `Finalizing access… (${i + 1}/10)`;
+        await new Promise(r => setTimeout(r, 800));
+      }
+
+      statusEl.textContent = "Payment received, but access is still processing. Click continue.";
+      goBtn.classList.remove("hidden");
+      goBtn.onclick = () => location.href = `/guides/82.html?stackKey=${encodeURIComponent(stackKey)}&paid=1`;
+    } catch (e) {
+      statusEl.textContent = "Error checking access. Please refresh.";
+      goBtn.classList.remove("hidden");
+      goBtn.onclick = () => location.reload();
+    }
+  }
+
+  run();
+</script>
+</body>
+</html>
