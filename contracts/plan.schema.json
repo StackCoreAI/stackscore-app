@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "StackScore Plan Response",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["meta", "apps"],
+  "properties": {
+    "meta": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["stackKey", "source"],
+      "properties": {
+        "stackKey": { "type": "string", "minLength": 3 },
+        "source": { "type": "string", "enum": ["gpt", "fallback"] },
+        "personalized": { "type": "boolean" },
+        "fallback": { "type": "boolean" },
+        "model": { "type": "string" }
+      }
+    },
+    "apps": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 5,
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": ["app_name", "app_url", "features", "substitutes"],
+        "properties": {
+          "app_name": { "type": "string", "minLength": 2 },
+          "app_url": { "type": "string", "minLength": 8 },
+          "features": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 5,
+            "items": { "type": "string", "minLength": 2 }
+          },
+          "tags": { "type": "array", "items": { "type": "string" } },
+          "cost": { "type": "number" },
+          "substitutes": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 3,
+            "items": {
+              "type": "object",
+              "additionalProperties": true,
+              "required": ["app_name", "app_url", "features"],
+              "properties": {
+                "app_name": { "type": "string", "minLength": 2 },
+                "app_url": { "type": "string", "minLength": 8 },
+                "features": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 5,
+                  "items": { "type": "string", "minLength": 2 }
+                },
+                "tags": { "type": "array", "items": { "type": "string" } },
+                "cost": { "type": "number" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "reasoning": { "type": "string" }
+  }
+}

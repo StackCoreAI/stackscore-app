@@ -1,0 +1,24 @@
+./index.html
+./StackScore Logo Design - Claude_files/saved_resource(6).html
+./StackScore Logo Design - Claude_files/controller-with-preconnect-43ba7ed1895faf8f56d412a714925e6a.html
+./StackScore Logo Design - Claude_files/saved_resource(4).html
+./StackScore Logo Design - Claude_files/inner.html
+./StackScore Logo Design - Claude_files/saved_resource(2).html
+./StackScore Logo Design - Claude_files/saved_resource(5).html
+./StackScore Logo Design - Claude_files/saved_resource(3).html
+./StackScore Logo Design - Claude_files/saved_resource(1).html
+./StackScore Logo Design - Claude_files/isolated-segment.html
+./StackScore Logo Design - Claude_files/m-outer-3437aaddcdf6922d623e172c2d6f9278.html
+./StackScore Logo Design - Claude_files/saved_resource.html
+./StackScore Logo Design - Claude.html
+./generated-page (82).html
+./public/test.html
+./public/guides/82.html
+./public/templates/stackprint-v1.html
+./public/templates/html/stackprint-v2.html
+./public/templates/stackprint-v2.html
+./public/templates/stacktemplate.html
+./public/templates/stacktemplate.backup.html
+./debug.html
+./.tmp/last-render.html
+./.tmp/plan-print.html
