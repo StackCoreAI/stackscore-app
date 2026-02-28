@@ -37,28 +37,32 @@ export default function PricingSection() {
           isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
         }`}
       >
-        <h2 className="text-3xl md:text-4xl font-semibold text-lime-400 tracking-tight">Simple Pricing</h2>
+        <h2 className="text-3xl md:text-4xl font-semibold text-lime-400 tracking-tight">
+          Simple Pricing
+        </h2>
 
-        <p className="text-xl md:text-2xl text-white font-medium">One-Time Access — Just $29</p>
+        <p className="text-xl md:text-2xl text-white font-medium">
+          One-Time Access — Just $29
+        </p>
 
         <p className="text-sm text-neutral-400">
-          Your StackScore plan is tailored to you — and always just{" "}
+          Your Credit Route plan is tailored to you — and always just{" "}
           <span className="text-lime-400 font-semibold">$29</span>.
         </p>
 
         <div className="mt-2 flex flex-col items-center gap-1 text-sm text-white">
           <span className="text-neutral-400">
-            You’ll be able to select from one of these four personalized plans.
+            You’ll be able to select from one of these four personalized routes.
             <br />
             Your goals, your choice.
           </span>
 
-          {/* Canonical stack names */}
+          {/* Canonical route names */}
           <ul className="flex flex-wrap justify-center gap-4 text-lime-400 font-medium mt-1">
-            <li className="flex items-center gap-1">📦 Foundation</li>
-            <li className="flex items-center gap-1">📈 Growth</li>
-            <li className="flex items-center gap-1">⚡ Accelerator</li>
-            <li className="flex items-center gap-1">👑 Elite</li>
+            <li className="flex items-center gap-1">📦 Foundation Route</li>
+            <li className="flex items-center gap-1">📈 Growth Route</li>
+            <li className="flex items-center gap-1">⚡ Accelerator Route</li>
+            <li className="flex items-center gap-1">👑 Elite Route</li>
           </ul>
         </div>
 
@@ -68,8 +72,12 @@ export default function PricingSection() {
             <StackScoreLogo className="w-5 h-5 sm:w-6 sm:h-6" />
           </div>
 
-          <a href="/wizard?reset=1" className="inline-flex" aria-label="Start wizard and get your StackScore">
-            <Button size="lg">Get Your StackScore</Button>
+          <a
+            href="/wizard?reset=1"
+            className="inline-flex"
+            aria-label="Start wizard and get your Credit Route"
+          >
+            <Button size="lg">Get Your Credit Route</Button>
           </a>
 
           <a href="/faq" className="inline-flex" aria-label="Learn how it works">
@@ -97,12 +105,12 @@ export default function PricingSection() {
         </h3>
 
         <p className="text-neutral-400">
-          Life changes — and your plan should evolve with it. Refresh your StackScore for just{" "}
+          Life changes — and your plan should evolve with it. Refresh your Credit Route for just{" "}
           <span className="text-lime-400 font-semibold">$14.50</span> starting 120 days after your original purchase.
         </p>
 
         <div className="bg-neutral-900 border border-neutral-700 p-4 rounded-lg text-sm text-neutral-300 italic max-w-xl mx-auto">
-          “Seasons shift. So do your goals. Refresh your StackScore after 4 months to reflect what’s next — whether it’s
+          “Seasons shift. So do your goals. Refresh your Credit Route after 4 months to reflect what’s next — whether it’s
           a new move, new job, or a bigger goal.”
         </div>
 
