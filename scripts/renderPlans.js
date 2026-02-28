@@ -30,7 +30,7 @@ export function renderPlans(plans, { blurLocked = true } = {}) {
   // ---------------------------------------------
   root.innerHTML = "";
 
-  plans.forEach((p) => {
+  (plans || []).forEach((p) => {
     const total = Array.isArray(p.apps) ? p.apps.length : 0;
     const apps = visibleApps(p.apps || []);
     const isLocked = !hasAccess;
@@ -40,7 +40,7 @@ export function renderPlans(plans, { blurLocked = true } = {}) {
     if (isLocked && blurLocked) card.classList.add("blur-locked");
 
     const lockNote = isLocked
-      ? `<div class="lock-note">${apps.length} of ${total} visible</div>`
+      ? `<div class="lock-note">${apps.length} of ${total} visible (route locked)</div>`
       : "";
 
     const items = apps
@@ -52,13 +52,17 @@ export function renderPlans(plans, { blurLocked = true } = {}) {
       })
       .join("");
 
+    const planId = p.id ?? "";
+    const title = p.title ?? "";
+    const summary = p.summary ?? "";
+
     card.innerHTML = `
-      <h3>${p.id}. ${p.title}</h3>
-      <p>${p.summary ?? ""}</p>
+      <h3>${planId}. ${title}</h3>
+      <p>${summary}</p>
       ${lockNote}
       <ol>${items}</ol>
-      <button data-plan="${p.id}">
-        ${isLocked ? "Unlock Stack" : "Try This Stack"}
+      <button data-plan="${planId}">
+        ${isLocked ? "Unlock Route" : "Choose This Route"}
       </button>
     `;
 
@@ -79,8 +83,8 @@ export function renderPlans(plans, { blurLocked = true } = {}) {
       return;
     }
 
-    // Unlocked → select plan
+    // Unlocked → select plan (keep storage key stable)
     localStorage.setItem("selectedPlan", btn.dataset.plan);
-    alert(`Selected Plan ${btn.dataset.plan}`);
+    alert(`Selected Route ${btn.dataset.plan}`);
   };
 }
