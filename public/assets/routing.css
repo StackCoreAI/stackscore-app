@@ -1,0 +1,10 @@
+/* Credit Routing sequence styling */
+#routing-slot [data-hook="route-steps"] li {
+  padding: 6px 0;
+  border-left: 2px solid rgba(34,197,94,0.35);
+  padding-left: 10px;
+}
+
+#routing-slot [data-hook="route-steps"] li + li {
+  margin-top: 4px;
+}
