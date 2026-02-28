@@ -29,3 +29,24 @@ scripts/bin/
 
 # Python venv
 .venv/
+
+# local packets / audits / exports
+OPUS_PACKET.md
+STACKSCORE_*_PACKET*.md
+STACKSCORE_*_AUDIT*.md
+*_packet*.txt
+*_files.txt
+_html_files.txt
+_repo_tree.txt
+*.png
+
+# one-off html
+cashflowoffice_fixed.html
+
+# deno + misc
+deno.lock
+contracts/plan.schema.json
+create_plan_cache_table.js
+server/scripts/create_plan_cache_table.js
+prd.md
+progress.md
