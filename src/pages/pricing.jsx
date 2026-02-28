@@ -83,8 +83,8 @@ const Pricing = () => {
         <div className="flex items-center justify-center gap-4 mt-6">
           <StackScoreLogo className="w-5 h-5 sm:w-6 sm:h-6" />
 
-          <Button size="lg" onClick={handleGetStackScore} aria-label="Build my credit route">
-            Build My Credit Route
+          <Button size="lg" onClick={handleGetStackScore} aria-label="Get my credit route">
+            Get My Credit Route
           </Button>
 
           <StackScoreLogo className="w-5 h-5 sm:w-6 sm:h-6" />
@@ -101,22 +101,22 @@ const Pricing = () => {
 
         {/* What’s included */}
         <div className="mt-8 w-full max-w-xl rounded-2xl border border-white/10 bg-white/[0.04] p-6 text-left">
-  <h3 className="text-base font-semibold text-white mb-4">
-    What You Unlock Inside Your Credit Route
-  </h3>
+          <h3 className="text-base font-semibold text-white mb-4">
+            What You Unlock Inside Your Credit Route
+          </h3>
 
-  <ul className="space-y-3 text-sm text-neutral-300">
-    <li>• Your fully mapped Credit Route</li>
-    <li>• Recombined high-impact reporting features across multiple apps</li>
-    <li>• Step-by-step Point Move sequence (in the correct order)</li>
-    <li>• Built-in reroutes if a tool isn’t available or doesn’t report</li>
-    <li>• Printable Credit Route blueprint</li>
-  </ul>
+          <ul className="space-y-3 text-sm text-neutral-300">
+            <li>• Your fully mapped Credit Route</li>
+            <li>• Recombined high-impact reporting features across multiple apps</li>
+            <li>• Step-by-step Point Move sequence (in the correct order)</li>
+            <li>• Built-in reroutes if a tool isn’t available or doesn’t report</li>
+            <li>• Printable Credit Route blueprint</li>
+          </ul>
 
-  <p className="mt-4 text-xs text-neutral-500">
-    The power isn’t in one tool. It’s in how the features are combined.
-  </p>
-</div>
+          <p className="mt-4 text-xs text-neutral-500">
+            The power isn’t in one tool. It’s in how the features are combined.
+          </p>
+        </div>
       </main>
 
       {/* Post-Purchase Refresh Offer */}
@@ -132,12 +132,12 @@ const Pricing = () => {
         </h2>
 
         <p className="text-neutral-400">
-          Life changes — and your Credit Route should evolve with it. Refresh your StackScore for just{" "}
+          Life changes — and your Credit Route should evolve with it. Refresh your Credit Route for just{" "}
           <span className="text-lime-400 font-semibold">$14.50</span> starting 120 days after your original purchase.
         </p>
 
         <div className="bg-neutral-900 border border-neutral-700 p-4 rounded-lg text-sm text-neutral-300 italic max-w-xl mx-auto">
-          “Seasons shift. So do your goals. Refresh your StackScore after 4 months to reflect what’s next — whether it’s a new move,
+          “Seasons shift. So do your goals. Refresh your Credit Route after 4 months to reflect what’s next — whether it’s a new move,
           new job, or a bigger goal.”
         </div>
 
