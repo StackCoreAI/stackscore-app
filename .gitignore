@@ -50,3 +50,8 @@ create_plan_cache_table.js
 server/scripts/create_plan_cache_table.js
 prd.md
 progress.md
+
+# Build artifacts (do not commit)
+dist/
+public/assets/
+*.log

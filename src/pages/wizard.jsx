@@ -47,7 +47,7 @@ export default function Wizard() {
 
     return [
       tok("+25", 0,  "left",  "33%", "text-xl",  "text-lime-400", 0.10),
-      tok("+111", 4, "left",  "25%", "text-2xl", "text-lime-300", 0.55),
+      tok("+109", 4, "left",  "25%", "text-2xl", "text-lime-300", 0.55),  
       tok("+65",  40, "left", "10%", "text-xl",  "text-lime-400", 1.00),
       tok("+53",  64, "left", "50%", "text-2xl", "text-lime-500", 1.45),
       tok("+77",  24, "right","25%", "text-xl",  "text-lime-400", 1.90),
@@ -196,7 +196,7 @@ export default function Wizard() {
   };
 
   const progressPercent =
-    (Math.min(currentStep, countedSteps - 1) / (countedSteps - 1)) * 100;
+  (Math.min(currentStep, countedSteps) / countedSteps) * 100;
 
   const budgetLabel = (v) => {
     const n = Number(v || 0);
@@ -274,11 +274,24 @@ export default function Wizard() {
         }`}
         autoComplete="off"
       >
-        {/* Greeting */}
-        <div className="flex items-center space-x-3">
-          <img className="w-8 h-8 rounded-full" src="https://i.pravatar.cc/40?img=68" alt="Avatar" />
-          <span className="text-neutral-400 text-sm">Welcome back, Joseph</span>
-        </div>
+       {/* Route Snapshot (no login) */}
+<div className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3">
+  <div className="flex flex-wrap items-center gap-2">
+    <span className="inline-flex items-center gap-2 rounded-full border border-lime-400/25 bg-lime-500/10 px-3 py-1 text-xs font-semibold text-lime-300">
+      🧭 Credit Routing
+    </span>
+    <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-white/80">
+      🧬 Feature Recombination
+    </span>
+    <span className="ml-auto text-xs text-white/50">
+      Takes &lt; 60 seconds • No credit pull
+    </span>
+  </div>
+
+  <p className="mt-2 text-sm text-white/70">
+    We only analyze your habits and preferences — then recombine the strongest reporting features across apps and sequence them into your Credit Route.
+  </p>
+</div>
 
         {/* Step dots (hide on summary) */}
         <div
@@ -369,9 +382,15 @@ export default function Wizard() {
                   className="sr-only peer"
                 />
                 <span className="flex h-5 w-5 items-center justify-center rounded border-2 border-neutral-600 transition-all duration-200 peer-checked:border-lime-500 peer-checked:bg-lime-500">
-                  <svg className="hidden h-3 w-3 text-white peer-checked:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                    <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
+                  <svg
+  className="h-3 w-3 text-white opacity-0 peer-checked:opacity-100 transition-opacity duration-150"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  strokeWidth="3"
+>
+  <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" />
+</svg>
                 </span>
                 <span>{sub}</span>
               </label>
@@ -559,26 +578,30 @@ export default function Wizard() {
             </div>
 
             <h1 className="mb-1 -mt-2 text-3xl font-bold">Your Stack is Ready</h1>
-            <p className="mb-2 text-lg text-gray-400">
-              Here's the custom lineup of apps we've prepared to help you
-              boost your credit score.
-            </p>
+<p className="mb-2 text-lg text-gray-400">
+  Here's the custom lineup of apps we've prepared to help you boost your credit score.
+</p>
 
             <div className="flex flex-col items-stretch gap-4">
-              {["SUBSCRIPTION TRACKERS","CREDIT BUILDERS","DISPUTE TOOLS","UTILITY REPORTING","AI INSIGHTS"].map((item, i) => (
-                <div
-                  key={item}
-                  className="flex h-14 items-center justify-center rounded-lg border-4 border-lime-500 bg-gradient-to-b from-neutral-800 to-neutral-900 text-sm font-bold uppercase tracking-wider text-slate-300 shadow-lg shadow-lime-500/25 animate-pulse"
-                  style={{ animationDelay: `${i * 0.1}s` }}
-                >
-                  {item}
-                </div>
-              ))}
-            </div>
+  {[
+    "SUBSCRIPTION TRACKERS",
+    "CREDIT BUILDERS",
+    "DISPUTE TOOLS",
+    "UTILITY REPORTING",
+    "AI INSIGHTS",
+  ].map((item) => (
+    <div
+      key={item}
+      className="flex h-14 items-center justify-center rounded-xl border border-lime-400/60 bg-white/[0.03] text-sm font-semibold uppercase tracking-wider text-white/70 shadow-[0_0_0_1px_rgba(163,230,53,0.15)]"
+    >
+      {item}
+    </div>
+  ))}
+</div>
 
             <Button size="lg" onClick={finalizeAndGo}>
-              🚀 View Your Plans
-            </Button>
+  🧭 View My Credit Routes
+</Button>
           </div>
         </Panel>
       </div>

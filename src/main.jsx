@@ -4,10 +4,12 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
-import Landing from "./pages/landing.jsx";     // long, scrollable home
-
-// Keep the rest of your pages available
+// ✅ NEW HERO (should be the published homepage)
 import Hero from "./pages/hero.jsx";
+
+// ✅ Keep Landing available, but NOT as "/"
+import Landing from "./pages/landing.jsx";
+
 import Wizard from "./pages/wizard.jsx";
 import Preview from "./pages/preview.jsx";
 import Pricing from "./pages/pricing.jsx";
@@ -29,7 +31,10 @@ function NotFound() {
       <div className="text-center">
         <h1 className="text-2xl font-semibold">404 — Not Found</h1>
         <p className="opacity-70 mt-2">The page you’re looking for doesn’t exist.</p>
-        <a href="/" className="inline-block mt-6 px-4 py-2 rounded bg-lime-400 text-black font-semibold">
+        <a
+          href="/"
+          className="inline-block mt-6 px-4 py-2 rounded bg-lime-400 text-black font-semibold"
+        >
           ← Back Home
         </a>
       </div>
@@ -38,12 +43,15 @@ function NotFound() {
 }
 
 console.log("[boot] before router init");
-const router = createBrowserRouter([
-  // Home = long single page with anchors
-  { path: "/", element: <Landing />, errorElement: <NotFound /> },
 
-  // (optional) keep legacy/other pages
-  { path: "/hero", element: <Hero /> },
+const router = createBrowserRouter([
+  // ✅ Homepage = NEW hero page (Credit Routing / Point Moves)
+  { path: "/", element: <Hero />, errorElement: <NotFound /> },
+
+  // ✅ Keep the old Landing page accessible (optional)
+  { path: "/landing", element: <Landing /> },
+
+  // App routes
   { path: "/wizard", element: <Wizard /> },
   { path: "/preview", element: <Preview /> },
   { path: "/pricing", element: <Pricing /> },
@@ -58,8 +66,11 @@ const router = createBrowserRouter([
   { path: "/refund-policy", element: <Refund /> },
   { path: "/cookies", element: <Cookies /> },
   { path: "/contact", element: <Contact /> },
+
+  // 404
   { path: "*", element: <NotFound /> },
 ]);
+
 console.log("[boot] after router init");
 
 // Resilient mount
@@ -69,11 +80,13 @@ const mount =
   document.body.appendChild(Object.assign(document.createElement("div"), { id: "root" }));
 
 const root = ReactDOM.createRoot(mount);
+
 root.render(
   <React.StrictMode>
     <RouterProvider router={router} />
   </React.StrictMode>
 );
+
 console.log("[boot] after render");
 
 // One-time scroll unlock (handles any stray overflow locks)
