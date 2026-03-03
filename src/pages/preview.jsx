@@ -1,5 +1,5 @@
 // src/pages/preview.jsx
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Loader from "../components/Loader.jsx";
 import PreviewHeader from "../components/PreviewHeader.jsx";
@@ -87,6 +87,31 @@ export default function Preview() {
   const [unlockErr, setUnlockErr] = useState("");
   const [pendingStackKey, setPendingStackKey] = useState("growth");
 
+  // Prevent double checkout session creation
+  const checkoutInFlight = useRef(false);
+
+  // ✅ Extra-clean: reset "Redirecting..." when coming back from Stripe (bfcache) or returning to tab
+  useEffect(() => {
+    const resetUnlockUI = () => {
+      checkoutInFlight.current = false;
+      setUnlocking(false);
+      setUnlockErr("");
+    };
+
+    const onPageShow = () => resetUnlockUI(); // back-button restore
+    const onVisibility = () => {
+      if (!document.hidden) resetUnlockUI();
+    };
+
+    window.addEventListener("pageshow", onPageShow);
+    document.addEventListener("visibilitychange", onVisibility);
+
+    return () => {
+      window.removeEventListener("pageshow", onPageShow);
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
+  }, []);
+
   const runFetch = useCallback(async (useAnswers) => {
     setError("");
     setStatus("loading");
@@ -163,6 +188,10 @@ export default function Preview() {
   }
 
   async function beginCheckout(stackKey = "growth") {
+    // Double-fire protection
+    if (checkoutInFlight.current) return;
+    checkoutInFlight.current = true;
+
     setUnlocking(true);
     setUnlockErr("");
 
@@ -184,6 +213,7 @@ export default function Preview() {
       console.error(e);
       setUnlockErr(e?.message || "Couldn’t start checkout. Please try again.");
       setUnlocking(false);
+      checkoutInFlight.current = false; // allow retry
     }
   }
 
@@ -245,13 +275,13 @@ export default function Preview() {
               {/* Global CTA */}
               <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
                 <Button
-  size="lg"
-  className="bg-gradient-to-r from-lime-500 to-emerald-500 shadow-lg shadow-lime-500/50 transition hover:scale-[1.01]"
-  onClick={() => startUnlock(pendingStackKey)}
-  disabled={unlocking}
->
-  {unlocking ? "Redirecting…" : "Activate My Full Credit Route — $29"}
-</Button>
+                  size="lg"
+                  className="bg-gradient-to-r from-lime-500 to-emerald-500 shadow-xl shadow-lime-500/40 transition-all duration-200 hover:scale-[1.02]"
+                  onClick={() => startUnlock(pendingStackKey)}
+                  disabled={unlocking}
+                >
+                  {unlocking ? "Redirecting…" : "Activate My Full Credit Route — $29"}
+                </Button>
                 {unlockErr && <span className="text-sm text-red-300">{unlockErr}</span>}
               </div>
 
