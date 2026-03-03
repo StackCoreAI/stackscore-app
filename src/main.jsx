@@ -10,7 +10,7 @@ import Hero from "./pages/hero.jsx";
 // ✅ Keep Landing available, but NOT as "/"
 import Landing from "./pages/landing.jsx";
 
-import WizardIntro from "./pages/wizardIntro.jsx"; // ✅ NEW: Wizard Intro screen
+import WizardIntro from "./pages/wizardintro.jsx"; // ✅ NEW: Wizard Intro screen
 
 import Wizard from "./pages/wizard.jsx";
 import Preview from "./pages/preview.jsx";
