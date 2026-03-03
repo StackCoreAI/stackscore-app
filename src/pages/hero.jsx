@@ -14,12 +14,11 @@ export default function Hero() {
   }, []);
 
   const goWizard = () => {
-    try {
-      localStorage.setItem("entryPoint", "hero");
-    } catch {}
-    navigate("/wizard?fresh=1");
-  };
-
+  try {
+    localStorage.setItem("entryPoint", "hero");
+  } catch {}
+  navigate("/activate");
+};
   // Canonical gains tiles
   const GAINS = [
     {
@@ -121,7 +120,7 @@ export default function Hero() {
           </Link>
 
           {/* Primary CTA */}
-          <Link to="/wizard?fresh=1" aria-label="Start my credit route" className="mt-1 inline-flex md:mt-0">
+          <Link to="/activate" aria-label="Start my credit route" className="mt-1 inline-flex md:mt-0">
             <Button size="sm">🚀 Start My Credit Route</Button>
           </Link>
         </nav>

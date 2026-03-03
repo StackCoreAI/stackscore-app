@@ -1,14 +1,16 @@
 // src/pages/pricing.jsx
 import React, { useEffect, useRef, useState } from "react";
 import { Lock, RotateCcw } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import SiteHeader from "../components/SiteHeader.jsx";
 import SiteFooter from "../components/SiteFooter.jsx";
 import Button from "@/components/ui/Button";
 
 const Pricing = () => {
+  const navigate = useNavigate();
   const [isVisible, setIsVisible] = useState(false);
 
+  // Stripe direct checkout (optional secondary path)
   const [unlocking, setUnlocking] = useState(false);
   const [unlockErr, setUnlockErr] = useState("");
   const checkoutInFlight = useRef(false);
@@ -38,6 +40,15 @@ const Pricing = () => {
     };
   }, []);
 
+  // ✅ Primary funnel step: go to Wizard Intro screen
+  const goActivateIntro = () => {
+    try {
+      localStorage.setItem("entryPoint", "pricing");
+    } catch {}
+    navigate("/activate", { state: { from: "pricing" } });
+  };
+
+  // Optional: direct Stripe checkout (for very warm users)
   async function beginCheckout() {
     if (checkoutInFlight.current) return;
     checkoutInFlight.current = true;
@@ -121,11 +132,11 @@ const Pricing = () => {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-3">
-              <Link to="/preview" className="inline-flex">
-                <Button variant="secondary" size="md">See My Credit Routes</Button>
-              </Link>
               <Link to="/sixsimple" className="inline-flex">
                 <Button variant="secondary" size="md">See How It Works</Button>
+              </Link>
+              <Link to="/preview" className="inline-flex">
+                <Button variant="secondary" size="md">See My Credit Routes</Button>
               </Link>
             </div>
           </div>
@@ -151,19 +162,30 @@ const Pricing = () => {
                 <div className="flex items-center gap-2"><span className="text-lime-300">✓</span> Printable blueprint</div>
               </div>
 
-              <div className="mt-6">
+              {/* Primary = Wizard Intro */}
+              <div className="mt-6 space-y-3">
                 <Button
                   size="lg"
                   className="w-full bg-gradient-to-r from-lime-500 to-emerald-500 shadow-xl shadow-lime-500/40 transition-all duration-200 hover:scale-[1.02]"
+                  onClick={goActivateIntro}
+                >
+                  🚀 Start My Credit Route
+                </Button>
+
+                {/* Optional direct purchase path */}
+                <Button
+                  size="md"
+                  variant="secondary"
+                  className="w-full"
                   onClick={beginCheckout}
                   disabled={unlocking}
                 >
-                  {unlocking ? "Opening Stripe…" : "Activate My Full Credit Route — $29"}
+                  {unlocking ? "Opening Stripe…" : "Activate Now — $29"}
                 </Button>
 
-                {unlockErr && <div className="mt-3 text-sm text-red-300">{unlockErr}</div>}
+                {unlockErr && <div className="text-sm text-red-300">{unlockErr}</div>}
 
-                <p className="mt-3 text-xs text-neutral-400">
+                <p className="text-xs text-neutral-400">
                   Secure checkout • Instant access • No credit check required
                 </p>
               </div>

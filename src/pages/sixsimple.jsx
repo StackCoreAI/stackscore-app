@@ -95,7 +95,7 @@ const SixSimple = () => {
 
         <div className="flex items-center gap-3">
           {/* Primary CTA */}
-          <Link to="/wizard?fresh=1" className="hidden sm:inline-flex" aria-label="Start my credit route">
+          <Link to="/activate" className="hidden sm:inline-flex"> aria-label="Start my credit route">
             <Button size="sm">🚀 Start My Credit Route</Button>
           </Link>
 
@@ -149,7 +149,7 @@ const SixSimple = () => {
 
             {/* CTAs */}
             <div className="mt-10 flex flex-col sm:flex-row sm:items-center gap-4">
-              <Link to="/wizard?fresh=1" className="inline-flex" aria-label="Start my credit route">
+              <Link to="/activate" className="inline-flex"> aria-label="Start my credit route">
                 <Button size="md">Start My Credit Route</Button>
               </Link>
               <Link to="/preview" className="inline-flex" aria-label="See my credit routes">

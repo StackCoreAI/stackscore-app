@@ -28,7 +28,7 @@ export default function SiteHeader({ right = null }) {
     const RightSlot = right ?? (
     <>
       {/* Desktop CTA (brand gradient) */}
-      <SmartLink to="/wizard?fresh=1" className="hidden sm:block" aria-label="Start my credit route">
+      <SmartLink to="/activate" className="hidden sm:block" aria-label="Start my credit route">
         <Button>🚀 Start My Credit Route</Button>
       </SmartLink>
 

@@ -10,6 +10,8 @@ import Hero from "./pages/hero.jsx";
 // ✅ Keep Landing available, but NOT as "/"
 import Landing from "./pages/landing.jsx";
 
+import WizardIntro from "./pages/wizardIntro.jsx"; // ✅ NEW: Wizard Intro screen
+
 import Wizard from "./pages/wizard.jsx";
 import Preview from "./pages/preview.jsx";
 import Pricing from "./pages/pricing.jsx";
@@ -47,6 +49,9 @@ console.log("[boot] before router init");
 const router = createBrowserRouter([
   // ✅ Homepage = NEW hero page (Credit Routing / Point Moves)
   { path: "/", element: <Hero />, errorElement: <NotFound /> },
+
+  // ✅ High-converting Wizard Intro (activation runway)
+  { path: "/activate", element: <WizardIntro /> },
 
   // ✅ Keep the old Landing page accessible (optional)
   { path: "/landing", element: <Landing /> },
