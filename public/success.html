@@ -4,18 +4,17 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
   <title>StackScore — Credit Route Activated</title>
-  <link rel="stylesheet" href="/assets/app.css?v=boot3" />
+  <link rel="stylesheet" href="/assets/app.css?v=boot4" />
 </head>
+
 <body class="min-h-screen bg-black text-white flex items-center justify-center p-8">
   <div class="max-w-lg w-full rounded-2xl border border-white/10 bg-white/5 p-8 shadow-xl shadow-lime-500/10">
-    
-    <h1 class="text-2xl font-semibold mb-3">
-  Credit Route Activated ✅
-</h1>
 
-<p class="text-white/80 mb-6">
-  Your personalized Credit Route is now unlocked and ready.
-</p>
+    <h1 class="text-2xl font-semibold mb-3">Credit Route Activated ✅</h1>
+
+    <p class="text-white/80 mb-6">
+      Your personalized <span class="text-lime-400 font-medium">Credit Route</span> is now unlocked and ready.
+    </p>
 
     <div id="status" class="text-white/70 text-sm mb-6">
       Verifying payment…
@@ -42,10 +41,39 @@
     return data;
   }
 
+  function setRouteContext({ email, stackKey }) {
+    // ✅ This is the missing “bridge” that allows 82.html runtime scripts
+    // to hydrate the AI feature-level instructions + routing intelligence.
+    try {
+      const key = String(stackKey || "growth").toLowerCase();
+
+      // Paid entitlement flags (existing pattern)
+      localStorage.setItem("stackscore_paid", "1");
+      if (email) localStorage.setItem("stackscore_paid_email", email);
+
+      // Canonical selection keys used across your app
+      // (PlanGrid + Preview already use these)
+      sessionStorage.setItem("ss_selected", JSON.stringify(key));
+      sessionStorage.setItem("selectedPlanKey", key);
+
+      localStorage.setItem("ss_selected", JSON.stringify(key));
+      localStorage.setItem("selectedPlanKey", key);
+
+      // Optional: if a planSet cache exists from earlier steps,
+      // persist it so guide runtime can still access it.
+      const cached = sessionStorage.getItem("ss_plan");
+      if (cached) localStorage.setItem("ss_plan", cached);
+
+      // Also store a simple “route key” for any static guide logic
+      localStorage.setItem("ss_route_key", key);
+    } catch {}
+  }
+
   function showContinue(stackKey) {
+    const key = String(stackKey || "growth").toLowerCase();
     goBtn.classList.remove("hidden");
     goBtn.onclick = () => {
-      location.href = `/guides/82.html?stackKey=${encodeURIComponent(stackKey)}&paid=1`;
+      location.href = `/guides/82.html?stackKey=${encodeURIComponent(key)}&paid=1`;
     };
   }
 
@@ -55,6 +83,8 @@
         statusEl.textContent = "Missing session ID. Please return to checkout.";
         return;
       }
+
+      statusEl.textContent = "Verifying payment…";
 
       const sessionData = await getSessionDetails();
 
@@ -70,15 +100,11 @@
         return;
       }
 
-      // ✅ Always store paid flag (even if email missing)
-      localStorage.setItem("stackscore_paid", "1");
-      if (email) {
-        localStorage.setItem("stackscore_paid_email", email);
-      }
+      // ✅ store all route context BEFORE redirect
+      setRouteContext({ email, stackKey });
 
       statusEl.textContent = "Activated. Redirecting…";
 
-      // 🔐 Redirect attempt
       const target = `/guides/82.html?stackKey=${encodeURIComponent(stackKey)}&paid=1`;
 
       // Fallback button if redirect fails
