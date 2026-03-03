@@ -55,3 +55,8 @@ progress.md
 dist/
 public/assets/
 *.log
+
+# --- Netlify build needs this source file ---
+!public/assets/
+!public/assets/guide.src.css
+
