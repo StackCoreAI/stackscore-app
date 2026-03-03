@@ -1,72 +1,53 @@
-import Stripe from "stripe";
+// netlify/functions/create-checkout-session.js
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
-  apiVersion: "2024-06-20",
-});
-
-export const handler = async (event) => {
+exports.handler = async (event) => {
   try {
-    if (event.httpMethod !== "POST") {
-      return { statusCode: 405, body: "Method Not Allowed" };
-    }
+    const { email, stackKey = "growth" } = JSON.parse(event.body || "{}");
 
-    const { email, stackKey } = JSON.parse(event.body || "{}");
-    if (!email || !stackKey) {
+    if (!email) {
       return {
         statusCode: 400,
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ error: "Missing email or stackKey" }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ error: "Missing email" }),
       };
     }
 
-    const priceId = process.env.STRIPE_PRICE_ID;
-    if (!priceId) {
+    const price = process.env.STRIPE_PRICE_STACKSCORE; // ✅ single $29 price
+    if (!price) {
       return {
         statusCode: 500,
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ error: "Missing STRIPE_PRICE_ID" }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ error: "Missing STRIPE_PRICE_STACKSCORE" }),
       };
     }
 
-    // Prefer explicit URLs from env in production; fallback to SITE_URL + routes for local/dev
-    const siteUrl = process.env.SITE_URL || "http://localhost:8888";
-
-    // Success should land on a real page/route that can read session_id and then redirect to the paid guide
-    const successBase =
-      process.env.STRIPE_SUCCESS_URL || `${siteUrl}/success.html`;
-
-    // Cancel should NEVER go to the paid delivery guide. Send them back to pricing (or wherever you want).
-    const cancelBase =
-      process.env.STRIPE_CANCEL_URL || `${siteUrl}/pricing`;
-
-    // Stripe will substitute {CHECKOUT_SESSION_ID}
-    const successUrl = `${successBase}${successBase.includes("?") ? "&" : "?"}session_id={CHECKOUT_SESSION_ID}`;
-
-    // Preserve stackKey on cancel so you can restore context on pricing/preview
-    const cancelUrl = `${cancelBase}${cancelBase.includes("?") ? "&" : "?"}stackKey=${encodeURIComponent(String(stackKey))}`;
+    const site = process.env.SITE_URL || "http://localhost:8888";
+    const key = String(stackKey).toLowerCase();
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
-      line_items: [{ price: priceId, quantity: 1 }],
-      customer_email: String(email).trim(),
-      success_url: successUrl,
-      cancel_url: cancelUrl,
+      customer_email: email,
+      line_items: [{ price, quantity: 1 }],
+      success_url: `${site}/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${site}/preview`,
       metadata: {
-        stack_key: String(stackKey).toLowerCase(),
-        email: String(email).trim(),
+        stackKey: key,
+        product: "stackscore-access",
       },
     });
 
     return {
       statusCode: 200,
-      headers: { "content-type": "application/json" },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ url: session.url }),
     };
-  } catch (err) {
+  } catch (e) {
+    console.error("create-checkout-session error:", e);
     return {
       statusCode: 500,
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ error: String(err?.message || err) }),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ error: e?.message || "Server error" }),
     };
   }
 };
