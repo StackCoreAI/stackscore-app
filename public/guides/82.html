@@ -3,20 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-  <title>StackScore – Build & Compose</title>
-<link rel="icon" href="/favicon.ico" />
+  <title>StackScore — Your Credit Route</title>
+  <link rel="icon" href="/favicon.ico" />
 
   <!-- PROD: built Tailwind bundle -->
-  <link rel="stylesheet" href="/assets/app.css?v=boot1" />
-<link rel="stylesheet" href="/assets/guide.css?v=3" />
-<link rel="stylesheet" href="/assets/routing.css?v=1" />
-  <!-- small guide overrides (must load AFTER global) -->
-  
+  <link rel="stylesheet" href="/assets/app.css?v=boot2" />
+  <link rel="stylesheet" href="/assets/guide.css?v=4" />
+  <link rel="stylesheet" href="/assets/routing.css?v=2" />
 
   <!-- scripts -->
   <script defer src="/assets/lucide.min.js"></script>
   <script defer src="/assets/guide.js"></script>
-  <script defer src="/assets/plan.runtime.js?v=18"></script>
+  <script defer src="/assets/plan.runtime.js?v=19"></script>
 
   <style>
     html { scroll-behavior:smooth }
@@ -28,9 +26,10 @@
     details summary::-webkit-details-marker { display:none }
     details[open] summary .chev { transform: rotate(180deg) }
     details summary .chev { transition: transform .2s ease }
-/* Hide checklist until the app is expanded */
-#sidebar-slot details.group ul { display: none; }
-#sidebar-slot details.group[open] ul { display: block; }
+
+    /* Hide checklist until the app is expanded */
+    #sidebar-slot details.group ul { display: none; }
+    #sidebar-slot details.group[open] ul { display: block; }
 
     /* --- Print styles --- */
     @media print {
@@ -50,17 +49,18 @@
 </head>
 
 <body class="bg-gradient-to-br from-[#101012] via-[#0c0d0e] to-[#08090a] text-white antialiased">
+
   <!-- Floating print button -->
   <button id="print-plan" class="no-print"
-    aria-label="Print this plan"
+    aria-label="Print this Credit Route"
     style="position:fixed; right:16px; top:16px; z-index:9999; padding:10px 14px; border-radius:9999px;
            background:#16e263; color:#0a0a0a; border:0; font-weight:600; box-shadow:0 8px 20px rgba(0,0,0,.25); cursor:pointer;">
-    Print Plan
+    Print Route
   </button>
 
   <!-- ================= NAV ================= -->
   <header class="max-w-7xl mx-auto px-6 py-6 flex flex-col md:flex-row md:items-center justify-between gap-4 init-opacity" data-anim>
-    <a href="/" class="flex items-center gap-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-lime-400/70">
+    <a href="/" class="flex items-center gap-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-lime-400/70" aria-label="StackScore Home">
       <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" class="text-lime-400" aria-hidden="true">
         <path d="M4 4h16v3H4z"></path><path d="M4 10.5h16v3H4z"></path><path d="M4 17h16v3H4z"></path>
       </svg>
@@ -68,12 +68,12 @@
     </a>
 
     <nav class="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-8">
-      <a href="#main" class="text-neutral-300 hover:text-white transition-colors">Home</a>
-      <a href="#features" class="text-neutral-300 hover:text-white transition-colors">Features</a>
-      <a href="#results" class="text-neutral-300 hover:text-white transition-colors">Results</a>
-      <a href="#faq" class="text-neutral-300 hover:text-white transition-colors">FAQ</a>
-      <a href="#wizard" class="flex items-center gap-1 text-lime-300 hover:text-lime-200 transition-colors">
-        <i data-lucide="zap" class="w-4 h-4"></i><span>Build</span>
+      <a href="#main" class="text-neutral-300 hover:text-white transition-colors">Overview</a>
+      <a href="#why" class="text-neutral-300 hover:text-white transition-colors">Why this route</a>
+      <a href="#compose" class="text-neutral-300 hover:text-white transition-colors">Your route</a>
+      <a href="#instructions" class="text-neutral-300 hover:text-white transition-colors">Instructions</a>
+      <a href="/activate" class="flex items-center gap-1 text-lime-300 hover:text-lime-200 transition-colors">
+        <i data-lucide="zap" class="w-4 h-4"></i><span>Start My Credit Route</span>
       </a>
     </nav>
   </header>
@@ -82,21 +82,25 @@
   <section id="main" class="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center pt-20 pb-20 init-opacity" data-anim>
     <div class="lg:col-span-6 space-y-6">
       <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-lime-400/30 bg-gradient-to-r from-lime-400/10 to-emerald-500/10 text-xs text-lime-300">
-        <i data-lucide="sparkles" class="w-4 h-4"></i> AI-Powered Financial Stack
+        <i data-lucide="sparkles" class="w-4 h-4"></i> Credit Route Guide
       </div>
 
       <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light leading-tight tracking-tight">
-        Your Elite <span class="bg-clip-text text-transparent bg-gradient-to-r from-lime-400 via-emerald-400 to-cyan-400 font-semibold">Stack.</span>
+        Your <span class="bg-clip-text text-transparent bg-gradient-to-r from-lime-400 via-emerald-400 to-cyan-400 font-semibold">Credit Route</span>
       </h1>
 
-      <p class="mt-2 text-xl md:text-2xl italic text-white tracking-tight">
-        Shhh… Stacking is the new <span class="not-italic font-semibold">take charge of your credit score</span>
+      <p class="mt-2 text-lg text-zinc-200/90 leading-relaxed">
+        Follow this route to activate the right tools in a clean, realistic way — including reroutes if something isn’t available.
+      </p>
+
+      <p class="text-sm text-zinc-400">
+        No credit pull • No sensitive financial data • Results vary by profile and reporting timelines
       </p>
     </div>
 
     <div class="lg:col-span-6">
       <div class="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10 shadow-md space-y-6">
-        <h3 class="text-white font-semibold text-lg text-center tracking-tight">Your Potential Gains</h3>
+        <h3 class="text-white font-semibold text-lg text-center tracking-tight">Your Route Impact</h3>
         <div class="grid grid-cols-2 gap-3">
           <div class="p-4 text-center rounded-lg border border-lime-400/30 hover:bg-white/10 transition">
             <p class="text-lime-400 font-semibold">Utilities</p><p class="text-slate-300 text-xs">+10–20 pts</p>
@@ -112,15 +116,15 @@
           </div>
         </div>
         <div class="text-center space-y-1">
-          <p class="text-lime-300">Stack Impact: ★★★★★</p>
+          <p class="text-lime-300">Route Strength: ★★★★★</p>
           <p class="text-emerald-400">Synergy Score: High</p>
-          <p class="text-xs text-slate-500">Based on verified user reports. Results may vary.</p>
+          <p class="text-xs text-slate-500">Results may vary.</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ======= FULL-WIDTH NAV HIGHLIGHT ======= -->
+  <!-- ======= SECTION NAV ======= -->
   <div class="max-w-7xl mx-auto px-6 relative mb-12">
     <div class="h-1 w-full bg-gradient-to-r from-lime-400 via-emerald-400 to-cyan-400 rounded-full"></div>
     <nav class="flex justify-center space-x-8 -mt-3">
@@ -128,7 +132,7 @@
         <i data-lucide="zap" class="w-4 h-4 text-lime-400"></i><span>Quick Start</span>
       </a>
       <a href="#compose" class="flex items-center space-x-2 px-4 py-1.5 bg-black/70 rounded-full text-sm font-medium text-zinc-300 hover:text-white hover:bg-white/10 transition">
-        <i data-lucide="layers" class="w-4 h-4 text-emerald-400"></i><span>Your Stack</span>
+        <i data-lucide="route" class="w-4 h-4 text-emerald-400"></i><span>Your Route</span>
       </a>
       <a href="#instructions" class="flex items-center space-x-2 px-4 py-1.5 bg-black/70 rounded-full text-sm font-medium text-zinc-300 hover:text-white hover:bg-white/10 transition">
         <i data-lucide="clipboard-list" class="w-4 h-4 text-cyan-400"></i><span>Instructions</span>
@@ -136,32 +140,33 @@
     </nav>
   </div>
 
+  <!-- Answers banner -->
   <section id="ss-answers-banner" class="max-w-7xl mx-auto px-6 pb-6" style="display:none;">
-  <div class="bg-amber-50/5 border border-amber-200/30 rounded-xl p-4">
-    <div class="flex items-start justify-between gap-4">
-      <div class="text-sm text-zinc-200/90">
-        <span class="font-semibold text-amber-200">Heads up:</span>
-        We didn’t detect your setup answers, so this plan may not be fully personalized.
+    <div class="bg-amber-50/5 border border-amber-200/30 rounded-xl p-4">
+      <div class="flex items-start justify-between gap-4">
+        <div class="text-sm text-zinc-200/90">
+          <span class="font-semibold text-amber-200">Heads up:</span>
+          We didn’t detect your setup answers, so this route may not be fully personalized.
+        </div>
+        <a href="/activate" class="shrink-0 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-lime-500 text-black text-xs font-semibold hover:bg-lime-400">
+          Start My Credit Route
+        </a>
       </div>
-      <a href="/" class="shrink-0 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-lime-500 text-black text-xs font-semibold hover:bg-lime-400">
-        Build My Stack
-      </a>
     </div>
-  </div>
-</section>
+  </section>
 
-  <!-- WHY THIS STACK -->
+  <!-- WHY THIS ROUTE -->
   <section id="why" class="max-w-7xl mx-auto px-6 pb-10 init-opacity" data-anim>
     <div class="bg-white/5 border border-white/10 rounded-xl p-6 shadow-lg">
       <div class="flex items-start justify-between gap-6">
         <div class="min-w-0">
-          <h3 class="text-white font-semibold text-lg tracking-tight" id="why-headline">Why this stack</h3>
+          <h3 class="text-white font-semibold text-lg tracking-tight" id="why-headline">Why this route</h3>
           <p class="mt-2 text-zinc-200/90 leading-relaxed" id="why-overview">Generating your explanation…</p>
         </div>
         <div class="shrink-0 text-xs text-zinc-400">
           <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/10 bg-black/20">
             <i data-lucide="sparkles" class="w-4 h-4 text-lime-300"></i>
-            AI Reasoning
+            Route Intelligence
           </span>
         </div>
       </div>
@@ -170,96 +175,98 @@
     </div>
   </section>
 
-  <!-- =============== YOUR STACK (COMPOSE) =============== -->
+  <!-- =============== YOUR ROUTE (COMPOSE) =============== -->
   <section id="compose" class="max-w-7xl mx-auto px-6 pb-24 init-opacity" data-anim>
     <div class="bg-white/5 border border-white/10 shadow-xl rounded-xl overflow-hidden">
+
       <!-- header -->
       <header class="flex flex-col md:flex-row items-start md:items-center justify-between md:px-6 bg-gradient-to-b from-white/5 via-white/0 to-white/5 border-b border-white/10 pt-4 pr-4 pb-4 pl-4">
         <a href="#compose" class="inline-block">
           <button class="bg-gradient-to-r from-lime-400 to-emerald-500 text-black rounded-full font-semibold px-6 py-3 transition hover:scale-105 hover:shadow-md hover:brightness-110">
-            Your Stack — Start Here
+            Your Credit Route — Start Here
           </button>
         </a>
       </header>
 
-      <!-- AI-powered Feature Specific Instructions -->
+      <!-- AI Route-specific Instructions -->
       <div class="mt-4 bg-amber-50/5 border border-amber-200/30 rounded-xl shadow p-5">
         <div class="flex items-center gap-2 mb-2">
           <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-300"></i>
-          <h4 class="text-amber-200 font-semibold">Important: Feature-specific Instructions</h4>
+          <h4 class="text-amber-200 font-semibold">Important: Route-specific Instructions</h4>
         </div>
         <p class="text-zinc-200/90">
-          Behind your guide is AI intelligence that searched through
-          <span class="font-semibold text-white">hundreds of features across dozens of apps</span>
-          to find what works best for you. We don’t give everyone the same setup — even with the same app, different people get different features.
-          Based on your answers to our six questions, the AI curated this <span class="font-semibold text-white">specific combination of apps and features</span>
-          to create the most impact for your credit journey.
+          Behind your guide is AI intelligence that identifies the most useful reporting features across multiple tools —
+          based on your inputs. Different people can use the same app in different ways. Follow the feature-level steps below
+          to get the full value from your Credit Route.
         </p>
         <details class="mt-3">
           <summary class="cursor-pointer underline text-amber-200 hover:text-amber-100 text-sm">
             Learn more ▾
           </summary>
           <div class="mt-2 text-zinc-300">
-            Apps include many capabilities, but only certain features move the needle for your profile. Follow the features we highlighted to unlock the full benefit of your plan.
+            Apps contain many features, but only certain ones move the needle for your profile. This guide tells you exactly which
+            actions to take — and what to avoid — so the tools work together.
           </div>
         </details>
       </div>
 
       <!-- content grid -->
       <section class="grid grid-cols-1 lg:grid-cols-12 min-h-[60vh]">
+
         <!-- Sidebar -->
         <aside class="page-break col-span-1 lg:col-span-3 lg:p-6 bg-gradient-to-b from-white/5 to-white/10 border-r border-white/10 pt-4 pr-4 pb-4 pl-4">
-         <!-- Credit Routing summary (injected by plan.runtime.js) -->
-<section id="routing-slot" class="mb-4 init-opacity" style="display:none;">
-  <div class="rounded-xl border border-white/10 bg-white/5 p-4 shadow">
-    <div class="flex items-center justify-between mb-2">
-      <div class="text-[11px] tracking-wider uppercase text-zinc-400">Credit Routing</div>
-      <div class="text-[11px] px-2 py-1 rounded-full border border-emerald-400/30 bg-emerald-400/10 text-emerald-200">
-        Route
-      </div>
-    </div>
 
-    <div class="text-sm text-zinc-200/90 mb-3" data-hook="routing-summary"></div>
+          <!-- Credit Routing summary (injected by plan.runtime.js) -->
+          <section id="routing-slot" class="mb-4 init-opacity" style="display:none;">
+            <div class="rounded-xl border border-white/10 bg-white/5 p-4 shadow">
+              <div class="flex items-center justify-between mb-2">
+                <div class="text-[11px] tracking-wider uppercase text-zinc-400">Credit Routing</div>
+                <div class="text-[11px] px-2 py-1 rounded-full border border-emerald-400/30 bg-emerald-400/10 text-emerald-200">
+                  Route
+                </div>
+              </div>
 
-    <ul class="text-xs text-zinc-200/90 space-y-1 pl-0 list-none" data-hook="route-steps"></ul>
+              <div class="text-sm text-zinc-200/90 mb-3" data-hook="routing-summary">—</div>
 
-    <div class="mt-3 pt-3 border-t border-white/10" data-hook="reroutes" style="display:none;">
-      <div class="text-[11px] tracking-wider uppercase text-zinc-400 mb-2">Reroutes</div>
-      <ul class="text-xs text-zinc-200/80 space-y-1 pl-0 list-none routing-reroutes-list"></ul>
-    </div>
-  </div>
-</section>
+              <ul class="text-xs text-zinc-200/90 space-y-1 pl-0 list-none" data-hook="route-steps">
+                <li>—</li>
+              </ul>
+
+              <div class="mt-3 pt-3 border-t border-white/10" data-hook="reroutes" style="display:none;">
+                <div class="text-[11px] tracking-wider uppercase text-zinc-400 mb-2">Reroutes</div>
+                <ul class="text-xs text-zinc-200/80 space-y-1 pl-0 list-none routing-reroutes-list"></ul>
+              </div>
+            </div>
+          </section>
+
           <div class="space-y-3 mb-6">
-            <h3 class="text-xs font-medium text-zinc-400 uppercase tracking-wider">Apps in Your Stack.</h3>
+            <h3 class="text-xs font-medium text-zinc-400 uppercase tracking-wider">Apps in Your Route</h3>
             <!-- container the runtime will populate -->
             <div class="space-y-2" id="sidebar-slot" data-hook="app-list"></div>
           </div>
 
           <!-- Resources -->
           <div class="space-y-3">
-            <h3 class="text-xs font-medium text-zinc-400 uppercase tracking-wider">Resources &amp; Support.</h3>
+            <h3 class="text-xs font-medium text-zinc-400 uppercase tracking-wider">Resources &amp; Support</h3>
             <div class="space-y-1">
-              <button class="w-full text-left p-2 rounded-md hover:bg-white/10 transition-colors group">
+              <a href="/support" class="block w-full text-left p-2 rounded-md hover:bg-white/10 transition-colors">
                 <div class="flex items-center space-x-2">
                   <div class="w-5 h-5 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center text-white text-xs font-medium">S</div>
                   <div class="flex-1 min-w-0"><p class="text-xs font-medium text-zinc-100 truncate">StackScore Support</p></div>
-                  <i data-lucide="plus" class="w-3 h-3 text-zinc-500 opacity-0 group-hover:opacity-100 transition-opacity"></i>
                 </div>
-              </button>
-              <button class="w-full text-left p-2 rounded-md hover:bg-white/10 transition-colors group">
+              </a>
+              <a href="/faq" class="block w-full text-left p-2 rounded-md hover:bg-white/10 transition-colors">
                 <div class="flex items-center space-x-2">
                   <div class="w-5 h-5 bg-gradient-to-br from-pink-400 to-pink-600 rounded-full flex items-center justify-center text-white text-xs font-medium">C</div>
                   <div class="flex-1 min-w-0"><p class="text-xs font-medium text-zinc-100 truncate">Credit Resources</p></div>
-                  <i data-lucide="plus" class="w-3 h-3 text-zinc-500 opacity-0 group-hover:opacity-100 transition-opacity"></i>
                 </div>
-              </button>
-              <button class="w-full text-left p-2 rounded-md hover:bg-white/10 transition-colors group">
+              </a>
+              <a href="/contact" class="block w-full text-left p-2 rounded-md hover:bg-white/10 transition-colors">
                 <div class="flex items-center space-x-2">
                   <div class="w-5 h-5 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center text-white text-xs font-medium">F</div>
-                  <div class="flex-1 min-w-0"><p class="text-xs font-medium text-zinc-100 truncate">Community Forum</p></div>
-                  <i data-lucide="plus" class="w-3 h-3 text-zinc-500 opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                  <div class="flex-1 min-w-0"><p class="text-xs font-medium text-zinc-100 truncate">Contact</p></div>
                 </div>
-              </button>
+              </a>
             </div>
           </div>
         </aside>
@@ -267,7 +274,7 @@
         <!-- Right panel -->
         <main id="instructions" class="page-break col-span-1 lg:col-span-9 lg:p-8 space-y-5">
           <div class="flex items-center justify-between mb-6">
-            <h1 class="text-lg font-semibold text-white">App Instructions</h1>
+            <h1 class="text-lg font-semibold text-white">Route Instructions</h1>
           </div>
 
           <!-- Read-only Instructions Panel (hydrated by plan.runtime.js) -->
@@ -284,9 +291,7 @@
             <!-- Execution summary -->
             <div class="rounded-md bg-black/40 border border-white/10 px-3 py-3">
               <div class="text-xs text-zinc-400 mb-1">Execution summary</div>
-              <div data-hook="inst-why" class="text-sm text-zinc-100 leading-relaxed">
-                —
-              </div>
+              <div data-hook="inst-why" class="text-sm text-zinc-100 leading-relaxed">—</div>
             </div>
 
             <!-- Execution bullets -->
@@ -308,7 +313,7 @@
             <!-- Optional fallbacks (collapsed) -->
             <details class="rounded-md bg-black/40 border border-white/10 px-3 py-3">
               <summary class="cursor-pointer text-xs text-zinc-300 hover:text-white">
-                If this app isn’t available (fallbacks)
+                If this tool isn’t available (reroutes)
               </summary>
               <ul data-hook="inst-fallbacks" class="mt-2 list-disc pl-5 text-sm text-zinc-100/90 space-y-1">
                 <li>—</li>
@@ -326,10 +331,24 @@
       <strong class="text-zinc-300">Disclaimer:</strong>
       We are not financial advisors, credit advisors, or credit counseling providers. The information in this guide is
       <span class="font-semibold text-zinc-200">educational only</span> and should not be taken as financial advice,
-      credit advice, or credit counseling advice. Results from using apps and features will vary, and there is no guarantee
+      credit advice, or credit counseling advice. Results from using tools and features will vary, and there is no guarantee
       that your credit score will increase.
     </div>
   </footer>
+
+  <!-- Reveal routing block if populated by runtime -->
+  <script>
+    setTimeout(() => {
+      const slot = document.getElementById("routing-slot");
+      if (!slot) return;
+      const summary = slot.querySelector('[data-hook="routing-summary"]');
+      const has = summary && summary.textContent && summary.textContent.trim() && summary.textContent.trim() !== "—";
+      if (has) {
+        slot.style.display = "block";
+        slot.classList.add("show");
+      }
+    }, 1400);
+  </script>
 
   <!-- plan.runtime.js handles guide hydration; do not call composeGuide here -->
 </body>
