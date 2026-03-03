@@ -1,4 +1,5 @@
 # netlify.toml (repo root)
+
 [build]
   command = "npm run build"
   publish = "dist"
@@ -8,7 +9,7 @@
   node_bundler = "esbuild"
   external_node_modules = ["openai"]
 
-# Per-function timeouts (Netlify compatible)
+# Per-function timeouts
 [functions."stripe-webhook"]
   timeout = 20
 
@@ -21,12 +22,32 @@
 [functions."preview-copy"]
   timeout = 20
 
+
+# -----------------------------
+# Redirects (order matters)
+# -----------------------------
+
+# Guide deep links
 [[redirects]]
   from = "/guide/:id"
   to   = "/guides/:id.html"
   status = 200
   force = true
 
+# Stripe success page (static HTML)
+[[redirects]]
+  from = "/success"
+  to   = "/success.html"
+  status = 200
+  force = true
+
+# (Optional) If someone directly hits success.html, allow it
+[[redirects]]
+  from = "/success.html"
+  to   = "/success.html"
+  status = 200
+
+# SPA fallback — MUST BE LAST
 [[redirects]]
   from = "/*"
   to   = "/index.html"
