@@ -3,31 +3,24 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 exports.handler = async (event) => {
   try {
-    const { email, stackKey = "growth" } = JSON.parse(event.body || "{}");
+    const { stackKey = "growth" } = JSON.parse(event.body || "{}");
 
-    if (!email) {
-      return {
-        statusCode: 400,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ error: "Missing email" }),
-      };
-    }
-
-    const price = process.env.STRIPE_PRICE_STACKSCORE; // ✅ single $29 price
+    // ✅ Single $29 price (support either env var name to match your Netlify settings)
+    const price = process.env.STRIPE_PRICE_ID || process.env.STRIPE_PRICE_STACKSCORE;
     if (!price) {
       return {
         statusCode: 500,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ error: "Missing STRIPE_PRICE_STACKSCORE" }),
+        body: JSON.stringify({ error: "Missing STRIPE_PRICE_ID (or STRIPE_PRICE_STACKSCORE)" }),
       };
     }
 
     const site = process.env.SITE_URL || "http://localhost:8888";
     const key = String(stackKey).toLowerCase();
 
+    // ✅ Frictionless: do NOT require email; Stripe collects it on Checkout
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
-      customer_email: email,
       line_items: [{ price, quantity: 1 }],
       success_url: `${site}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${site}/preview`,
