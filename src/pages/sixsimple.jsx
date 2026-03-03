@@ -13,7 +13,7 @@ const SixSimple = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  // Credit Routing-aligned “6 clicks”
+  // Credit Route inputs (simple + human)
   const checklistItems = [
     {
       title: "Living Situation",
@@ -22,32 +22,32 @@ const SixSimple = () => {
     },
     {
       title: "Subscriptions",
-      description: "Tell us what you already pay for — we match Point Moves that can report (when available).",
+      description: "Tell us what you already pay for — we look for reporting opportunities when available.",
       delay: "0.20s",
     },
     {
       title: "Utilities",
-      description: "Power, water, gas — we prioritize routes that turn on-time payments into credit signals.",
+      description: "Power, water, gas — we prioritize routes that can turn on-time payments into credit signals.",
       delay: "0.30s",
     },
     {
       title: "Phone Plan",
-      description: "If your carrier can report, that’s a clean Point Move we’ll sequence in the right spot.",
+      description: "If your carrier can report, we factor it in as a clean, low-friction signal.",
       delay: "0.40s",
     },
     {
       title: "Budget",
-      description: "Set your monthly budget — we filter routes so you’re never pushed into the wrong spend level.",
+      description: "Set your monthly budget — we keep your route realistic and aligned to what you’ll actually do.",
       delay: "0.50s",
     },
     {
-      title: "Point Move Style",
-      description: "Manual vs automated — you choose the route style that fits your habits.",
+      title: "Style",
+      description: "Manual vs automated — you choose a route style that fits your habits.",
       delay: "0.60s",
     },
   ];
 
-  // Keep the bars as a visual metaphor, but rename the labels to match routing language
+  // Visual metaphor bars (same UI, updated labels)
   const barData = [
     { name: "Rent/Own", height: "h-48", color: "bg-cyan-400", delay: "0.10s" },
     { name: "Subs", height: "h-40", color: "bg-green-400", delay: "0.22s" },
@@ -95,9 +95,10 @@ const SixSimple = () => {
 
         <div className="flex items-center gap-3">
           {/* Primary CTA */}
-          <Link to="/wizard?fresh=1" className="hidden sm:inline-flex">
-            <Button size="sm">🚀 Find My First Point Move</Button>
+          <Link to="/wizard?fresh=1" className="hidden sm:inline-flex" aria-label="Start my credit route">
+            <Button size="sm">🚀 Start My Credit Route</Button>
           </Link>
+
           {/* Secondary: Back */}
           <Button
             variant="secondary"
@@ -121,18 +122,15 @@ const SixSimple = () => {
             </h1>
 
             <p className="max-w-xl text-lg text-slate-300">
-  We don’t pull credit and we don’t ask for sensitive financial data.
-  No single app has every high-impact feature.
-  StackScore identifies the strongest reporting features across multiple apps,
-  recombines them intelligently, and sequences them into your personalized
-  <span className="text-white font-medium"> Credit Route</span>.
-</p>
+              No credit pull. No sensitive financial data.
+              StackScore uses these six inputs to map a Credit Route that fits your life — and helps your tools work together.
+            </p>
 
-<p className="mt-4 text-sm text-slate-400">
-  The power isn’t in one tool. It’s in how the features are combined.
-</p>
+            <p className="mt-4 text-sm text-slate-400">
+              The power isn’t one app — it’s the route you follow.
+            </p>
 
-            <ul className="space-y-6 text-lg">
+            <ul className="mt-8 space-y-6 text-lg">
               {checklistItems.map((item, index) => (
                 <li
                   key={index}
@@ -141,11 +139,7 @@ const SixSimple = () => {
                   }`}
                   style={{ transitionDelay: isVisible ? item.delay : "0s" }}
                 >
-                  <CheckCircle
-                    className="text-green-500 w-7 h-7 mr-3 shrink-0"
-                    strokeWidth={1.5}
-                    aria-hidden="true"
-                  />
+                  <CheckCircle className="text-green-500 w-7 h-7 mr-3 shrink-0" strokeWidth={1.5} aria-hidden="true" />
                   <p>
                     <strong>{item.title}</strong> — {item.description}
                   </p>
@@ -153,20 +147,20 @@ const SixSimple = () => {
               ))}
             </ul>
 
-            {/* CTAs — prevent dead end */}
+            {/* CTAs */}
             <div className="mt-10 flex flex-col sm:flex-row sm:items-center gap-4">
-              <Link to="/wizard?fresh=1" className="inline-flex">
-                <Button size="md">Start the 6 clicks</Button>
+              <Link to="/wizard?fresh=1" className="inline-flex" aria-label="Start my credit route">
+                <Button size="md">Start My Credit Route</Button>
               </Link>
-              <Link to="/preview" className="inline-flex">
+              <Link to="/preview" className="inline-flex" aria-label="See my credit routes">
                 <Button variant="secondary" size="md">
-                  View my Credit Routes
+                  See My Credit Routes
                 </Button>
               </Link>
             </div>
 
             <p className="mt-4 text-xs text-neutral-500">
-              Takes less than 60 seconds · No credit pull · Based on your habits and preferences
+              Takes less than 60 seconds · No credit pull · Built for real-life habits
             </p>
           </section>
 
@@ -174,7 +168,7 @@ const SixSimple = () => {
           <section className="md:w-1/2 flex flex-col items-center text-center">
             <h2 className="text-2xl sm:text-3xl font-semibold mb-3">Your routing inputs</h2>
             <p className="text-sm text-neutral-400 mb-6 max-w-md">
-              These six inputs help StackScore choose the best Point Moves and sequence them into a clean Credit Route.
+              These six inputs help StackScore map a route that fits your situation, budget, and style.
             </p>
 
             <div className="flex justify-center items-end gap-3 h-64 w-full max-w-md">
@@ -218,7 +212,7 @@ const SixSimple = () => {
         </div>
       </main>
 
-      {/* Footer (use anchors, not router Links, to avoid context edge cases) */}
+      {/* Footer */}
       <footer className="text-xs text-neutral-500 text-center px-4 mt-12 pb-6">
         <div className="space-x-4">
           <a href="/privacy-policy" className="hover:text-white transition">

@@ -22,13 +22,48 @@ export default function Hero() {
 
   // Canonical gains tiles
   const GAINS = [
-    { key: "foundation", name: "Foundation Route", pts: "+10–30 pts", tone: "lime", badge: { icon: "💰", label: "Best Value" } },
-    { key: "growth", name: "Growth Route", pts: "+40–70 pts", tone: "amber", badge: { icon: "🔥", label: "Popular Choice" } },
-    { key: "accelerator", name: "Accelerator Route", pts: "+80–100 pts", tone: "cyan", badge: { icon: "🚀", label: "Power Boost" } },
-    { key: "elite", name: "Elite Route", pts: "100+ pts", tone: "yellow", badge: { icon: "💎", label: "Premium" } },
+    {
+      key: "foundation",
+      name: "Foundation Route",
+      pts: "+10–30 pts",
+      tone: "lime",
+      badge: { icon: "💰", label: "Best Value" },
+    },
+    {
+      key: "growth",
+      name: "Growth Route",
+      pts: "+40–70 pts",
+      tone: "amber",
+      badge: { icon: "🔥", label: "Recommended" }, // ✅ aligned with Preview
+    },
+    {
+      key: "accelerator",
+      name: "Accelerator Route",
+      pts: "+80–100 pts",
+      tone: "cyan",
+      badge: { icon: "🚀", label: "Power Boost" },
+    },
+    {
+      key: "elite",
+      name: "Elite Route",
+      pts: "100+ pts",
+      tone: "yellow",
+      badge: { icon: "💎", label: "Premium" },
+    },
   ];
-  const toneBorder = { lime: "border-lime-400/30", amber: "border-amber-400/30", cyan: "border-cyan-400/30", yellow: "border-yellow-300/30" };
-  const toneText = { lime: "text-lime-300", amber: "text-amber-300", cyan: "text-cyan-300", yellow: "text-yellow-300" };
+
+  const toneBorder = {
+    lime: "border-lime-400/30",
+    amber: "border-amber-400/30",
+    cyan: "border-cyan-400/30",
+    yellow: "border-yellow-300/30",
+  };
+  const toneText = {
+    lime: "text-lime-300",
+    amber: "text-amber-300",
+    cyan: "text-cyan-300",
+    yellow: "text-yellow-300",
+  };
   const toneBadge = {
     lime: "border-lime-400/20 bg-lime-500/15 text-lime-300",
     amber: "border-amber-400/20 bg-amber-500/15 text-amber-300",
@@ -49,7 +84,17 @@ export default function Hero() {
           onClick={() => navigate("/")}
           className="flex items-center gap-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-lime-400/70"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="text-lime-400" aria-hidden="true">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth="2"
+            className="text-lime-400"
+            aria-hidden="true"
+          >
             <path d="M4 4h16v3H4z" />
             <path d="M4 10.5h16v3H4z" />
             <path d="M4 17h16v3H4z" />
@@ -75,10 +120,10 @@ export default function Hero() {
             FAQ
           </Link>
 
-          {/* Build CTA (primary) */}
+          {/* Primary CTA */}
           <Link to="/wizard?fresh=1" aria-label="Start my credit route" className="mt-1 inline-flex md:mt-0">
-  <Button size="sm">🚀 Start My Credit Route</Button>
-</Link>
+            <Button size="sm">🚀 Start My Credit Route</Button>
+          </Link>
         </nav>
       </header>
 
@@ -100,27 +145,26 @@ export default function Hero() {
           </div>
 
           <h1 className="text-3xl font-light leading-tight tracking-tight sm:text-4xl md:text-5xl lg:text-6xl">
-            Route your credit score upward.
+            Route your credit score higher.
           </h1>
 
           <p className="max-w-xl text-lg text-slate-300">
-            StackScore maps your highest-impact{" "}
-            <span className="text-white font-medium">Point Moves</span>{" "}
-            in the right order — with built-in reroutes.
+            StackScore maps your highest-impact <span className="text-white font-medium">Credit Route</span> — selecting and
+            stacking the right tools so they work together.
           </p>
 
           <p className="text-sm text-neutral-400 mt-2">
-            Powered by intelligent feature recombination across multiple apps.
+            Takes about 60 seconds • No credit pull • No sensitive financial data required
           </p>
 
           {/* CTA block */}
           <div className="flex flex-col gap-4 pt-2 sm:flex-row sm:items-center">
             <div className="flex flex-col gap-2">
-              <Button size="lg" onClick={goWizard} aria-label="Find my first point move">
-                🚀 Find My First Point Move
+              <Button size="lg" onClick={goWizard} aria-label="Start my credit route">
+                🚀 Start My Credit Route
               </Button>
               <p className="text-xs text-slate-500">
-                Takes less than 60 seconds · No credit pull · Based on your habits and preferences
+                Quick questions → personalized routes → activate when you’re ready
               </p>
             </div>
 
@@ -141,7 +185,7 @@ export default function Hero() {
         <div className="lg:col-span-6">
           <div className="space-y-6 rounded-xl border border-white/10 bg-white/5 p-6 shadow-md backdrop-blur-sm">
             <h3 className="text-center text-lg font-semibold tracking-tight text-white">
-              Possible Credit Routes
+              Credit Routes You Can Activate
             </h3>
 
             <div className="grid grid-cols-2 gap-3">
@@ -168,7 +212,7 @@ export default function Hero() {
             <div className="space-y-1 text-center">
               <p className="text-lime-300">Route Strength: ★★★★★</p>
               <p className="text-emerald-400">Synergy Score: High</p>
-              <p className="text-xs text-slate-500">Based on verified user reports. Results may vary.</p>
+              <p className="text-xs text-slate-500">Results vary by credit profile and reporting timelines.</p>
             </div>
           </div>
         </div>
