@@ -79,7 +79,7 @@
   </header>
 
   <!-- ================= HERO ================= -->
-  <section id="main" class="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center pt-20 pb-20 init-opacity" data-anim>
+  <section id="main" class="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center pt-20 pb-16 init-opacity" data-anim>
     <div class="lg:col-span-6 space-y-6">
       <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-lime-400/30 bg-gradient-to-r from-lime-400/10 to-emerald-500/10 text-xs text-lime-300">
         <i data-lucide="sparkles" class="w-4 h-4"></i> Credit Route Guide
@@ -90,7 +90,7 @@
       </h1>
 
       <p class="mt-2 text-lg text-zinc-200/90 leading-relaxed">
-        Follow this route to activate the right tools in a clean, realistic way — including reroutes if something isn’t available.
+        This is your activation blueprint. Follow the steps below to turn on the right reporting features — with reroutes if something isn’t available.
       </p>
 
       <p class="text-sm text-zinc-400">
@@ -119,6 +119,34 @@
           <p class="text-lime-300">Route Strength: ★★★★★</p>
           <p class="text-emerald-400">Synergy Score: High</p>
           <p class="text-xs text-slate-500">Results may vary.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======= AUTHORITY (HYBRID LAYER) ======= -->
+  <section class="max-w-7xl mx-auto px-6 pb-10 init-opacity" data-anim>
+    <div class="rounded-xl border border-white/10 bg-white/5 p-6 shadow-lg">
+      <div class="flex items-center gap-2 mb-3">
+        <i data-lucide="sparkles" class="w-4 h-4 text-lime-300"></i>
+        <h3 class="text-white font-semibold text-lg tracking-tight">What the AI optimized for</h3>
+      </div>
+      <div class="grid gap-4 md:grid-cols-2 text-sm text-zinc-200/90">
+        <div class="rounded-lg border border-white/10 bg-black/30 p-4">
+          <div class="text-xs uppercase tracking-wider text-zinc-400 mb-1">Impact + realism</div>
+          <div>Highest-leverage reporting features that fit your timeline and budget.</div>
+        </div>
+        <div class="rounded-lg border border-white/10 bg-black/30 p-4">
+          <div class="text-xs uppercase tracking-wider text-zinc-400 mb-1">Low friction</div>
+          <div>Routes that are easy to execute (autopay, simple setup, minimal upkeep).</div>
+        </div>
+        <div class="rounded-lg border border-white/10 bg-black/30 p-4">
+          <div class="text-xs uppercase tracking-wider text-zinc-400 mb-1">Coverage</div>
+          <div>A balanced mix of signals (utilities, installments, rent, disputes where relevant).</div>
+        </div>
+        <div class="rounded-lg border border-white/10 bg-black/30 p-4">
+          <div class="text-xs uppercase tracking-wider text-zinc-400 mb-1">Reroutes</div>
+          <div>Substitutes so your route still works if an app isn’t available or doesn’t report.</div>
         </div>
       </div>
     </div>
@@ -170,7 +198,6 @@
           </span>
         </div>
       </div>
-
       <ul class="mt-4 space-y-2 text-sm text-zinc-300" id="why-assumptions" style="display:none;"></ul>
     </div>
   </section>
@@ -196,8 +223,7 @@
         </div>
         <p class="text-zinc-200/90">
           Behind your guide is AI intelligence that identifies the most useful reporting features across multiple tools —
-          based on your inputs. Different people can use the same app in different ways. Follow the feature-level steps below
-          to get the full value from your Credit Route.
+          based on your inputs. Follow the feature-level steps below to get the full value from your Credit Route.
         </p>
         <details class="mt-3">
           <summary class="cursor-pointer underline text-amber-200 hover:text-amber-100 text-sm">
@@ -216,22 +242,30 @@
         <!-- Sidebar -->
         <aside class="page-break col-span-1 lg:col-span-3 lg:p-6 bg-gradient-to-b from-white/5 to-white/10 border-r border-white/10 pt-4 pr-4 pb-4 pl-4">
 
+          <!-- ✅ 10× Value Upgrade: Global Activation Checklist -->
+          <div class="mb-5 rounded-xl border border-white/10 bg-black/30 p-4">
+            <div class="text-[11px] tracking-wider uppercase text-zinc-400 mb-2">Start Here</div>
+            <ol class="text-sm text-zinc-200/90 space-y-2 list-decimal pl-5">
+              <li>Open the first tool and complete setup.</li>
+              <li>Turn on reporting features (autopay if available).</li>
+              <li>Confirm activation and watch for first reporting update.</li>
+            </ol>
+            <div class="mt-3 text-xs text-zinc-400">
+              Tip: Most reporting updates show within 7–14 days depending on the bureau and tool.
+            </div>
+          </div>
+
           <!-- Credit Routing summary (injected by plan.runtime.js) -->
           <section id="routing-slot" class="mb-4 init-opacity" style="display:none;">
             <div class="rounded-xl border border-white/10 bg-white/5 p-4 shadow">
               <div class="flex items-center justify-between mb-2">
                 <div class="text-[11px] tracking-wider uppercase text-zinc-400">Credit Routing</div>
-                <div class="text-[11px] px-2 py-1 rounded-full border border-emerald-400/30 bg-emerald-400/10 text-emerald-200">
-                  Route
-                </div>
+                <div class="text-[11px] px-2 py-1 rounded-full border border-emerald-400/30 bg-emerald-400/10 text-emerald-200">Route</div>
               </div>
-
               <div class="text-sm text-zinc-200/90 mb-3" data-hook="routing-summary">—</div>
-
               <ul class="text-xs text-zinc-200/90 space-y-1 pl-0 list-none" data-hook="route-steps">
                 <li>—</li>
               </ul>
-
               <div class="mt-3 pt-3 border-t border-white/10" data-hook="reroutes" style="display:none;">
                 <div class="text-[11px] tracking-wider uppercase text-zinc-400 mb-2">Reroutes</div>
                 <ul class="text-xs text-zinc-200/80 space-y-1 pl-0 list-none routing-reroutes-list"></ul>
@@ -241,7 +275,6 @@
 
           <div class="space-y-3 mb-6">
             <h3 class="text-xs font-medium text-zinc-400 uppercase tracking-wider">Apps in Your Route</h3>
-            <!-- container the runtime will populate -->
             <div class="space-y-2" id="sidebar-slot" data-hook="app-list"></div>
           </div>
 
@@ -258,7 +291,7 @@
               <a href="/faq" class="block w-full text-left p-2 rounded-md hover:bg-white/10 transition-colors">
                 <div class="flex items-center space-x-2">
                   <div class="w-5 h-5 bg-gradient-to-br from-pink-400 to-pink-600 rounded-full flex items-center justify-center text-white text-xs font-medium">C</div>
-                  <div class="flex-1 min-w-0"><p class="text-xs font-medium text-zinc-100 truncate">Credit Resources</p></div>
+                  <div class="flex-1 min-w-0"><p class="text-xs font-medium text-zinc-100 truncate">FAQ</p></div>
                 </div>
               </a>
               <a href="/contact" class="block w-full text-left p-2 rounded-md hover:bg-white/10 transition-colors">
@@ -273,28 +306,28 @@
 
         <!-- Right panel -->
         <main id="instructions" class="page-break col-span-1 lg:col-span-9 lg:p-8 space-y-5">
-          <div class="flex items-center justify-between mb-6">
+          <div class="flex items-center justify-between mb-2">
             <h1 class="text-lg font-semibold text-white">Route Instructions</h1>
+          </div>
+
+          <div class="rounded-xl border border-white/10 bg-black/30 p-4 text-sm text-zinc-200/90">
+            <strong class="text-white">Execution principle:</strong> activate one tool at a time, confirm setup, then move to the next.
+            If something isn’t available, use the reroute listed in your sidebar.
           </div>
 
           <!-- Read-only Instructions Panel (hydrated by plan.runtime.js) -->
           <div id="ss-instructions" class="space-y-4">
-            <!-- Website -->
             <div class="rounded-md bg-black/40 border border-white/10 px-3 py-3">
               <div class="text-xs text-zinc-400 mb-1">Website</div>
               <a data-hook="inst-website" href="#" target="_blank" rel="noopener noreferrer"
-                 class="text-sm text-lime-300 hover:text-lime-200 underline break-all">
-                —
-              </a>
+                 class="text-sm text-lime-300 hover:text-lime-200 underline break-all">—</a>
             </div>
 
-            <!-- Execution summary -->
             <div class="rounded-md bg-black/40 border border-white/10 px-3 py-3">
               <div class="text-xs text-zinc-400 mb-1">Execution summary</div>
               <div data-hook="inst-why" class="text-sm text-zinc-100 leading-relaxed">—</div>
             </div>
 
-            <!-- Execution bullets -->
             <div class="rounded-md bg-black/40 border border-white/10 px-3 py-3">
               <div class="text-xs text-zinc-400 mb-2">Do this next (fast)</div>
               <ul data-hook="inst-steps" class="list-disc pl-5 text-sm text-zinc-100 space-y-1">
@@ -302,7 +335,6 @@
               </ul>
             </div>
 
-            <!-- Watch-outs -->
             <div class="rounded-md bg-black/40 border border-white/10 px-3 py-3">
               <div class="text-xs text-zinc-400 mb-2">Watch out for</div>
               <ul data-hook="inst-risks" class="list-disc pl-5 text-sm text-zinc-100/90 space-y-1">
@@ -310,7 +342,6 @@
               </ul>
             </div>
 
-            <!-- Optional fallbacks (collapsed) -->
             <details class="rounded-md bg-black/40 border border-white/10 px-3 py-3">
               <summary class="cursor-pointer text-xs text-zinc-300 hover:text-white">
                 If this tool isn’t available (reroutes)
@@ -350,6 +381,5 @@
     }, 1400);
   </script>
 
-  <!-- plan.runtime.js handles guide hydration; do not call composeGuide here -->
 </body>
 </html>

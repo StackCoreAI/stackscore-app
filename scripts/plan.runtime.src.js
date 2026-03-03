@@ -11,9 +11,15 @@
   // Prefer canonical answers; support legacy keys.
   function readAnswersRaw() {
     return (
+      // ✅ canonical key used by plan.runtime.min.js in prod builds
       tryParse(localStorage.getItem("stackscore_answers")) ||
+      // ✅ some flows store under this key
+      tryParse(localStorage.getItem("stackscore_answers")) ||
+      // ✅ newer SPA keys
       tryParse(localStorage.getItem("ss_answers")) ||
       tryParse(localStorage.getItem("stackscoreUserData")) ||
+      // ✅ legacy
+      tryParse(localStorage.getItem("stackscore_answers")) ||
       {}
     );
   }
@@ -52,9 +58,7 @@
       const obj = JSON.parse(raw);
       if (!obj || typeof obj !== "object") return null;
 
-      // TTL check (optional)
       if (obj._cachedAt && Date.now() - obj._cachedAt > CACHE_TTL_MS) return null;
-
       return obj.payload || obj;
     } catch {
       return null;
@@ -153,8 +157,13 @@
     el.textContent = text;
   }
 
+  function setHtml(id, html) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.innerHTML = html;
+  }
+
   function renderWhy(payload) {
-    // Try to find a narrative/why field from your plan payload
     const why =
       payload?.why_overview ||
       payload?.why ||
@@ -168,16 +177,15 @@
       payload?.assumptions ||
       payload?.why_assumptions ||
       payload?.notes ||
+      payload?.bullets ||
       [];
 
-    if (why) {
-      setText("why-overview", why);
-    }
+    if (why) setText("why-overview", String(why));
 
     const ul = document.getElementById("why-assumptions");
     if (ul && Array.isArray(assumptions) && assumptions.length) {
       ul.style.display = "block";
-      ul.innerHTML = assumptions.slice(0, 8).map((t) => `<li>• ${String(t)}</li>`).join("");
+      ul.innerHTML = assumptions.slice(0, 10).map((t) => `<li>• ${String(t)}</li>`).join("");
     }
   }
 
@@ -214,7 +222,6 @@
 
     if (!hasAny) return;
 
-    // reveal
     slot.style.display = "block";
     slot.classList.add("show");
 
@@ -251,7 +258,6 @@
       websiteLink.href = url || "#";
     }
 
-    // execution summary: use dataset tip if present, else a generic line
     if (whyEl) {
       whyEl.textContent = d.tip || "Follow the steps below to activate the key feature(s) for your route.";
     }
@@ -263,13 +269,8 @@
         .join("");
     }
 
-    // risks/fallbacks: if not provided by plan, keep placeholders
-    if (risksUl) {
-      risksUl.innerHTML = `<li>—</li>`;
-    }
-    if (fallbacksUl) {
-      fallbacksUl.innerHTML = `<li>—</li>`;
-    }
+    if (risksUl) risksUl.innerHTML = `<li>—</li>`;
+    if (fallbacksUl) fallbacksUl.innerHTML = `<li>—</li>`;
   }
 
   // ---------- Render into Sidebar slot ----------
@@ -301,11 +302,9 @@
 
     safe(()=>window.lucide&&lucide.createIcons());
 
-    // apply first item to instruction panel
     const firstSummary = document.querySelector("#compose details.group summary");
     if (firstSummary) applyInstruction(firstSummary);
 
-    // accordion behavior + instruction binding
     document.querySelectorAll("#compose details.group").forEach(el=>{
       el.addEventListener("toggle",()=>{ if(!el.open) return;
         document.querySelectorAll("#compose details.group").forEach(x=>{ if(x!==el) x.open=false; });
@@ -320,7 +319,7 @@
     document.querySelectorAll("[data-anim]").forEach((el,i)=> setTimeout(()=> el.classList.add("show"), i*150));
   });
 
-  // ---------- Local progress (checklist + save/complete) ----------
+  // ---------- Local progress ----------
   document.addEventListener("DOMContentLoaded", () => {
     const ns = `ss:${getParam("t","anon")}:`;
     document.querySelectorAll('input[type="checkbox"]').forEach((cb,i)=>{
@@ -343,27 +342,23 @@
   // ---------- Auto-render for guide pages ----------
   async function renderForCurrentPage(){
     const slot=document.getElementById("sidebar-slot");
-    if(!slot) return; // not a guide page
+    if(!slot) return;
 
-    // If SSR already filled, just hydrate icons
     if (slot.children.length>0){
       safe(()=>window.lucide&&lucide.createIcons());
       return;
     }
 
-    const stackKey=getParam("stackKey","growth"); // ✅ match funnel default
+    const stackKey=getParam("stackKey","growth");
     const payload=await fetchPlanWithCache(stackKey);
 
-    // hydrate guide sections
     renderWhy(payload);
     renderRouting(payload);
 
-    // apps list + per-app instruction panel
     const apps=deriveApps(payload);
     renderAppsIntoSlot(apps);
   }
 
-  // Expose for guides
   window.composeGuide = async function(stackKey="growth"){
     try {
       const payload = await fetchPlanWithCache(stackKey);
