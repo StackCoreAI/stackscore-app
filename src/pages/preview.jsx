@@ -280,7 +280,7 @@ export default function Preview() {
                   onClick={() => startUnlock(pendingStackKey)}
                   disabled={unlocking}
                 >
-                  {unlocking ? "Redirecting…" : "Activate My Full Credit Route — $29"}
+                  {unlocking ? "Opening Stripe…" : "Activate My Full Credit Route — $29"}
                 </Button>
                 {unlockErr && <span className="text-sm text-red-300">{unlockErr}</span>}
               </div>

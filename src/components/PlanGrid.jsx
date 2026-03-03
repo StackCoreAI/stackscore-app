@@ -241,7 +241,7 @@ function PlanCard({ plan, selectedKey, onSelect, onUnlock }) {
             onUnlock?.(key);
           }}
         >
-          🔒 Unlock My Full Credit Route
+          🔒 Activate My Full Credit Route — $29
         </Button>
       </div>
     </div>
