@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
   <title>StackScore — Credit Route Activated</title>
-  <link rel="stylesheet" href="/assets/app.css?v=boot2" />
+  <link rel="stylesheet" href="/assets/app.css?v=boot3" />
 </head>
 <body class="min-h-screen bg-black text-white flex items-center justify-center p-8">
   <div class="max-w-lg w-full rounded-2xl border border-white/10 bg-white/5 p-8 shadow-xl shadow-lime-500/10">
@@ -16,12 +16,12 @@
     </p>
 
     <div id="status" class="text-white/70 text-sm mb-6">
-      Finalizing access…
+      Verifying payment…
     </div>
 
-   <button id="go" class="px-4 py-2 rounded-xl bg-lime-500 text-black font-semibold hidden">
-  Continue
-</button>
+    <button id="go" class="px-4 py-2 rounded-xl bg-lime-500 text-black font-semibold hidden">
+      Continue to your Credit Route
+    </button>
   </div>
 
 <script>
@@ -40,14 +40,19 @@
     return data;
   }
 
+  function showContinue(stackKey) {
+    goBtn.classList.remove("hidden");
+    goBtn.onclick = () => {
+      location.href = `/guides/82.html?stackKey=${encodeURIComponent(stackKey)}&paid=1`;
+    };
+  }
+
   async function run() {
     try {
       if (!sessionId) {
         statusEl.textContent = "Missing session ID. Please return to checkout.";
         return;
       }
-
-      statusEl.textContent = "Verifying payment…";
 
       const sessionData = await getSessionDetails();
 
@@ -57,27 +62,42 @@
 
       if (!paid) {
         statusEl.textContent = "Payment is still processing. Please refresh in a moment.";
-        goBtn.classList.remove("hidden");
         goBtn.textContent = "Refresh";
+        goBtn.classList.remove("hidden");
         goBtn.onclick = () => location.reload();
         return;
       }
 
-      // store (optional)
+      // ✅ Always store paid flag (even if email missing)
+      localStorage.setItem("stackscore_paid", "1");
       if (email) {
-        localStorage.setItem("stackscore_paid", "1");
         localStorage.setItem("stackscore_paid_email", email);
       }
 
       statusEl.textContent = "Activated. Redirecting…";
+
+      // 🔐 Redirect attempt
+      const target = `/guides/82.html?stackKey=${encodeURIComponent(stackKey)}&paid=1`;
+
+      // Fallback button if redirect fails
+      showContinue(stackKey);
+
+      // Attempt automatic redirect
       setTimeout(() => {
-        location.href = `/guides/82.html?stackKey=${encodeURIComponent(stackKey)}&paid=1`;
-      }, 500);
+        location.href = target;
+      }, 600);
+
+      // Safety fallback (if redirect blocked for any reason)
+      setTimeout(() => {
+        statusEl.textContent = "If you're not redirected automatically, click below.";
+        showContinue(stackKey);
+      }, 2500);
+
     } catch (e) {
       console.error(e);
       statusEl.textContent = "Error verifying payment. Please refresh.";
-      goBtn.classList.remove("hidden");
       goBtn.textContent = "Refresh";
+      goBtn.classList.remove("hidden");
       goBtn.onclick = () => location.reload();
     }
   }
