@@ -2,25 +2,75 @@
 (() => {
   // ---------- Small utils ----------
   function safe(fn) { try { fn && fn(); } catch (_) {} }
-  function getParam(name, fallback) { const u = new URLSearchParams(location.search); return u.get(name) || fallback; }
+  function getParam(name, fallback) {
+    const u = new URLSearchParams(location.search);
+    return u.get(name) || fallback;
+  }
   function tryParse(v){ if(typeof v!=="string") return null; try{ return JSON.parse(v);}catch{ return null; } }
 
-  // Read onboarding answers (no PII). Adjust keys only if your wizard stores different names.
+  // Prefer canonical answers; support legacy keys.
+  function readAnswersRaw() {
+    return (
+      tryParse(localStorage.getItem("stackscore_answers")) ||
+      tryParse(localStorage.getItem("ss_answers")) ||
+      tryParse(localStorage.getItem("stackscoreUserData")) ||
+      {}
+    );
+  }
+
+  // Read onboarding answers (no PII). This is what generate-plan expects.
   function readAnswers() {
-    const a = tryParse(localStorage.getItem("stackscore_answers")) || {};
+    const a = readAnswersRaw();
     return {
       living: a.living || a.housing || "",
       budget: a.budget || "",
-      timeline: a.timeline || "",
+      timeline: a.timeline || a.goal || "",
       employment: a.employment || "",
       rent_backdate: a.rent_backdate || "",
     };
   }
 
-  // Always hit the Netlify Function in prod (works locally with `netlify dev` too)
+  // ---------- Cache layer (90%+ OpenAI call reduction) ----------
+  function stableStringify(obj) {
+    try { return JSON.stringify(obj, Object.keys(obj || {}).sort()); }
+    catch { return String(obj); }
+  }
+
+  function cacheKey(stackKey) {
+    const k = String(stackKey || "growth").toLowerCase();
+    const answers = readAnswers();
+    const hash = stableStringify(answers);
+    return `ss_plan_cache_v1:${k}:${hash}`;
+  }
+
+  const CACHE_TTL_MS = 1000 * 60 * 60 * 24 * 14; // 14 days
+
+  function readCachedPlan(stackKey) {
+    try {
+      const raw = localStorage.getItem(cacheKey(stackKey));
+      if (!raw) return null;
+      const obj = JSON.parse(raw);
+      if (!obj || typeof obj !== "object") return null;
+
+      // TTL check (optional)
+      if (obj._cachedAt && Date.now() - obj._cachedAt > CACHE_TTL_MS) return null;
+
+      return obj.payload || obj;
+    } catch {
+      return null;
+    }
+  }
+
+  function writeCachedPlan(stackKey, payload) {
+    try {
+      localStorage.setItem(cacheKey(stackKey), JSON.stringify({ _cachedAt: Date.now(), payload }));
+    } catch {}
+  }
+
+  // ---------- Netlify Function endpoint ----------
   const PLAN_FN_URL = `${window.location.origin}/.netlify/functions/generate-plan`;
 
-  async function fetchPlan(stackKey){
+  async function fetchPlanFromApi(stackKey){
     const res = await fetch(PLAN_FN_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json", "Accept": "application/json" },
@@ -35,6 +85,15 @@
     return JSON.parse(text);
   }
 
+  async function fetchPlanWithCache(stackKey) {
+    const cached = readCachedPlan(stackKey);
+    if (cached) return cached;
+
+    const fresh = await fetchPlanFromApi(stackKey);
+    writeCachedPlan(stackKey, fresh);
+    return fresh;
+  }
+
   // ---------- Icon + steps helpers ----------
   function iconFor(n=""){ n=n.toLowerCase();
     if(n.includes("boost")) return "zap";
@@ -44,6 +103,7 @@
     if(n.includes("dispute")||n.includes("dovly"))return "shield-check";
     return "star";
   }
+
   function stepsFor(name, a){
     const n=(name||"").toLowerCase();
     if (a?.step1 || a?.step2 || a?.step3) return [a.step1||"", a.step2||"", a.step3||""];
@@ -60,32 +120,168 @@
   // ---------- Normalize plan → 3–5 apps ----------
   function deriveApps(data){
     if (Array.isArray(data?.apps) && data.apps.length) return data.apps.slice(0,5);
+
     let plans=[];
     if (Array.isArray(data?.plans)) plans=data.plans;
     else if (data?.plan) plans=[data.plan];
     else {
       const nest=tryParse(data?.result)||tryParse(data?.output)||tryParse(data?.plan_json)||tryParse(data);
-      if (Array.isArray(nest?.plans)) plans=nest.plans; else if (nest?.plan) plans=[nest.plan];
+      if (Array.isArray(nest?.plans)) plans=nest.plans;
+      else if (nest?.plan) plans=[nest.plan];
     }
+
     const seen=new Set(), out=[];
     const add=(a)=>{ const n=(a?.app_name||a?.name||"").trim(); if(!n||seen.has(n)) return; seen.add(n); out.push(a); };
+
     if(plans[0]?.apps) (plans[0].apps||[]).forEach(add);
     for(let i=1;i<plans.length && out.length<5;i++) (plans[i].apps||[]).forEach(add);
-    const fallbacks=[{app_name:"Experian Boost",app_url:"https://www.experian.com/boost"},
-                     {app_name:"Kikoff",app_url:"https://www.kikoff.com/"},
-                     {app_name:"Kovo",app_url:"https://www.kovo.com/"}];
+
+    const fallbacks=[
+      {app_name:"Experian Boost",app_url:"https://www.experian.com/boost"},
+      {app_name:"Kikoff",app_url:"https://www.kikoff.com/"},
+      {app_name:"Kovo",app_url:"https://www.kovo.com/"}
+    ];
     for(const f of fallbacks){ if(out.length>=3) break; if(!seen.has(f.app_name)) out.push(f); }
+
     return out.slice(0,5);
   }
 
-  // ---------- Render into the Sidebar slot ----------
+  // ---------- Guide renderers ----------
+  function setText(id, text) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = text;
+  }
+
+  function renderWhy(payload) {
+    // Try to find a narrative/why field from your plan payload
+    const why =
+      payload?.why_overview ||
+      payload?.why ||
+      payload?.overview ||
+      payload?.reasoning ||
+      payload?.explanation ||
+      payload?.narrative ||
+      "";
+
+    const assumptions =
+      payload?.assumptions ||
+      payload?.why_assumptions ||
+      payload?.notes ||
+      [];
+
+    if (why) {
+      setText("why-overview", why);
+    }
+
+    const ul = document.getElementById("why-assumptions");
+    if (ul && Array.isArray(assumptions) && assumptions.length) {
+      ul.style.display = "block";
+      ul.innerHTML = assumptions.slice(0, 8).map((t) => `<li>• ${String(t)}</li>`).join("");
+    }
+  }
+
+  function renderRouting(payload) {
+    const slot = document.getElementById("routing-slot");
+    if (!slot) return;
+
+    const summaryEl = slot.querySelector('[data-hook="routing-summary"]');
+    const stepsEl = slot.querySelector('[data-hook="route-steps"]');
+    const reroutesWrap = slot.querySelector('[data-hook="reroutes"]');
+    const reroutesList = slot.querySelector(".routing-reroutes-list");
+
+    const summary =
+      payload?.routing_summary ||
+      payload?.route_summary ||
+      payload?.summary ||
+      "";
+
+    const steps =
+      payload?.route_steps ||
+      payload?.routing_steps ||
+      payload?.steps ||
+      [];
+
+    const reroutes =
+      payload?.reroutes ||
+      payload?.fallbacks ||
+      [];
+
+    const hasAny =
+      (summary && String(summary).trim()) ||
+      (Array.isArray(steps) && steps.length) ||
+      (Array.isArray(reroutes) && reroutes.length);
+
+    if (!hasAny) return;
+
+    // reveal
+    slot.style.display = "block";
+    slot.classList.add("show");
+
+    if (summaryEl && summary) summaryEl.textContent = String(summary);
+
+    if (stepsEl && Array.isArray(steps) && steps.length) {
+      stepsEl.innerHTML = steps.slice(0, 8).map((s) => `<li>• ${String(s)}</li>`).join("");
+    }
+
+    if (reroutesWrap && reroutesList && Array.isArray(reroutes) && reroutes.length) {
+      reroutesWrap.style.display = "block";
+      reroutesList.innerHTML = reroutes.slice(0, 8).map((r) => `<li>• ${String(r)}</li>`).join("");
+    }
+  }
+
+  // Fill the read-only instruction panel (82.html has data-hook slots)
+  function applyInstruction(summaryEl) {
+    if (!summaryEl) return;
+    const d = summaryEl.dataset || {};
+
+    const websiteLink = document.querySelector('[data-hook="inst-website"]');
+    const whyEl = document.querySelector('[data-hook="inst-why"]');
+    const stepsUl = document.querySelector('[data-hook="inst-steps"]');
+    const risksUl = document.querySelector('[data-hook="inst-risks"]');
+    const fallbacksUl = document.querySelector('[data-hook="inst-fallbacks"]');
+
+    const url = d.url || "";
+    const step1 = d.step1 || "";
+    const step2 = d.step2 || "";
+    const step3 = d.step3 || "";
+
+    if (websiteLink) {
+      websiteLink.textContent = url || "—";
+      websiteLink.href = url || "#";
+    }
+
+    // execution summary: use dataset tip if present, else a generic line
+    if (whyEl) {
+      whyEl.textContent = d.tip || "Follow the steps below to activate the key feature(s) for your route.";
+    }
+
+    if (stepsUl) {
+      const items = [step1, step2, step3].filter(Boolean);
+      stepsUl.innerHTML = (items.length ? items : ["—"])
+        .map((x) => `<li>${String(x)}</li>`)
+        .join("");
+    }
+
+    // risks/fallbacks: if not provided by plan, keep placeholders
+    if (risksUl) {
+      risksUl.innerHTML = `<li>—</li>`;
+    }
+    if (fallbacksUl) {
+      fallbacksUl.innerHTML = `<li>—</li>`;
+    }
+  }
+
+  // ---------- Render into Sidebar slot ----------
   function renderAppsIntoSlot(apps){
     const slot=document.getElementById("sidebar-slot");
     if(!slot) return;
+
     slot.innerHTML = apps.map((a,i)=>{
       const name=a.app_name||a.name||"App";
       const url =a.app_url ||a.url  ||"";
       const [p1,p2,p3]=stepsFor(name,a);
+
       return `
 <details class="group"${i===0?" open":""}>
   <summary class="w-full flex items-center justify-between px-3 py-2 bg-lime-600 text-black rounded-md hover:bg-lime-500 transition-colors text-xs font-medium cursor-pointer"
@@ -104,15 +300,18 @@
     }).join("");
 
     safe(()=>window.lucide&&lucide.createIcons());
-    safe(()=>window.initInstructions&&window.initInstructions());
 
-    if(apps.length===3){
-      const host=document.querySelector("#compose .mt-4")||document.querySelector("#compose");
-      if(host){ const p=document.createElement("p"); p.className="text-xs italic text-zinc-400 mt-2";
-        p.textContent="Your starter stack includes 3 apps (min spec). More can be added based on your profile.";
-        host.appendChild(p);
-      }
-    }
+    // apply first item to instruction panel
+    const firstSummary = document.querySelector("#compose details.group summary");
+    if (firstSummary) applyInstruction(firstSummary);
+
+    // accordion behavior + instruction binding
+    document.querySelectorAll("#compose details.group").forEach(el=>{
+      el.addEventListener("toggle",()=>{ if(!el.open) return;
+        document.querySelectorAll("#compose details.group").forEach(x=>{ if(x!==el) x.open=false; });
+        applyInstruction(el.querySelector("summary"));
+      });
+    });
   }
 
   // ---------- Icons + entrance anim ----------
@@ -129,47 +328,7 @@
       cb.checked = localStorage.getItem(key)==="1";
       cb.addEventListener("change", ()=> localStorage.setItem(key, cb.checked?"1":"0"));
     });
-    const saveBtn=[...document.querySelectorAll("button")].find(b=>/save progress/i.test(b.textContent||""));
-    if (saveBtn) saveBtn.addEventListener("click", ()=>{ localStorage.setItem(`${ns}progress-saved`, Date.now().toString()); alert("Progress saved locally!"); });
-    const doneBtn=[...document.querySelectorAll("button")].find(b=>/mark complete/i.test(b.textContent||""));
-    if (doneBtn) {
-      const k=`${ns}completed`;
-      if (localStorage.getItem(k)==="1"){ doneBtn.textContent="Completed ✔"; doneBtn.classList.add("bg-emerald-600"); }
-      doneBtn.addEventListener("click",(e)=>{ e.preventDefault(); localStorage.setItem(k,"1"); doneBtn.textContent="Completed ✔"; doneBtn.classList.add("bg-emerald-600"); });
-    }
   });
-
-  // ---------- Instruction form binder ----------
-  window.initInstructions = function initInstructions(){
-    const lastKey = `ss:${getParam("t","anon")}:lastApp`;
-    const form = document.querySelector("#instructions form") || document.querySelector("main#instructions form");
-    if (!form) return;
-    const url=form.querySelector('input[type="url"]'),
-          s1 =form.querySelector('input[placeholder*="First"]'),
-          s2 =form.querySelector('input[placeholder*="Second"]'),
-          s3 =form.querySelector('input[placeholder*="Third"]'),
-          tip=form.querySelector("textarea");
-    function apply(sum){ if(!sum) return; const d=sum.dataset||{};
-      if(url) url.value=d.url||""; if(s1) s1.value=d.step1||""; if(s2) s2.value=d.step2||""; if(s3) s3.value=d.step3||"";
-      if(tip) tip.value=d.tip||""; if(d.app) localStorage.setItem(lastKey,d.app);
-    }
-    // reset listeners (avoid duplicate toggles)
-    document.querySelectorAll("#compose details.group").forEach(el=>{ const c=el.cloneNode(true); el.parentNode.replaceChild(c,el); });
-    // accordion + apply
-    document.querySelectorAll("#compose details.group").forEach(el=>{
-      el.addEventListener("toggle",()=>{ if(!el.open) return;
-        document.querySelectorAll("#compose details.group").forEach(x=>{ if(x!==el) x.open=false; });
-        apply(el.querySelector("summary"));
-      });
-    });
-    // restore or first
-    const last=localStorage.getItem(lastKey); let restored=false;
-    if(last){ const sum=[...document.querySelectorAll("#compose details.group summary")].find(s=>(s.dataset.app||"").toLowerCase()===last.toLowerCase());
-      if(sum){ const det=sum.closest("details.group"); if(det) det.open=true; apply(sum); restored=true; }
-    }
-    if(!restored){ const sum=document.querySelector("#compose details.group[open] summary")||document.querySelector("#compose details.group summary"); if(sum) apply(sum); }
-  };
-  document.addEventListener("DOMContentLoaded", ()=> safe(()=> window.initInstructions?.()));
 
   // ---------- Print helpers ----------
   document.addEventListener("DOMContentLoaded", ()=>{
@@ -185,22 +344,31 @@
   async function renderForCurrentPage(){
     const slot=document.getElementById("sidebar-slot");
     if(!slot) return; // not a guide page
-    // If SSR already filled, just hydrate
+
+    // If SSR already filled, just hydrate icons
     if (slot.children.length>0){
       safe(()=>window.lucide&&lucide.createIcons());
-      safe(()=>window.initInstructions&&window.initInstructions());
       return;
     }
-    const stackKey=getParam("stackKey","foundation");
-    const payload=await fetchPlan(stackKey);
+
+    const stackKey=getParam("stackKey","growth"); // ✅ match funnel default
+    const payload=await fetchPlanWithCache(stackKey);
+
+    // hydrate guide sections
+    renderWhy(payload);
+    renderRouting(payload);
+
+    // apps list + per-app instruction panel
     const apps=deriveApps(payload);
     renderAppsIntoSlot(apps);
   }
 
-  // Expose for guides (e.g., 82.html)
-  window.composeGuide = async function(stackKey="foundation"){
+  // Expose for guides
+  window.composeGuide = async function(stackKey="growth"){
     try {
-      const payload = await fetchPlan(stackKey);
+      const payload = await fetchPlanWithCache(stackKey);
+      renderWhy(payload);
+      renderRouting(payload);
       const apps = deriveApps(payload);
       renderAppsIntoSlot(apps);
     } catch (err) {
