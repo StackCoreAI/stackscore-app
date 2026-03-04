@@ -8,18 +8,12 @@
   }
   function tryParse(v){ if(typeof v!=="string") return null; try{ return JSON.parse(v);}catch{ return null; } }
 
-  // Prefer canonical answers; support legacy keys.
+  // Prefer canonical answers; support legacy keys (no duplicates).
   function readAnswersRaw() {
     return (
-      // ✅ canonical key used by plan.runtime.min.js in prod builds
       tryParse(localStorage.getItem("stackscore_answers")) ||
-      // ✅ some flows store under this key
-      tryParse(localStorage.getItem("stackscore_answers")) ||
-      // ✅ newer SPA keys
       tryParse(localStorage.getItem("ss_answers")) ||
       tryParse(localStorage.getItem("stackscoreUserData")) ||
-      // ✅ legacy
-      tryParse(localStorage.getItem("stackscore_answers")) ||
       {}
     );
   }
@@ -150,17 +144,160 @@
     return out.slice(0,5);
   }
 
+  // ---------- Snapshot helpers ----------
+  function readAnswersForSnapshot() {
+    const a = readAnswersRaw() || {};
+    return {
+      living: (a.living || a.housing || "").toLowerCase(),
+      budget: String(a.budget || "").toLowerCase(),
+      timeline: String(a.timeline || a.goal || "").toLowerCase(),
+      employment: String(a.employment || "").toLowerCase(),
+      tools: String(a.tools || "").toLowerCase(),
+    };
+  }
+
+  function snapshotCopy(stackKey, apps) {
+    const k = String(stackKey || "growth").toLowerCase();
+    const a = readAnswersForSnapshot();
+    const signals = inferSignalsFromApps(apps).map(s => s.replace(/^✓\s*/, ""));
+
+    let focus = "Balanced lift";
+    if (a.timeline.includes("30") || a.timeline.includes("fast")) focus = "Fast lift";
+    if (a.timeline.includes("90")) focus = "Near-term lift";
+    if (k === "elite") focus = "Maximum lift";
+    if (k === "foundation") focus = "Low-friction lift";
+
+    let strategy = "Low-friction reporting signals";
+    if (a.living.includes("rent")) strategy = "Rent reporting optimization";
+    if (k === "accelerator") strategy = "Momentum + cleanup signals";
+    if (k === "elite") strategy = "Maximum coverage signals";
+
+    let execution = "Step-by-step activation";
+    if (a.tools.includes("auto")) execution = "Automation-first execution";
+    if (a.tools.includes("manual")) execution = "Manual control execution";
+
+    const summary =
+      `Optimized for ${focus.toLowerCase()} using ${strategy.toLowerCase()}. ` +
+      `Signals activated include ${signals.slice(0,3).join(", ")}${signals.length > 3 ? ", and more" : ""}. ` +
+      `Reroutes ensure the route remains reliable if availability changes.`;
+
+    return { focus, strategy, execution, summary };
+  }
+
+  function renderSnapshot(stackKey, apps) {
+    const root = document.getElementById("route-snapshot");
+    if (!root) return;
+
+    const focusEl = root.querySelector('[data-hook="snap-focus"]');
+    const stratEl = root.querySelector('[data-hook="snap-strategy"]');
+    const execEl = root.querySelector('[data-hook="snap-execution"]');
+    const sumEl = root.querySelector('[data-hook="snap-summary"]');
+
+    const s = snapshotCopy(stackKey, apps);
+
+    if (focusEl) focusEl.textContent = s.focus;
+    if (stratEl) stratEl.textContent = s.strategy;
+    if (execEl) execEl.textContent = s.execution;
+    if (sumEl) sumEl.textContent = s.summary;
+  }
+
+  // ---------- Scorecard helpers ----------
+  function titleCase(s="") {
+    return String(s || "")
+      .toLowerCase()
+      .replace(/(^|\s)\S/g, (m) => m.toUpperCase());
+  }
+
+  function scorecardDefaults(stackKey) {
+    const k = String(stackKey || "growth").toLowerCase();
+    if (k === "foundation") return { route: "Foundation", impact: "+10–30 pts", timeline: "30–60 days" };
+    if (k === "growth") return { route: "Growth", impact: "+40–70 pts", timeline: "45–75 days" };
+    if (k === "accelerator") return { route: "Accelerator", impact: "+80–100 pts", timeline: "45–60 days" };
+    if (k === "elite") return { route: "Elite", impact: "100+ pts", timeline: "30–60 days" };
+    return { route: titleCase(k), impact: "+40–70 pts", timeline: "45–75 days" };
+  }
+
+  function inferSignalsFromApps(apps = []) {
+    const names = apps.map(a => String(a?.app_name || a?.name || "").toLowerCase()).join(" | ");
+    const signals = [];
+    signals.push("✓ Route resilience (reroutes included)");
+    if (/rent|boom|rentreport|pinata/.test(names)) signals.unshift("✓ Rent reporting");
+    if (/dovly|dispute/.test(names)) signals.unshift("✓ Dispute optimization");
+    if (/boost|experian|utility|grain|grow credit/.test(names)) signals.unshift("✓ Utilities reporting");
+    if (/kikoff|self|kovo|installment/.test(names)) signals.unshift("✓ Installment builder");
+    if (/tomo|extra|tradeline/.test(names)) signals.unshift("✓ Tradeline leverage");
+    return Array.from(new Set(signals)).slice(0,4);
+  }
+
+  function renderScorecard(stackKey, apps) {
+    const card = document.getElementById("route-scorecard");
+    if (!card) return;
+
+    const routeEl = card.querySelector('[data-hook="scorecard-route"]');
+    const impactEl = card.querySelector('[data-hook="scorecard-impact"]');
+    const timelineEl = card.querySelector('[data-hook="scorecard-timeline"]');
+    const signalsEl = card.querySelector('[data-hook="scorecard-signals"]');
+
+    const d = scorecardDefaults(stackKey);
+    const signals = inferSignalsFromApps(apps);
+
+    if (routeEl) routeEl.textContent = d.route;
+    if (impactEl) impactEl.textContent = d.impact;
+    if (timelineEl) timelineEl.textContent = d.timeline;
+    if (signalsEl) signalsEl.innerHTML = signals.map(s => `<li>${s}</li>`).join("");
+  }
+
+  // ---------- Confidence helpers ----------
+  function computeConfidence(stackKey, apps) {
+    const a = readAnswersRaw() || {};
+    const hasLiving = !!(a.living || a.housing);
+    const hasBudget = !!a.budget;
+    const hasTimeline = !!(a.timeline || a.goal);
+    const hasEmployment = !!a.employment;
+
+    const filled = [hasLiving, hasBudget, hasTimeline, hasEmployment].filter(Boolean).length;
+    const signals = inferSignalsFromApps(apps);
+    const signalCount = signals.length;
+
+    let score = 40;
+    score += filled * 12;                    // up to +48
+    score += Math.min(12, signalCount * 3);  // up to +12
+
+    const k = String(stackKey || "growth").toLowerCase();
+    if (k === "growth") score += 4;
+    if (k === "elite") score += 2;
+
+    score = Math.max(35, Math.min(95, score));
+
+    let label = "Medium";
+    if (score >= 80) label = "High";
+    if (score >= 90) label = "Very High";
+
+    const note =
+      score >= 90 ? "Very strong match based on your inputs and reporting signals."
+      : score >= 80 ? "Strong match based on your inputs and available reporting signals."
+      : "Good match — refine your inputs for the strongest personalization.";
+
+    return { score, label, note };
+  }
+
+  function renderConfidence(stackKey, apps) {
+    const confEl = document.querySelector('[data-hook="scorecard-confidence"]');
+    const barEl = document.querySelector('[data-hook="scorecard-confidence-bar"]');
+    const noteEl = document.querySelector('[data-hook="scorecard-confidence-note"]');
+    if (!confEl || !barEl || !noteEl) return;
+
+    const c = computeConfidence(stackKey, apps);
+    confEl.textContent = c.label;
+    barEl.style.width = `${c.score}%`;
+    noteEl.textContent = c.note;
+  }
+
   // ---------- Guide renderers ----------
   function setText(id, text) {
     const el = document.getElementById(id);
     if (!el) return;
     el.textContent = text;
-  }
-
-  function setHtml(id, html) {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.innerHTML = html;
   }
 
   function renderWhy(payload) {
@@ -226,11 +363,9 @@
     slot.classList.add("show");
 
     if (summaryEl && summary) summaryEl.textContent = String(summary);
-
     if (stepsEl && Array.isArray(steps) && steps.length) {
       stepsEl.innerHTML = steps.slice(0, 8).map((s) => `<li>• ${String(s)}</li>`).join("");
     }
-
     if (reroutesWrap && reroutesList && Array.isArray(reroutes) && reroutes.length) {
       reroutesWrap.style.display = "block";
       reroutesList.innerHTML = reroutes.slice(0, 8).map((r) => `<li>• ${String(r)}</li>`).join("");
@@ -270,37 +405,35 @@
     }
 
     // Execution Insights (premium, not cautionary)
-if (risksUl) {
-  const insights = [
-    "Most reporting updates show within 7–14 days (varies by tool and bureau).",
-    "Autopay improves consistency and reduces missed-payment risk.",
-    "If verification is required (landlord/utility), complete it early to avoid delays."
-  ];
-  risksUl.innerHTML = insights.map((x) => `<li>${x}</li>`).join("");
-}
+    if (risksUl) {
+      const insights = [
+        "Most reporting updates show within 7–14 days (varies by tool and bureau).",
+        "Autopay improves consistency and reduces missed-payment risk.",
+        "If verification is required (landlord/utility), complete it early to avoid delays."
+      ];
+      risksUl.innerHTML = insights.map((x) => `<li>${x}</li>`).join("");
+    }
 
-// Route Flexibility (intentional alternates, not “substitutes”)
-if (fallbacksUl) {
-  const routeFlexText = [
-    "This route includes alternate tools that preserve similar reporting signals if availability changes."
-  ];
+    // Route Flexibility (intentional alternates, not “substitutes”)
+    if (fallbacksUl) {
+      const routeFlexText = [
+        "This route includes alternate tools that preserve similar reporting signals if availability changes."
+      ];
 
-  // If the plan returns fallbacks on the app object, use them.
-  // Accept several possible shapes so we don’t depend on one schema.
-  const fallbacks =
-    tryParse(d.fallbacks) ||
-    tryParse(d.reroutes) ||
-    [];
+      const fallbacks =
+        tryParse(d.fallbacks) ||
+        tryParse(d.reroutes) ||
+        [];
 
-  if (Array.isArray(fallbacks) && fallbacks.length) {
-    fallbacksUl.innerHTML =
-      routeFlexText.map((x) => `<li>${x}</li>`).join("") +
-      fallbacks.slice(0, 6).map((f) => `<li>${String(f)}</li>`).join("");
-  } else {
-    // no structured reroutes for this app → still provide the premium message
-    fallbacksUl.innerHTML = routeFlexText.map((x) => `<li>${x}</li>`).join("");
-  }
-}
+      if (Array.isArray(fallbacks) && fallbacks.length) {
+        fallbacksUl.innerHTML =
+          routeFlexText.map((x) => `<li>${x}</li>`).join("") +
+          fallbacks.slice(0, 6).map((f) => `<li>${String(f)}</li>`).join("");
+      } else {
+        fallbacksUl.innerHTML = routeFlexText.map((x) => `<li>${x}</li>`).join("");
+      }
+    }
+  } // ✅ CLOSE applyInstruction
 
   // ---------- Render into Sidebar slot ----------
   function renderAppsIntoSlot(apps){
@@ -384,16 +517,30 @@ if (fallbacksUl) {
     renderWhy(payload);
     renderRouting(payload);
 
-    const apps=deriveApps(payload);
+    const apps = deriveApps(payload);
+
+    // ✅ show premium modules on normal page load
+    renderSnapshot(stackKey, apps);
+    renderScorecard(stackKey, apps);
+    renderConfidence(stackKey, apps);
+
     renderAppsIntoSlot(apps);
   }
 
+  // Expose for guides
   window.composeGuide = async function(stackKey="growth"){
     try {
       const payload = await fetchPlanWithCache(stackKey);
+
       renderWhy(payload);
       renderRouting(payload);
+
       const apps = deriveApps(payload);
+
+      renderSnapshot(stackKey, apps);
+      renderScorecard(stackKey, apps);
+      renderConfidence(stackKey, apps);
+
       renderAppsIntoSlot(apps);
     } catch (err) {
       console.error("composeGuide → plan fetch failed:", err);
