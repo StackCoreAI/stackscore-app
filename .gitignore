@@ -8,55 +8,21 @@ node_modules/
 .DS_Store
 coverage/
 .cache/
-# build artefacts
-dist/
-public/mock/
-*.map
-
-# outputs / docs
-*.pdf
-
-# local env / tools
-.tmp/
-.venv/
-.DS_Store
-
-# Local Netlify folder
-.netlify
-
-# Binaries
-scripts/bin/
-
-# Python venv
-.venv/
-
-# local packets / audits / exports
-OPUS_PACKET.md
-STACKSCORE_*_PACKET*.md
-STACKSCORE_*_AUDIT*.md
-*_packet*.txt
-*_files.txt
-_html_files.txt
-_repo_tree.txt
-*.png
-
-# one-off html
-cashflowoffice_fixed.html
-
-# deno + misc
-deno.lock
-contracts/plan.schema.json
-create_plan_cache_table.js
-server/scripts/create_plan_cache_table.js
-prd.md
-progress.md
-
 # Build artifacts (do not commit)
 dist/
-public/assets/
+
+# Ignore ALL generated assets in public/assets
+public/assets/*
 *.log
 
-# --- Netlify build needs this source file ---
+# ✅ Keep directory itself (so exceptions can work)
 !public/assets/
+
+# ✅ Netlify build needs this Tailwind source input
 !public/assets/guide.src.css
 
+# ✅ REQUIRED runtime assets for guide pages (must deploy to prod)
+!public/assets/lucide.min.js
+!public/assets/guide.js
+!public/assets/routing.css
+!public/assets/scrollfix.js
