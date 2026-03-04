@@ -509,9 +509,18 @@
     if(!slot) return;
 
     if (slot.children.length>0){
-      safe(()=>window.lucide&&lucide.createIcons());
-      return;
-    }
+  safe(()=>window.lucide && lucide.createIcons());
+  
+  const stackKey = getParam("stackKey","growth");
+  const payload = await fetchPlanWithCache(stackKey);
+  const apps = deriveApps(payload);
+
+  renderSnapshot(stackKey, apps);
+  renderScorecard(stackKey, apps);
+  renderConfidence(stackKey, apps);
+
+  return;
+}
 
     const stackKey=getParam("stackKey","growth");
     const payload=await fetchPlanWithCache(stackKey);
