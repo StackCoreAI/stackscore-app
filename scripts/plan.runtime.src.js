@@ -269,9 +269,38 @@
         .join("");
     }
 
-    if (risksUl) risksUl.innerHTML = `<li>—</li>`;
-    if (fallbacksUl) fallbacksUl.innerHTML = `<li>—</li>`;
+    // Execution Insights (premium, not cautionary)
+if (risksUl) {
+  const insights = [
+    "Most reporting updates show within 7–14 days (varies by tool and bureau).",
+    "Autopay improves consistency and reduces missed-payment risk.",
+    "If verification is required (landlord/utility), complete it early to avoid delays."
+  ];
+  risksUl.innerHTML = insights.map((x) => `<li>${x}</li>`).join("");
+}
+
+// Route Flexibility (intentional alternates, not “substitutes”)
+if (fallbacksUl) {
+  const routeFlexText = [
+    "This route includes alternate tools that preserve similar reporting signals if availability changes."
+  ];
+
+  // If the plan returns fallbacks on the app object, use them.
+  // Accept several possible shapes so we don’t depend on one schema.
+  const fallbacks =
+    tryParse(d.fallbacks) ||
+    tryParse(d.reroutes) ||
+    [];
+
+  if (Array.isArray(fallbacks) && fallbacks.length) {
+    fallbacksUl.innerHTML =
+      routeFlexText.map((x) => `<li>${x}</li>`).join("") +
+      fallbacks.slice(0, 6).map((f) => `<li>${String(f)}</li>`).join("");
+  } else {
+    // no structured reroutes for this app → still provide the premium message
+    fallbacksUl.innerHTML = routeFlexText.map((x) => `<li>${x}</li>`).join("");
   }
+}
 
   // ---------- Render into Sidebar slot ----------
   function renderAppsIntoSlot(apps){

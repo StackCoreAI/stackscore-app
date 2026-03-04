@@ -83,6 +83,20 @@ const JSON_SCHEMA = {
     type: "object",
     additionalProperties: false,
     properties: {
+      why_overview: { type: "string", minLength: 10, maxLength: 900 },
+      assumptions: {
+        type: "array",
+        minItems: 0,
+        maxItems: 8,
+        items: { type: "string", minLength: 4, maxLength: 140 }
+      },
+      routing_summary: { type: "string", minLength: 10, maxLength: 240 },
+      route_steps: {
+        type: "array",
+        minItems: 3,
+        maxItems: 8,
+        items: { type: "string", minLength: 4, maxLength: 120 }
+      },
       apps: {
         type: "array",
         minItems: 3,
@@ -95,29 +109,70 @@ const JSON_SCHEMA = {
             name: { type: "string", minLength: 2, maxLength: 60 },
             website: { type: "string", minLength: 8, maxLength: 200 },
             features: {
-              type: "array", minItems: 1, maxItems: 5,
+              type: "array",
+              minItems: 1,
+              maxItems: 5,
               items: { type: "string", minLength: 2, maxLength: 120 }
+            },
+            tip: { type: "string", minLength: 0, maxLength: 200 },
+            execution_insights: {
+              type: "array",
+              minItems: 0,
+              maxItems: 5,
+              items: { type: "string", minLength: 4, maxLength: 120 }
+            },
+            reroutes: {
+              type: "array",
+              minItems: 0,
+              maxItems: 6,
+              items: { type: "string", minLength: 2, maxLength: 60 }
             }
           }
         }
       },
-      reasoning: { type: "string" }
+      reasoning: { type: "string", minLength: 0, maxLength: 800 }
     },
-    required: ["apps"]
+    required: ["apps","why_overview","routing_summary","route_steps"]
   }
 };
 
 async function gptPlan(stackKey, answers) {
   if (!HAS_KEY) throw new Error("no_openai_key");
-  const sys = `You are an expert credit-building coach for US consumers.
-Return ONLY JSON matching the schema. 3–5 apps that best fit the user and stack.
-Stacks:
-- foundation: low friction + instant impact + basic builders
-- growth: installment depth + rent reporting
-- accelerator: add dispute automation + momentum
-- elite: dispute + tradelines + best-in-class builders
-Rules: real products with correct URLs; tailor to timeline, living, budget, employment, rent backdate; prefer low cost if budget tight; include concise features to activate.`;
+  const sys = `
+You are an expert credit-building coach for US consumers.
 
+Return ONLY JSON matching the provided schema.
+
+Create a personalized Credit Route plan with:
+
+• 3–5 real credit-building apps that best fit the user's profile
+• A short explanation of why the route was selected
+• A routing summary explaining the strategy
+• 3–6 route steps showing the correct sequence
+• 2–3 execution insights (timing, verification, reporting)
+• Alternate reroutes if one tool becomes unavailable
+
+Stacks:
+
+foundation
+Low friction + instant impact + basic builders
+
+growth
+Installment depth + rent reporting
+
+accelerator
+Add dispute automation + momentum
+
+elite
+Dispute + tradelines + best-in-class builders
+
+Rules:
+
+• Use real products with correct URLs
+• Tailor to timeline, living situation, budget, employment, and rent backdate
+• Prefer lower cost tools when budget is tight
+• Return only valid JSON matching the schema
+`;
   const user = {
     stackKey,
     answers: {
