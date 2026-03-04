@@ -144,6 +144,53 @@
     return out.slice(0,5);
   }
 
+  // ---------- Scorecard helpers ----------
+  function titleCase(s="") {
+    return String(s || "")
+      .toLowerCase()
+      .replace(/(^|\s)\S/g, (m) => m.toUpperCase());
+  }
+
+  function scorecardDefaults(stackKey) {
+    const k = String(stackKey || "growth").toLowerCase();
+    if (k === "foundation") return { route: "Foundation", impact: "+10–30 pts", timeline: "30–60 days" };
+    if (k === "growth") return { route: "Growth", impact: "+40–70 pts", timeline: "45–75 days" };
+    if (k === "accelerator") return { route: "Accelerator", impact: "+80–100 pts", timeline: "45–60 days" };
+    if (k === "elite") return { route: "Elite", impact: "100+ pts", timeline: "30–60 days" };
+    return { route: titleCase(k), impact: "+40–70 pts", timeline: "45–75 days" };
+  }
+
+  // ✅ moved ABOVE snapshot helpers so snapshotCopy can safely call it
+  function inferSignalsFromApps(apps = []) {
+    const names = apps.map(a => String(a?.app_name || a?.name || "").toLowerCase()).join(" | ");
+    const signals = [];
+    signals.push("✓ Route resilience (reroutes included)");
+    if (/rent|boom|rentreport|pinata/.test(names)) signals.unshift("✓ Rent reporting");
+    if (/dovly|dispute/.test(names)) signals.unshift("✓ Dispute optimization");
+    if (/boost|experian|utility|grain|grow credit/.test(names)) signals.unshift("✓ Utilities reporting");
+    if (/kikoff|self|kovo|installment/.test(names)) signals.unshift("✓ Installment builder");
+    if (/tomo|extra|tradeline/.test(names)) signals.unshift("✓ Tradeline leverage");
+    return Array.from(new Set(signals)).slice(0,4);
+  }
+
+  function renderScorecard(stackKey, apps) {
+    const card = document.getElementById("route-scorecard");
+    if (!card) return;
+
+    const routeEl = card.querySelector('[data-hook="scorecard-route"]');
+    const impactEl = card.querySelector('[data-hook="scorecard-impact"]');
+    const timelineEl = card.querySelector('[data-hook="scorecard-timeline"]');
+    const signalsEl = card.querySelector('[data-hook="scorecard-signals"]');
+
+    const d = scorecardDefaults(stackKey);
+    const signals = inferSignalsFromApps(apps);
+
+    if (routeEl) routeEl.textContent = d.route;
+    if (impactEl) impactEl.textContent = d.impact;
+    if (timelineEl) timelineEl.textContent = d.timeline;
+    if (signalsEl) signalsEl.innerHTML = signals.map(s => `<li>${s}</li>`).join("");
+  }
+
   // ---------- Snapshot helpers ----------
   function readAnswersForSnapshot() {
     const a = readAnswersRaw() || {};
@@ -201,52 +248,6 @@
     if (sumEl) sumEl.textContent = s.summary;
   }
 
-  // ---------- Scorecard helpers ----------
-  function titleCase(s="") {
-    return String(s || "")
-      .toLowerCase()
-      .replace(/(^|\s)\S/g, (m) => m.toUpperCase());
-  }
-
-  function scorecardDefaults(stackKey) {
-    const k = String(stackKey || "growth").toLowerCase();
-    if (k === "foundation") return { route: "Foundation", impact: "+10–30 pts", timeline: "30–60 days" };
-    if (k === "growth") return { route: "Growth", impact: "+40–70 pts", timeline: "45–75 days" };
-    if (k === "accelerator") return { route: "Accelerator", impact: "+80–100 pts", timeline: "45–60 days" };
-    if (k === "elite") return { route: "Elite", impact: "100+ pts", timeline: "30–60 days" };
-    return { route: titleCase(k), impact: "+40–70 pts", timeline: "45–75 days" };
-  }
-
-  function inferSignalsFromApps(apps = []) {
-    const names = apps.map(a => String(a?.app_name || a?.name || "").toLowerCase()).join(" | ");
-    const signals = [];
-    signals.push("✓ Route resilience (reroutes included)");
-    if (/rent|boom|rentreport|pinata/.test(names)) signals.unshift("✓ Rent reporting");
-    if (/dovly|dispute/.test(names)) signals.unshift("✓ Dispute optimization");
-    if (/boost|experian|utility|grain|grow credit/.test(names)) signals.unshift("✓ Utilities reporting");
-    if (/kikoff|self|kovo|installment/.test(names)) signals.unshift("✓ Installment builder");
-    if (/tomo|extra|tradeline/.test(names)) signals.unshift("✓ Tradeline leverage");
-    return Array.from(new Set(signals)).slice(0,4);
-  }
-
-  function renderScorecard(stackKey, apps) {
-    const card = document.getElementById("route-scorecard");
-    if (!card) return;
-
-    const routeEl = card.querySelector('[data-hook="scorecard-route"]');
-    const impactEl = card.querySelector('[data-hook="scorecard-impact"]');
-    const timelineEl = card.querySelector('[data-hook="scorecard-timeline"]');
-    const signalsEl = card.querySelector('[data-hook="scorecard-signals"]');
-
-    const d = scorecardDefaults(stackKey);
-    const signals = inferSignalsFromApps(apps);
-
-    if (routeEl) routeEl.textContent = d.route;
-    if (impactEl) impactEl.textContent = d.impact;
-    if (timelineEl) timelineEl.textContent = d.timeline;
-    if (signalsEl) signalsEl.innerHTML = signals.map(s => `<li>${s}</li>`).join("");
-  }
-
   // ---------- Confidence helpers ----------
   function computeConfidence(stackKey, apps) {
     const a = readAnswersRaw() || {};
@@ -281,6 +282,7 @@
     return { score, label, note };
   }
 
+  // ✅ SINGLE renderConfidence (no duplicates)
   function renderConfidence(stackKey, apps) {
     const confEl = document.querySelector('[data-hook="scorecard-confidence"]');
     const barEl = document.querySelector('[data-hook="scorecard-confidence-bar"]');
