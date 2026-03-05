@@ -111,7 +111,7 @@ const Pricing = () => {
 
         {/* Pricing layout */}
         <div className="mt-10 grid gap-8 lg:grid-cols-12 lg:items-start">
-          {/* Left: Activation includes */}
+          {{/* Left: Activation includes */}
 <div className="lg:col-span-7 space-y-6">
   <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-6">
     <h3 className="text-base font-semibold text-white">Your Credit Route Includes</h3>
@@ -133,22 +133,16 @@ const Pricing = () => {
       Results vary by credit profile and reporting timelines.
     </div>
   </div>
+
+  <div className="flex flex-col sm:flex-row gap-3">
+    <Link to="/sixsimple" className="inline-flex">
+      <Button variant="secondary" size="md">See How It Works</Button>
+    </Link>
+    <Link to="/preview" className="inline-flex">
+      <Button variant="secondary" size="md">See My Credit Routes</Button>
+    </Link>
+  </div>
 </div>
-
-              <div className="mt-4 text-xs text-neutral-500">
-                Results vary by credit profile and reporting timelines.
-              </div>
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-3">
-              <Link to="/sixsimple" className="inline-flex">
-                <Button variant="secondary" size="md">See How It Works</Button>
-              </Link>
-              <Link to="/preview" className="inline-flex">
-                <Button variant="secondary" size="md">See My Credit Routes</Button>
-              </Link>
-            </div>
-          </div>
 
           {/* Right: Price card */}
           <div className="lg:col-span-5">
