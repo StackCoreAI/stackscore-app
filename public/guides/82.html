@@ -80,17 +80,22 @@
 
   <!-- ================= HERO ================= -->
   <section id="main" class="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center pt-20 pb-16 init-opacity" data-anim>
-    <div class="lg:col-span-6 space-y-6">
+    <div class="lg:col-span-7 space-y-6">
       <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-lime-400/30 bg-gradient-to-r from-lime-400/10 to-emerald-500/10 text-xs text-lime-300">
         <i data-lucide="sparkles" class="w-4 h-4"></i> Credit Route Guide
       </div>
 
-     <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light leading-tight tracking-tight">
-  Your AI-Personalized 
-  <span class="bg-clip-text text-transparent bg-gradient-to-r from-lime-400 via-emerald-400 to-cyan-400 font-semibold">
-    Credit Route
-  </span>
-</h1>
+      <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light leading-tight tracking-tight">
+        Your AI-Personalized
+        <span class="bg-clip-text text-transparent bg-gradient-to-r from-lime-400 via-emerald-400 to-cyan-400 font-semibold">
+          Credit Route
+        </span>
+      </h1>
+
+      <!-- ✅ tiny AI stamp -->
+      <div class="inline-flex items-center gap-2 mt-1 text-xs text-emerald-300 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-full">
+        ⚡ AI Route Intelligence · Generated from your profile inputs
+      </div>
 
       <p class="mt-2 text-lg text-zinc-200/90 leading-relaxed">
         This is your activation blueprint. Follow the steps below to turn on the right reporting features — with reroutes if something isn’t available.
@@ -101,107 +106,107 @@
       </p>
     </div>
 
+    <!-- Right side intentionally empty (hero card removed) -->
+    <div class="lg:col-span-5"></div>
+  </section>
+
+  <!-- ======= ROUTE INTELLIGENCE SNAPSHOT ======= -->
+  <section id="route-snapshot" class="max-w-7xl mx-auto px-6 pb-6 init-opacity" data-anim>
+    <div class="rounded-xl border border-white/10 bg-black/30 p-5">
+      <div class="flex items-center justify-between gap-4">
+        <div class="flex items-center gap-2">
+          <i data-lucide="sparkles" class="w-4 h-4 text-lime-300"></i>
+          <div class="text-sm font-semibold text-white">Route Intelligence Snapshot</div>
         </div>
+        <div class="text-[11px] px-2 py-1 rounded-full border border-white/10 bg-white/5 text-zinc-300">
+          Personalized
+        </div>
+      </div>
+
+      <div class="mt-3 grid gap-3 md:grid-cols-3 text-sm">
+        <div class="rounded-lg border border-white/10 bg-white/5 p-4">
+          <div class="text-[11px] tracking-wider uppercase text-zinc-400 mb-1">Profile focus</div>
+          <div class="text-zinc-100" data-hook="snap-focus">Balanced lift</div>
+        </div>
+
+        <div class="rounded-lg border border-white/10 bg-white/5 p-4">
+          <div class="text-[11px] tracking-wider uppercase text-zinc-400 mb-1">Strategy</div>
+          <div class="text-zinc-100" data-hook="snap-strategy">Low-friction reporting signals</div>
+        </div>
+
+        <div class="rounded-lg border border-white/10 bg-white/5 p-4">
+          <div class="text-[11px] tracking-wider uppercase text-zinc-400 mb-1">Execution mode</div>
+          <div class="text-zinc-100" data-hook="snap-execution">Step-by-step activation</div>
+        </div>
+      </div>
+
+      <div class="mt-4 text-sm text-zinc-200/90 leading-relaxed" data-hook="snap-summary">
+        We selected a route designed to compound reporting signals with minimal friction — and included reroutes so your plan stays reliable.
+      </div>
     </div>
   </section>
 
-<!-- ======= ROUTE INTELLIGENCE SNAPSHOT ======= -->
-<section id="route-snapshot" class="max-w-7xl mx-auto px-6 pb-6 init-opacity" data-anim>
-  <div class="rounded-xl border border-white/10 bg-black/30 p-5">
-    <div class="flex items-center justify-between gap-4">
-      <div class="flex items-center gap-2">
-        <i data-lucide="sparkles" class="w-4 h-4 text-lime-300"></i>
-        <div class="text-sm font-semibold text-white">Route Intelligence Snapshot</div>
-      </div>
-      <div class="text-[11px] px-2 py-1 rounded-full border border-white/10 bg-white/5 text-zinc-300">
-        Personalized
-      </div>
-    </div>
+  <!-- ======= ROUTE IMPACT SCORECARD ======= -->
+  <section id="route-scorecard" class="max-w-7xl mx-auto px-6 pb-10 init-opacity" data-anim>
+    <div class="rounded-xl border border-white/10 bg-white/5 p-6 shadow-lg">
 
-    <div class="mt-3 grid gap-3 md:grid-cols-3 text-sm">
-      <div class="rounded-lg border border-white/10 bg-white/5 p-4">
-        <div class="text-[11px] tracking-wider uppercase text-zinc-400 mb-1">Profile focus</div>
-        <div class="text-zinc-100" data-hook="snap-focus">Balanced lift</div>
-      </div>
-
-      <div class="rounded-lg border border-white/10 bg-white/5 p-4">
-        <div class="text-[11px] tracking-wider uppercase text-zinc-400 mb-1">Strategy</div>
-        <div class="text-zinc-100" data-hook="snap-strategy">Low-friction reporting signals</div>
-      </div>
-
-      <div class="rounded-lg border border-white/10 bg-white/5 p-4">
-        <div class="text-[11px] tracking-wider uppercase text-zinc-400 mb-1">Execution mode</div>
-        <div class="text-zinc-100" data-hook="snap-execution">Step-by-step activation</div>
-      </div>
-    </div>
-
-    <div class="mt-4 text-sm text-zinc-200/90 leading-relaxed" data-hook="snap-summary">
-      We selected a route designed to compound reporting signals with minimal friction — and included reroutes so your plan stays reliable.
-    </div>
-  </div>
-</section>
-
-<!-- ======= ROUTE IMPACT SCORECARD ======= -->
-<section id="route-scorecard" class="max-w-7xl mx-auto px-6 pb-10 init-opacity" data-anim>
-  <div class="rounded-xl border border-white/10 bg-white/5 p-6 shadow-lg">
-
-    <!-- Header row -->
-    <div class="flex items-start justify-between gap-4">
-      <div>
-        <div class="text-[11px] tracking-wider uppercase text-zinc-400">Credit Route Impact</div>
-        <div class="mt-1 text-lg font-semibold text-white">Your route at a glance</div>
-      </div>
-
-      <div class="flex items-center gap-2">
-        <div class="rounded-full border border-lime-400/25 bg-lime-500/10 px-3 py-1 text-xs font-medium text-lime-300">
-          <span data-hook="scorecard-route">Growth</span> Route
+      <!-- Header row -->
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <div class="text-[11px] tracking-wider uppercase text-zinc-400">Credit Route Impact</div>
+          <div class="mt-1 text-lg font-semibold text-white">Your route at a glance</div>
         </div>
 
-        <div class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-zinc-200/90">
-  Route Strength: <span class="text-white font-semibold" data-hook="scorecard-confidence">High</span>
-</div>
+        <div class="flex items-center gap-2">
+          <div class="rounded-full border border-lime-400/25 bg-lime-500/10 px-3 py-1 text-xs font-medium text-lime-300">
+            <span data-hook="scorecard-route">Growth</span> Route
+          </div>
+
+          <div class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-zinc-200/90">
+            Route Strength: <span class="text-white font-semibold" data-hook="scorecard-confidence">High</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Route Strength bar -->
+      <div class="mt-3">
+        <div class="h-2 w-full rounded-full bg-white/10 overflow-hidden">
+          <div class="h-2 bg-gradient-to-r from-lime-400 to-emerald-500" style="width:100%" data-hook="scorecard-confidence-bar"></div>
+        </div>
+        <div class="mt-2 text-xs text-zinc-400" data-hook="scorecard-confidence-note">
+          Strong match based on your profile inputs.
+        </div>
+      </div>
+
+      <!-- Metrics -->
+      <div class="mt-5 grid gap-4 md:grid-cols-3">
+        <div class="rounded-lg border border-white/10 bg-black/30 p-4">
+          <div class="text-xs text-zinc-400 mb-1">Estimated score potential</div>
+          <div class="text-2xl font-extrabold text-white" data-hook="scorecard-impact">+40–70 pts</div>
+          <div class="text-xs text-zinc-500 mt-1">Results vary by profile</div>
+        </div>
+
+        <div class="rounded-lg border border-white/10 bg-black/30 p-4">
+          <div class="text-xs text-zinc-400 mb-2">Signals activated</div>
+          <ul class="text-sm text-zinc-200/90 space-y-1" data-hook="scorecard-signals">
+            <li>✓ Utilities reporting</li>
+            <li>✓ Installment builder</li>
+            <li>✓ Route resilience</li>
+          </ul>
+        </div>
+
+        <div class="rounded-lg border border-white/10 bg-black/30 p-4">
+          <div class="text-xs text-zinc-400 mb-1">Estimated timeline</div>
+          <div class="text-2xl font-extrabold text-white" data-hook="scorecard-timeline">45–75 days</div>
+          <div class="text-xs text-zinc-500 mt-1">Common reporting window</div>
+        </div>
+      </div>
+
+      <div class="mt-4 text-xs text-zinc-400">
+        Tip: execute one tool at a time, confirm setup, then move to the next for clean reporting signals.
       </div>
     </div>
-
-    <!-- Route Strength bar -->
-<div class="mt-3">
-  <div class="h-2 w-full rounded-full bg-white/10 overflow-hidden">
-    <div class="h-2 bg-gradient-to-r from-lime-400 to-emerald-500" style="width:100%" data-hook="scorecard-confidence-bar"></div>
-  </div>
-  <div class="mt-2 text-xs text-zinc-400" data-hook="scorecard-confidence-note">
-    Strong match based on your profile inputs.
-  </div>
-</div>
-
-    <!-- Metrics -->
-    <div class="mt-5 grid gap-4 md:grid-cols-3">
-      <div class="rounded-lg border border-white/10 bg-black/30 p-4">
-        <div class="text-xs text-zinc-400 mb-1">Estimated score potential</div>
-        <div class="text-2xl font-extrabold text-white" data-hook="scorecard-impact">+40–70 pts</div>
-        <div class="text-xs text-zinc-500 mt-1">Results vary by profile</div>
-      </div>
-
-      <div class="rounded-lg border border-white/10 bg-black/30 p-4">
-        <div class="text-xs text-zinc-400 mb-2">Signals activated</div>
-        <ul class="text-sm text-zinc-200/90 space-y-1" data-hook="scorecard-signals">
-          <li>✓ Utilities reporting</li>
-          <li>✓ Installment builder</li>
-          <li>✓ Route resilience</li>
-        </ul>
-      </div>
-
-      <div class="rounded-lg border border-white/10 bg-black/30 p-4">
-        <div class="text-xs text-zinc-400 mb-1">Estimated timeline</div>
-        <div class="text-2xl font-extrabold text-white" data-hook="scorecard-timeline">45–75 days</div>
-        <div class="text-xs text-zinc-500 mt-1">Common reporting window</div>
-      </div>
-    </div>
-
-    <div class="mt-4 text-xs text-zinc-400">
-      Tip: execute one tool at a time, confirm setup, then move to the next for clean reporting signals.
-    </div>
-  </div>
-</section>
+  </section>
 
   <!-- ======= AUTHORITY (HYBRID LAYER) ======= -->
   <section class="max-w-7xl mx-auto px-6 pb-10 init-opacity" data-anim>
@@ -281,6 +286,7 @@
     </div>
   </section>
 
+  
   <!-- =============== YOUR ROUTE (COMPOSE) =============== -->
   <section id="compose" class="max-w-7xl mx-auto px-6 pb-24 init-opacity" data-anim>
     <div class="bg-white/5 border border-white/10 shadow-xl rounded-xl overflow-hidden">
