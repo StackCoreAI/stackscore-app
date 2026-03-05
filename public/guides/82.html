@@ -94,7 +94,7 @@
 
       <!-- ✅ tiny AI stamp -->
       <div class="inline-flex items-center gap-2 mt-1 text-xs text-emerald-300 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-full">
-        ⚡ AI Route Intelligence · Generated from your profile inputs
+        ⚡ AI Route Intelligence · Generated <span id="ss-gen-time">just now</span>
       </div>
 
       <p class="mt-2 text-lg text-zinc-200/90 leading-relaxed">
@@ -468,6 +468,11 @@
       }
     }, 1400);
   </script>
+
+<script>
+  const el = document.getElementById("ss-gen-time");
+  if (el) el.textContent = new Date().toLocaleString();
+</script>
 
 </body>
 </html>
