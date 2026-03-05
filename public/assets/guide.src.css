@@ -6,3 +6,17 @@
 /* (Optional) guide-only tweaks */
 :root { --rule: linear-gradient(to right, rgba(255,255,255,.2), rgba(255,255,255,0)); }
 .rule-line { height:1px; background:var(--rule); }
+
+/* ===== Scroll Intelligence Report Chapters ===== */
+
+.scroll-chapter {
+  border-top: 1px solid rgba(255,255,255,0.05);
+  padding-top: 72px;
+  margin-top: 72px;
+}
+
+.scroll-chapter:first-of-type {
+  border-top: none;
+  margin-top: 0;
+  padding-top: 0;
+}
