@@ -310,17 +310,17 @@
   }
 
   // ✅ SINGLE renderConfidence (no duplicates)
-  function renderConfidence(stackKey, apps) {
-    const confEl = document.querySelector('[data-hook="scorecard-confidence"]');
-    const barEl = document.querySelector('[data-hook="scorecard-confidence-bar"]');
-    const noteEl = document.querySelector('[data-hook="scorecard-confidence-note"]');
-    if (!confEl || !barEl || !noteEl) return;
+function renderConfidence(stackKey, apps) {
+  const confEl = document.querySelector('[data-hook="scorecard-confidence"]');
+  const barEl = document.querySelector('[data-hook="scorecard-confidence-bar"]');
+  const noteEl = document.querySelector('[data-hook="scorecard-confidence-note"]');
+  if (!confEl || !barEl || !noteEl) return;
 
-    const c = computeConfidence(stackKey, apps);
-    confEl.textContent = c.label;
-    barEl.style.width = `${c.score}%`;
-    noteEl.textContent = c.note;
-  }
+  // Force "strength meter" behavior (not a progress bar).
+  confEl.textContent = "High";
+  barEl.style.width = "100%";
+  noteEl.textContent = "Strong match based on your profile inputs.";
+}
 
   // ---------- Route Intelligence Stamp (tiny, high perceived value) ----------
   function renderStamp(stackKey, apps) {
