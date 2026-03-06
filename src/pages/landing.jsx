@@ -2,14 +2,12 @@
 import React, { useEffect } from "react";
 import Button from "@/components/ui/Button";
 
-import HeroSection from "../sections/HeroSection.jsx";
-import SixSimpleSection from "../sections/SixSimpleSection.jsx";
-import PreviewTeaserSection from "../sections/PreviewTeaserSection.jsx";
-import PricingSection from "../sections/PricingSection.jsx";
-import FAQSection from "../sections/FAQSection.jsx";
-import BuildCTASection from "../sections/BuildCTASection.jsx";
+import Hero from "../pages/hero.jsx";
+import SixSimple from "../pages/sixsimple.jsx";
+import Pricing from "../pages/pricing.jsx";
+import FAQ from "../pages/faq.jsx";
 
-// Minimal ErrorBoundary (unchanged)
+// Minimal ErrorBoundary
 class SectionBoundary extends React.Component {
   constructor(p) {
     super(p);
@@ -24,8 +22,10 @@ class SectionBoundary extends React.Component {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="mx-auto max-w-6xl px-4 py-12 border border-red-500/40 rounded-xl bg-red-500/5">
-          <p className="text-red-300 font-semibold">Section failed to render: {this.props.label}</p>
+        <div className="mx-auto max-w-6xl rounded-xl border border-red-500/40 bg-red-500/5 px-4 py-12">
+          <p className="font-semibold text-red-300">
+            Section failed to render: {this.props.label}
+          </p>
         </div>
       );
     }
@@ -42,7 +42,7 @@ export default function Landing() {
   }, []);
 
   return (
-    <div className="min-h-[100svh] bg-neutral-950 text-white overflow-x-hidden">
+    <div className="min-h-[100svh] overflow-x-hidden bg-neutral-950 text-white">
       {/* Header */}
       <header className="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-neutral-950/70 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
@@ -63,39 +63,21 @@ export default function Landing() {
           </a>
 
           <nav className="hidden items-center gap-6 text-sm md:flex">
-            <a href="#features" className="hover:text-lime-300/90">
-              Features
-            </a>
-            <a href="#results" className="hover:text-lime-300/90">
-              Results
-            </a>
-            <a href="#pricing" className="hover:text-lime-300/90">
-              Pricing
-            </a>
-            <a href="#faq" className="hover:text-lime-300/90">
-              FAQ
-            </a>
-            <a href="#build" className="hover:text-lime-300/90">
-              Build
-            </a>
+            <a href="#features" className="hover:text-lime-300/90">Features</a>
+            <a href="#pricing" className="hover:text-lime-300/90">Pricing</a>
+            <a href="#faq" className="hover:text-lime-300/90">FAQ</a>
           </nav>
 
-          {/* Top-right CTAs (router-agnostic: anchors, not Link) */}
           <div className="flex items-center gap-3">
-            {/* Desktop primary */}
-            <a href="/wizard?fresh=1" aria-label="Start building your stack" className="hidden sm:block">
+            <a href="/activate" aria-label="Start building your stack" className="hidden sm:block">
               <Button size="sm">🚀 Start my Credit Route</Button>
             </a>
 
-            {/* Desktop secondary */}
             <a href="#pricing" className="hidden sm:inline-flex">
-              <Button variant="secondary" size="sm">
-                Get StackScore
-              </Button>
+              <Button variant="secondary" size="sm">Get StackScore</Button>
             </a>
 
-            {/* Mobile primary (compact) */}
-            <a href="/wizard?fresh=1" aria-label="Start my Credit Route" className="sm:hidden inline-flex">
+            <a href="/activate" aria-label="Start my Credit Route" className="inline-flex sm:hidden">
               <Button size="sm">Build</Button>
             </a>
           </div>
@@ -105,42 +87,25 @@ export default function Landing() {
       <main className="pt-24">
         <SectionBoundary label="Hero">
           <section id="hero">
-            <HeroSection />
+            <Hero />
           </section>
         </SectionBoundary>
-        <div className="sr-only" data-sentinel="after-hero" />
 
         <SectionBoundary label="SixSimple">
           <section id="features">
-            <SixSimpleSection />
+            <SixSimple />
           </section>
         </SectionBoundary>
-        <div className="sr-only" data-sentinel="after-features" />
-
-        <SectionBoundary label="PreviewTeaser">
-          <section id="results">
-            <PreviewTeaserSection />
-          </section>
-        </SectionBoundary>
-        <div className="sr-only" data-sentinel="after-results" />
 
         <SectionBoundary label="Pricing">
           <section id="pricing">
-            <PricingSection />
+            <Pricing />
           </section>
         </SectionBoundary>
-        <div className="sr-only" data-sentinel="after-pricing" />
 
         <SectionBoundary label="FAQ">
           <section id="faq">
-            <FAQSection />
-          </section>
-        </SectionBoundary>
-        <div className="sr-only" data-sentinel="after-faq" />
-
-        <SectionBoundary label="BuildCTA">
-          <section id="build">
-            <BuildCTASection />
+            <FAQ />
           </section>
         </SectionBoundary>
       </main>
