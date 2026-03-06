@@ -89,30 +89,30 @@ export default function Landing() {
       </header>
 
       <main className="pt-24">
-        <SectionBoundary label="Hero">
-          <section id="hero">
-            <Hero embedded />
-          </section>
-        </SectionBoundary>
+  <SectionBoundary label="Hero">
+    <section id="hero" className="scroll-mt-24 pb-8 md:pb-12">
+      <Hero embedded />
+    </section>
+  </SectionBoundary>
 
-        <SectionBoundary label="SixSimple">
-          <section id="features">
-            <SixSimple embedded />
-          </section>
-        </SectionBoundary>
+  <SectionBoundary label="SixSimple">
+    <section id="features" className="scroll-mt-24 py-8 md:py-12">
+      <SixSimple embedded />
+    </section>
+  </SectionBoundary>
 
-        <SectionBoundary label="Pricing">
-          <section id="pricing">
-            <Pricing embedded />
-          </section>
-        </SectionBoundary>
+  <SectionBoundary label="Pricing">
+    <section id="pricing" className="scroll-mt-24 py-8 md:py-12">
+      <Pricing embedded />
+    </section>
+  </SectionBoundary>
 
-        <SectionBoundary label="FAQ">
-          <section id="faq">
-            <FAQ embedded />
-          </section>
-        </SectionBoundary>
-      </main>
+  <SectionBoundary label="FAQ">
+    <section id="faq" className="scroll-mt-24 pt-8 md:pt-12">
+      <FAQ embedded />
+    </section>
+  </SectionBoundary>
+</main>
 
       <footer className="border-t border-white/10 py-10 text-center text-white/60">
         <div className="mx-auto max-w-6xl px-4">
