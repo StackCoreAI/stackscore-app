@@ -71,7 +71,7 @@ export default function Hero() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#101012] via-[#0c0d0e] to-[#08090a] antialiased text-white">
+    <div className="bg-gradient-to-br from-[#101012] via-[#0c0d0e] to-[#08090a] antialiased text-white">
       {/* NAV */}
       <header
         className="init-opacity mx-auto flex max-w-7xl flex-col items-start justify-between gap-4 px-6 py-6 md:flex-row md:items-center"

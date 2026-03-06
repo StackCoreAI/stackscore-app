@@ -77,7 +77,7 @@ const Pricing = () => {
   }
 
   return (
-    <div className="bg-neutral-950 font-sans text-white flex flex-col min-h-screen">
+   <div className="bg-neutral-950 font-sans text-white flex flex-col">
       <SiteHeader />
 
       <main

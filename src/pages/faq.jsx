@@ -25,7 +25,7 @@ const FAQ = () => {
   ];
 
   return (
-    <div className="bg-neutral-950 text-white font-sans antialiased selection:bg-lime-400/30 min-h-screen">
+    <div className="bg-neutral-950 text-white font-sans antialiased selection:bg-lime-400/30">
       {/* Top Navigation */}
       <nav className={`flex items-center justify-between mb-6 pl-4 pt-4 sm:pl-6 sm:pt-6 transition-all duration-600 ease-out ${getAnimationClass(1)}`}>
         <Link to="/" className="flex items-center gap-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-lime-400/70">

@@ -67,7 +67,7 @@ const SixSimple = () => {
   ];
 
   return (
-    <div className="bg-neutral-950 text-white min-h-screen flex flex-col font-sans">
+   <div className="bg-neutral-950 text-white flex flex-col">
       {/* Top Navigation */}
       <header className="w-full max-w-6xl mx-auto px-6 pt-6 pb-4 flex items-center justify-between">
         <Link
