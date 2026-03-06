@@ -96,10 +96,11 @@ const FAQ = ({ embedded = false }) => {
       )}
 
       <section
-        className={`text-center px-4 transition-all duration-600 ease-out ${
-          embedded ? "mt-2 mb-8" : "mt-6 mb-10"
-        } ${getAnimationClass(2)}`}
-      >
+  id={embedded ? "faq" : undefined}
+  className={`scroll-mt-24 md:scroll-mt-28 text-center px-4 transition-all duration-600 ease-out ${
+    embedded ? "mt-2 mb-8" : "mt-6 mb-10"
+  } ${getAnimationClass(2)}`}
+>
         <h1 className="text-3xl font-semibold tracking-tight text-lime-400">
           Frequently Asked Questions
         </h1>

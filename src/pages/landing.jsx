@@ -108,10 +108,10 @@ export default function Landing() {
   </SectionBoundary>
 
   <SectionBoundary label="FAQ">
-    <section id="faq" className="scroll-mt-24 pt-8 md:pt-12">
-      <FAQ embedded />
-    </section>
-  </SectionBoundary>
+  <section className="pt-8 md:pt-12">
+    <FAQ embedded />
+  </section>
+</SectionBoundary>
 </main>
 
       <footer className="border-t border-white/10 py-10 text-center text-white/60">
