@@ -4,14 +4,13 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
-// ✅ NEW HERO (should be the published homepage)
+// ✅ Keep Hero available as a standalone route if needed
 import Hero from "./pages/hero.jsx";
 
-// ✅ Keep Landing available, but NOT as "/"
+// ✅ Long-scroll homepage
 import Landing from "./pages/landing.jsx";
 
-import WizardIntro from "./pages/wizardintro.jsx"; // ✅ NEW: Wizard Intro screen
-
+import WizardIntro from "./pages/wizardintro.jsx";
 import Wizard from "./pages/wizard.jsx";
 import Preview from "./pages/preview.jsx";
 import Pricing from "./pages/pricing.jsx";
@@ -32,10 +31,10 @@ function NotFound() {
     <main className="min-h-screen grid place-items-center bg-neutral-950 text-white">
       <div className="text-center">
         <h1 className="text-2xl font-semibold">404 — Not Found</h1>
-        <p className="opacity-70 mt-2">The page you’re looking for doesn’t exist.</p>
+        <p className="mt-2 opacity-70">The page you’re looking for doesn’t exist.</p>
         <a
           href="/"
-          className="inline-block mt-6 px-4 py-2 rounded bg-lime-400 text-black font-semibold"
+          className="mt-6 inline-block rounded bg-lime-400 px-4 py-2 font-semibold text-black"
         >
           ← Back Home
         </a>
@@ -47,13 +46,16 @@ function NotFound() {
 console.log("[boot] before router init");
 
 const router = createBrowserRouter([
-  // ✅ Homepage = NEW hero page (Credit Routing / Point Moves)
-  { path: "/", element: <Hero />, errorElement: <NotFound /> },
+  // ✅ Homepage = long-scroll landing page
+  { path: "/", element: <Landing />, errorElement: <NotFound /> },
 
-  // ✅ High-converting Wizard Intro (activation runway)
+  // ✅ Optional standalone hero route
+  { path: "/hero", element: <Hero /> },
+
+  // ✅ Activation runway
   { path: "/activate", element: <WizardIntro /> },
 
-  // ✅ Keep the old Landing page accessible (optional)
+  // ✅ Optional alias to landing
   { path: "/landing", element: <Landing /> },
 
   // App routes
