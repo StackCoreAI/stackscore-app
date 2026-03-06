@@ -6,7 +6,7 @@ import SiteHeader from "../components/SiteHeader.jsx";
 import SiteFooter from "../components/SiteFooter.jsx";
 import Button from "@/components/ui/Button";
 
-const Pricing = () => {
+const Pricing = ({ embedded = false }) => {
   const navigate = useNavigate();
   const [isVisible, setIsVisible] = useState(false);
 
@@ -77,11 +77,13 @@ const Pricing = () => {
   }
 
   return (
-   <div className="bg-neutral-950 font-sans text-white flex flex-col">
-      <SiteHeader />
+    <div className="bg-neutral-950 font-sans text-white flex flex-col">
+      {!embedded && <SiteHeader />}
 
       <main
-        className={`flex-grow w-full max-w-6xl mx-auto px-4 sm:px-6 pt-10 pb-10 transition-all duration-700 ${
+        className={`flex-grow w-full max-w-6xl mx-auto px-4 sm:px-6 ${
+          embedded ? "pt-6 pb-10" : "pt-10 pb-10"
+        } transition-all duration-700 ${
           isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
         }`}
       >
@@ -110,7 +112,6 @@ const Pricing = () => {
         </div>
 
         <div className="mt-10 grid gap-8 lg:grid-cols-12 lg:items-start">
-          {/* Left: Activation includes */}
           <div className="lg:col-span-7 space-y-6">
             <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-6">
               <h3 className="text-base font-semibold text-white">Your Credit Route Includes</h3>
@@ -133,7 +134,7 @@ const Pricing = () => {
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex flex-col gap-3 sm:flex-row">
               <Link to="/sixsimple" className="inline-flex">
                 <Button variant="secondary" size="md">
                   See How It Works
@@ -147,7 +148,6 @@ const Pricing = () => {
             </div>
           </div>
 
-          {/* Right: Price card */}
           <div className="lg:col-span-5">
             <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-6 shadow-xl shadow-lime-500/10">
               <div className="flex items-start justify-between gap-4">
@@ -207,31 +207,31 @@ const Pricing = () => {
         </div>
 
         <section
-          className={`mt-14 border-t border-neutral-800 pt-8 text-center space-y-4 max-w-3xl mx-auto transition-all duration-700 ${
+          className={`mt-14 mx-auto max-w-3xl border-t border-neutral-800 pt-8 text-center space-y-4 transition-all duration-700 ${
             isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
           }`}
           style={{ transitionDelay: "240ms" }}
         >
-          <h2 className="text-xl md:text-2xl font-semibold text-white flex items-center justify-center gap-2 tracking-tight">
-            <RotateCcw className="w-5 h-5 stroke-lime-400" strokeWidth="1.5" />
+          <h2 className="flex items-center justify-center gap-2 text-xl font-semibold tracking-tight text-white md:text-2xl">
+            <RotateCcw className="h-5 w-5 stroke-lime-400" strokeWidth="1.5" />
             Refresh Later (Optional)
           </h2>
 
-          <p className="text-neutral-400 text-sm">
+          <p className="text-sm text-neutral-400">
             Life changes — and your Credit Route can evolve with it. You’ll be able to refresh
             your route later as new reporting tools become available.
           </p>
 
           <div className="pt-2">
             <Button variant="secondary" size="md" disabled>
-              <Lock className="w-4 h-4 mr-2" />
+              <Lock className="mr-2 h-4 w-4" />
               Refresh Available Later
             </Button>
           </div>
         </section>
       </main>
 
-      <SiteFooter />
+      {!embedded && <SiteFooter />}
     </div>
   );
 };

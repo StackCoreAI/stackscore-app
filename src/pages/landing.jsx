@@ -43,10 +43,14 @@ export default function Landing() {
 
   return (
     <div className="min-h-[100svh] overflow-x-hidden bg-neutral-950 text-white">
-      {/* Header */}
+      {/* Master header */}
       <header className="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-neutral-950/70 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
-          <a href="#hero" className="flex items-center gap-2 font-semibold" aria-label="StackScore — go to top">
+          <a
+            href="#hero"
+            className="flex items-center gap-2 font-semibold"
+            aria-label="StackScore — go to top"
+          >
             <svg
               viewBox="0 0 24 24"
               className="h-5 w-5 text-lime-400"
@@ -87,25 +91,25 @@ export default function Landing() {
       <main className="pt-24">
         <SectionBoundary label="Hero">
           <section id="hero">
-            <Hero />
+            <Hero embedded />
           </section>
         </SectionBoundary>
 
         <SectionBoundary label="SixSimple">
           <section id="features">
-            <SixSimple />
+            <SixSimple embedded />
           </section>
         </SectionBoundary>
 
         <SectionBoundary label="Pricing">
           <section id="pricing">
-            <Pricing />
+            <Pricing embedded />
           </section>
         </SectionBoundary>
 
         <SectionBoundary label="FAQ">
           <section id="faq">
-            <FAQ />
+            <FAQ embedded />
           </section>
         </SectionBoundary>
       </main>
