@@ -11,6 +11,45 @@
   <link rel="stylesheet" href="/assets/guide.css?v=4" />
   <link rel="stylesheet" href="/assets/routing.css?v=2" />
 
+
+<!-- GUIDE ACCESS GATE -->
+<script>
+(function () {
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get("t") || "";
+  const stackKey = params.get("stackKey") || "growth";
+
+  document.documentElement.style.visibility = "hidden";
+
+  async function verify() {
+    try {
+      if (!token) {
+        window.location.replace("/activate");
+        return;
+      }
+
+      const res = await fetch(
+        `/.netlify/functions/verify-guide-token?t=${encodeURIComponent(token)}&stackKey=${encodeURIComponent(stackKey)}`,
+        { cache: "no-store" }
+      );
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok || !data?.ok) {
+        window.location.replace("/activate");
+        return;
+      }
+
+      document.documentElement.style.visibility = "visible";
+    } catch {
+      window.location.replace("/activate");
+    }
+  }
+
+  verify();
+})();
+</script>
+  
   <!-- scripts -->
   <script defer src="/assets/lucide.min.js"></script>
   <script defer src="/assets/guide.js"></script>
