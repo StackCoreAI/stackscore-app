@@ -140,7 +140,7 @@
         </div>
       </div>
 
-      <div class="mt-4 text-sm text-zinc-200/90 leading-relaxed" data-hook="snap-summary">
+      <div class="mt-4 text-base text-zinc-100 leading-7" data-hook="snap-summary">
         We selected a route designed to compound reporting signals with minimal friction — and included reroutes so your plan stays reliable.
       </div>
     </div>
@@ -273,7 +273,9 @@
       <div class="flex items-start justify-between gap-6">
         <div class="min-w-0">
           <h3 class="text-white font-semibold text-lg tracking-tight" id="why-headline">Why this route</h3>
-          <p class="mt-2 text-zinc-200/90 leading-relaxed" id="why-overview">Generating your explanation…</p>
+          <p class="mt-2 text-zinc-200/90 leading-relaxed" id="why-overview">
+            StackScore selected this Credit Route based on your inputs, prioritizing the strongest reporting opportunities for your timeline, budget, and execution style. This route emphasizes reliable activation, practical setup, and reroutes when a tool or feature is unavailable.
+          </p>
         </div>
         <div class="shrink-0 text-xs text-zinc-400">
           <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/10 bg-black/20">
@@ -286,7 +288,6 @@
     </div>
   </section>
 
-  
   <!-- =============== YOUR ROUTE (COMPOSE) =============== -->
   <section id="compose" class="scroll-chapter max-w-7xl mx-auto px-6 pb-24 init-opacity" data-anim>
     <div class="bg-white/5 border border-white/10 shadow-xl rounded-xl overflow-hidden">
@@ -330,13 +331,13 @@
           <!-- ✅ 10× Value Upgrade: Global Activation Checklist -->
           <div class="mb-5 rounded-xl border border-white/10 bg-black/30 p-4">
             <div class="text-[11px] tracking-wider uppercase text-zinc-400 mb-2">Start Here</div>
-            <ol class="text-sm text-zinc-200/90 space-y-2 list-decimal pl-5">
-              <li>Open the first tool and complete setup.</li>
-              <li>Turn on reporting features (autopay if available).</li>
-              <li>Confirm activation and watch for first reporting update.</li>
+            <ol class="text-sm text-zinc-200/90 space-y-2 list-decimal pl-5 leading-relaxed">
+              <li>Open the first tool and complete the account setup process.</li>
+              <li>Turn on all available reporting features, including autopay when offered.</li>
+              <li>Confirm the tool is active and watch for the first reporting update to appear.</li>
             </ol>
-            <div class="mt-3 text-xs text-zinc-400">
-              Tip: Most reporting updates show within 7–14 days depending on the bureau and tool.
+            <div class="mt-3 text-xs text-zinc-300 leading-relaxed">
+              Tip: Most reporting updates appear within 7–14 days, depending on the bureau and the tool you activate first.
             </div>
           </div>
 
@@ -396,12 +397,12 @@
           </div>
 
           <div class="rounded-xl border border-white/10 bg-black/30 p-4 text-sm text-zinc-200/90">
-  <div class="text-[11px] tracking-wider uppercase text-zinc-400 mb-2">Route Principle</div>
-  <div class="text-sm text-zinc-200/90 leading-relaxed">
-    <strong class="text-white">Activate one tool at a time</strong>, confirm setup, then move to the next.
-    This ensures each reporting signal registers correctly across bureaus.
-  </div>
-</div>
+            <div class="text-[11px] tracking-wider uppercase text-zinc-400 mb-2">Route Principle</div>
+            <div class="text-sm text-zinc-200/90 leading-relaxed">
+              <strong class="text-white">Activate one tool at a time</strong>, confirm setup, then move to the next.
+              This ensures each reporting signal registers correctly across bureaus.
+            </div>
+          </div>
 
           <!-- Read-only Instructions Panel (hydrated by plan.runtime.js) -->
           <div id="ss-instructions" class="space-y-4">
@@ -469,23 +470,23 @@
     }, 1400);
   </script>
 
-<script>
-  const el = document.getElementById("ss-gen-time");
-  if (el) el.textContent = new Date().toLocaleString();
-</script>
+  <script>
+    const el = document.getElementById("ss-gen-time");
+    if (el) el.textContent = new Date().toLocaleString();
+  </script>
 
-<script>
-  const sections = document.querySelectorAll('[data-anim]');
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('show');
-      }
-    });
-  }, { threshold: 0.15 });
+  <script>
+    const sections = document.querySelectorAll('[data-anim]');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('show');
+        }
+      });
+    }, { threshold: 0.15 });
 
-  sections.forEach((section) => observer.observe(section));
-</script>
+    sections.forEach((section) => observer.observe(section));
+  </script>
 
 </body>
 </html>
