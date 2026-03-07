@@ -41,39 +41,42 @@
     return data;
   }
 
+  async function getGuideToken() {
+    const res = await fetch(
+      `/.netlify/functions/create-guide-token?session_id=${encodeURIComponent(sessionId)}`
+    );
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data?.token) {
+      throw new Error(data?.error || "Unable to create guide token.");
+    }
+    return data;
+  }
+
   function setRouteContext({ email, stackKey }) {
-    // ✅ This is the missing “bridge” that allows 82.html runtime scripts
-    // to hydrate the AI feature-level instructions + routing intelligence.
     try {
       const key = String(stackKey || "growth").toLowerCase();
 
-      // Paid entitlement flags (existing pattern)
       localStorage.setItem("stackscore_paid", "1");
       if (email) localStorage.setItem("stackscore_paid_email", email);
 
-      // Canonical selection keys used across your app
-      // (PlanGrid + Preview already use these)
       sessionStorage.setItem("ss_selected", JSON.stringify(key));
       sessionStorage.setItem("selectedPlanKey", key);
 
       localStorage.setItem("ss_selected", JSON.stringify(key));
       localStorage.setItem("selectedPlanKey", key);
 
-      // Optional: if a planSet cache exists from earlier steps,
-      // persist it so guide runtime can still access it.
       const cached = sessionStorage.getItem("ss_plan");
       if (cached) localStorage.setItem("ss_plan", cached);
 
-      // Also store a simple “route key” for any static guide logic
       localStorage.setItem("ss_route_key", key);
     } catch {}
   }
 
-  function showContinue(stackKey) {
+  function showContinue(stackKey, token) {
     const key = String(stackKey || "growth").toLowerCase();
     goBtn.classList.remove("hidden");
     goBtn.onclick = () => {
-      location.href = `/guides/82.html?stackKey=${encodeURIComponent(key)}&paid=1`;
+      location.href = `/guides/82.html?stackKey=${encodeURIComponent(key)}&t=${encodeURIComponent(token)}`;
     };
   }
 
@@ -100,25 +103,25 @@
         return;
       }
 
-      // ✅ store all route context BEFORE redirect
       setRouteContext({ email, stackKey });
 
+      statusEl.textContent = "Creating secure access…";
+
+      const tokenData = await getGuideToken();
+      const token = tokenData.token;
+
+      const target = `/guides/82.html?stackKey=${encodeURIComponent(stackKey)}&t=${encodeURIComponent(token)}`;
+
       statusEl.textContent = "Activated. Redirecting…";
+      showContinue(stackKey, token);
 
-      const target = `/guides/82.html?stackKey=${encodeURIComponent(stackKey)}&paid=1`;
-
-      // Fallback button if redirect fails
-      showContinue(stackKey);
-
-      // Attempt automatic redirect
       setTimeout(() => {
         location.href = target;
       }, 600);
 
-      // Safety fallback (if redirect blocked for any reason)
       setTimeout(() => {
         statusEl.textContent = "If you're not redirected automatically, click below.";
-        showContinue(stackKey);
+        showContinue(stackKey, token);
       }, 2500);
 
     } catch (e) {
