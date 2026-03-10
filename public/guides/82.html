@@ -71,11 +71,9 @@
     details[open] summary .chev { transform: rotate(180deg) }
     details summary .chev { transition: transform .2s ease }
 
-    /* Hide checklist until the app is expanded */
     #sidebar-slot details.group ul { display: none; }
     #sidebar-slot details.group[open] ul { display: block; }
 
-    /* --- Print styles --- */
     @media print {
       .no-print,
       nav,
@@ -220,9 +218,9 @@
 
     <nav class="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-6">
       <a href="#main" class="text-neutral-300 hover:text-white transition-colors">Overview</a>
-      <a href="#why" class="text-neutral-300 hover:text-white transition-colors">Why this route</a>
       <a href="#compose" class="text-neutral-300 hover:text-white transition-colors">Your route</a>
       <a href="#instructions" class="text-neutral-300 hover:text-white transition-colors">Instructions</a>
+      <a href="#why" class="text-neutral-300 hover:text-white transition-colors">Why this route</a>
       <a href="/activate" class="flex items-center gap-1 text-lime-300 hover:text-lime-200 transition-colors">
         <i data-lucide="zap" class="w-4 h-4"></i><span>Start My Credit Route</span>
       </a>
@@ -230,7 +228,7 @@
   </header>
 
   <!-- ================= HERO ================= -->
-  <section id="main" class="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center pt-10 pb-8 init-opacity" data-anim>
+  <section id="main" class="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center pt-8 pb-6 init-opacity" data-anim>
     <div class="lg:col-span-7 space-y-5">
       <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-lime-400/30 bg-gradient-to-r from-lime-400/10 to-emerald-500/10 text-xs text-lime-300">
         <i data-lucide="sparkles" class="w-4 h-4"></i> Credit Route Guide
@@ -295,146 +293,30 @@
     </div>
   </section>
 
-  <!-- ======= ROUTE IMPACT SCORECARD ======= -->
-  <section id="route-scorecard" class="scroll-chapter max-w-7xl mx-auto px-6 pb-6 init-opacity" data-anim>
-    <div class="rounded-xl border border-white/10 bg-white/5 p-5 shadow-lg">
-      <div class="flex items-start justify-between gap-4">
-        <div>
-          <div class="text-[11px] tracking-wider uppercase text-zinc-400">Credit Route Impact</div>
-          <div class="mt-1 text-lg font-semibold text-white">Your route at a glance</div>
-        </div>
-
-        <div class="flex items-center gap-2">
-          <div class="rounded-full border border-lime-400/25 bg-lime-500/10 px-3 py-1 text-xs font-medium text-lime-300">
-            <span data-hook="scorecard-route">Growth</span> Route
-          </div>
-
-          <div class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-zinc-200/90">
-            Route Strength: <span class="text-white font-semibold" data-hook="scorecard-confidence">High</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="mt-3">
-        <div class="h-2 w-full rounded-full bg-white/10 overflow-hidden">
-          <div class="h-2 bg-gradient-to-r from-lime-400 to-emerald-500" style="width:100%" data-hook="scorecard-confidence-bar"></div>
-        </div>
-        <div class="mt-2 text-xs text-zinc-400" data-hook="scorecard-confidence-note">
-          Strong match based on your profile inputs.
-        </div>
-      </div>
-
-      <div class="mt-4 grid gap-4 md:grid-cols-3">
-        <div class="rounded-lg border border-white/10 bg-black/30 p-4">
-          <div class="text-xs text-zinc-400 mb-1">Estimated score potential</div>
-          <div class="text-2xl font-extrabold text-white" data-hook="scorecard-impact">+40–70 pts</div>
-          <div class="text-xs text-zinc-500 mt-1">Results vary by profile</div>
-        </div>
-
-        <div class="rounded-lg border border-white/10 bg-black/30 p-4">
-          <div class="text-xs text-zinc-400 mb-2">Signals activated</div>
-          <ul class="text-sm text-zinc-200/90 space-y-1" data-hook="scorecard-signals">
-            <li>✓ Utilities reporting</li>
-            <li>✓ Installment builder</li>
-            <li>✓ Route resilience</li>
-          </ul>
-        </div>
-
-        <div class="rounded-lg border border-white/10 bg-black/30 p-4">
-          <div class="text-xs text-zinc-400 mb-1">Estimated timeline</div>
-          <div class="text-2xl font-extrabold text-white" data-hook="scorecard-timeline">45–75 days</div>
-          <div class="text-xs text-zinc-500 mt-1">Common reporting window</div>
-        </div>
-      </div>
-
-      <div class="mt-3 text-xs text-zinc-400">
-        Tip: execute one tool at a time, confirm setup, then move to the next for clean reporting signals.
-      </div>
-    </div>
-  </section>
-
-  <!-- ======= AUTHORITY (HYBRID LAYER) ======= -->
-  <section class="scroll-chapter max-w-7xl mx-auto px-6 pb-6 init-opacity" data-anim>
-    <div class="rounded-xl border border-white/10 bg-white/5 p-5 shadow-lg">
+  <!-- ======= ROUTE QUICK VALUE ======= -->
+  <section class="scroll-chapter max-w-7xl mx-auto px-6 pb-4 init-opacity" data-anim>
+    <div class="rounded-xl border border-lime-400/20 bg-white/5 p-5 shadow-lg">
       <div class="flex items-center gap-2 mb-3">
-        <i data-lucide="sparkles" class="w-4 h-4 text-lime-300"></i>
-        <h3 class="text-white font-semibold text-lg tracking-tight">What the AI optimized for</h3>
+        <i data-lucide="route" class="w-4 h-4 text-lime-300"></i>
+        <h3 class="text-white font-semibold text-lg tracking-tight">Your Route Includes</h3>
       </div>
-      <div class="grid gap-4 md:grid-cols-2 text-sm text-zinc-200/90">
-        <div class="rounded-lg border border-white/10 bg-black/30 p-4">
-          <div class="text-xs uppercase tracking-wider text-zinc-400 mb-1">Impact + realism</div>
-          <div>Highest-leverage reporting features that fit your timeline and budget.</div>
-        </div>
-        <div class="rounded-lg border border-white/10 bg-black/30 p-4">
-          <div class="text-xs uppercase tracking-wider text-zinc-400 mb-1">Low friction</div>
-          <div>Routes that are easy to execute (autopay, simple setup, minimal upkeep).</div>
-        </div>
-        <div class="rounded-lg border border-white/10 bg-black/30 p-4">
-          <div class="text-xs uppercase tracking-wider text-zinc-400 mb-1">Coverage</div>
-          <div>A balanced mix of signals (utilities, installments, rent, disputes where relevant).</div>
-        </div>
-        <div class="rounded-lg border border-white/10 bg-black/30 p-4">
-          <div class="text-xs uppercase tracking-wider text-zinc-400 mb-1">Reroutes</div>
-          <div>Substitutes so your route still works if an app isn’t available or doesn’t report.</div>
-        </div>
-      </div>
-    </div>
-  </section>
 
-  <!-- ======= SECTION NAV ======= -->
-  <div class="max-w-7xl mx-auto px-6 relative mb-6">
-    <div class="h-1 w-full bg-gradient-to-r from-lime-400 via-emerald-400 to-cyan-400 rounded-full"></div>
-    <nav class="flex justify-center space-x-4 md:space-x-8 -mt-3">
-      <a href="#main" class="flex items-center space-x-2 px-4 py-1.5 bg-black/70 rounded-full text-sm font-medium text-zinc-300 hover:text-white hover:bg-white/10 transition">
-        <i data-lucide="zap" class="w-4 h-4 text-lime-400"></i><span>Quick Start</span>
-      </a>
-      <a href="#compose" class="flex items-center space-x-2 px-4 py-1.5 bg-black/70 rounded-full text-sm font-medium text-zinc-300 hover:text-white hover:bg-white/10 transition">
-        <i data-lucide="route" class="w-4 h-4 text-emerald-400"></i><span>Your Route</span>
-      </a>
-      <a href="#instructions" class="flex items-center space-x-2 px-4 py-1.5 bg-black/70 rounded-full text-sm font-medium text-zinc-300 hover:text-white hover:bg-white/10 transition">
-        <i data-lucide="clipboard-list" class="w-4 h-4 text-cyan-400"></i><span>Instructions</span>
-      </a>
-    </nav>
-  </div>
-
-  <!-- Answers banner -->
-  <section id="ss-answers-banner" class="max-w-7xl mx-auto px-6 pb-4" style="display:none;">
-    <div class="bg-amber-50/5 border border-amber-200/30 rounded-xl p-4">
-      <div class="flex items-start justify-between gap-4">
-        <div class="text-sm text-zinc-200/90">
-          <span class="font-semibold text-amber-200">Heads up:</span>
-          We didn’t detect your setup answers, so this route may not be fully personalized.
-        </div>
-        <a href="/activate" class="shrink-0 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-lime-500 text-black text-xs font-semibold hover:bg-lime-400">
-          Start My Credit Route
-        </a>
+      <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-5 text-sm">
+        <div class="rounded-lg border border-white/10 bg-black/30 p-3 text-zinc-100">Kickoff Credit Builder</div>
+        <div class="rounded-lg border border-white/10 bg-black/30 p-3 text-zinc-100">BoomPay Rent Reporting</div>
+        <div class="rounded-lg border border-white/10 bg-black/30 p-3 text-zinc-100">Experian Boost</div>
+        <div class="rounded-lg border border-white/10 bg-black/30 p-3 text-zinc-100">RentReporters</div>
+        <div class="rounded-lg border border-white/10 bg-black/30 p-3 text-zinc-100">Piñata</div>
       </div>
-    </div>
-  </section>
 
-  <!-- WHY THIS ROUTE -->
-  <section id="why" class="scroll-chapter max-w-7xl mx-auto px-6 pb-6 init-opacity" data-anim>
-    <div class="bg-white/5 border border-white/10 rounded-xl p-5 shadow-lg">
-      <div class="flex items-start justify-between gap-6">
-        <div class="min-w-0">
-          <h3 class="text-white font-semibold text-lg tracking-tight" id="why-headline">Why this route</h3>
-          <p class="mt-2 text-zinc-200/90 leading-relaxed" id="why-overview">
-            StackScore selected this Credit Route based on your inputs, prioritizing the strongest reporting opportunities for your timeline, budget, and execution style. This route emphasizes reliable activation, practical setup, and reroutes when a tool or feature is unavailable.
-          </p>
-        </div>
-        <div class="shrink-0 text-xs text-zinc-400">
-          <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/10 bg-black/20">
-            <i data-lucide="sparkles" class="w-4 h-4 text-lime-300"></i>
-            Route Intelligence
-          </span>
-        </div>
-      </div>
-      <ul class="mt-4 space-y-2 text-sm text-zinc-300" id="why-assumptions" style="display:none;"></ul>
+      <p class="mt-4 text-sm text-zinc-300">
+        These are the core tools in your personalized Credit Route. The exact order and steps appear below.
+      </p>
     </div>
   </section>
 
   <!-- =============== YOUR ROUTE (COMPOSE) =============== -->
-  <section id="compose" class="scroll-chapter max-w-7xl mx-auto px-6 pb-12 init-opacity" data-anim>
+  <section id="compose" class="scroll-chapter max-w-7xl mx-auto px-6 pb-8 init-opacity" data-anim>
     <div class="bg-white/5 border border-white/10 shadow-xl rounded-xl overflow-hidden">
 
       <header class="flex flex-col md:flex-row items-start md:items-center justify-between md:px-6 bg-gradient-to-b from-white/5 via-white/0 to-white/5 border-b border-white/10 pt-4 pr-4 pb-4 pl-4">
@@ -465,7 +347,7 @@
         </details>
       </div>
 
-      <section class="grid grid-cols-1 lg:grid-cols-12 min-h-[40vh]">
+      <section class="grid grid-cols-1 lg:grid-cols-12 min-h-[36vh]">
 
         <!-- Sidebar -->
         <aside class="page-break col-span-1 lg:col-span-3 lg:p-5 bg-gradient-to-b from-white/5 to-white/10 border-r border-white/10 pt-4 pr-4 pb-4 pl-4">
@@ -580,6 +462,145 @@
           </div>
         </main>
       </section>
+    </div>
+  </section>
+
+  <!-- ======= EXPLANATION ACCORDIONS ======= -->
+  <section id="why" class="scroll-chapter max-w-7xl mx-auto px-6 pb-8 init-opacity" data-anim>
+    <div class="space-y-4">
+      <details class="bg-white/5 border border-white/10 rounded-xl shadow-lg p-5" open>
+        <summary class="cursor-pointer list-none flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <i data-lucide="sparkles" class="w-4 h-4 text-lime-300"></i>
+            <h3 class="text-white font-semibold text-lg tracking-tight">Why this route</h3>
+          </div>
+          <span class="text-xs text-zinc-400">Route Intelligence</span>
+        </summary>
+        <div class="mt-4 text-zinc-200/90 leading-relaxed" id="why-overview">
+          StackScore selected this Credit Route based on your inputs, prioritizing the strongest reporting opportunities for your timeline, budget, and execution style. This route emphasizes reliable activation, practical setup, and reroutes when a tool or feature is unavailable.
+        </div>
+        <ul class="mt-4 space-y-2 text-sm text-zinc-300" id="why-assumptions" style="display:none;"></ul>
+      </details>
+
+      <details class="bg-white/5 border border-white/10 rounded-xl shadow-lg p-5">
+        <summary class="cursor-pointer list-none flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <i data-lucide="sparkles" class="w-4 h-4 text-lime-300"></i>
+            <h3 class="text-white font-semibold text-lg tracking-tight">What the AI optimized for</h3>
+          </div>
+          <span class="text-xs text-zinc-400">Optional detail</span>
+        </summary>
+        <div class="mt-4 grid gap-4 md:grid-cols-2 text-sm text-zinc-200/90">
+          <div class="rounded-lg border border-white/10 bg-black/30 p-4">
+            <div class="text-xs uppercase tracking-wider text-zinc-400 mb-1">Impact + realism</div>
+            <div>Highest-leverage reporting features that fit your timeline and budget.</div>
+          </div>
+          <div class="rounded-lg border border-white/10 bg-black/30 p-4">
+            <div class="text-xs uppercase tracking-wider text-zinc-400 mb-1">Low friction</div>
+            <div>Routes that are easy to execute (autopay, simple setup, minimal upkeep).</div>
+          </div>
+          <div class="rounded-lg border border-white/10 bg-black/30 p-4">
+            <div class="text-xs uppercase tracking-wider text-zinc-400 mb-1">Coverage</div>
+            <div>A balanced mix of signals (utilities, installments, rent, disputes where relevant).</div>
+          </div>
+          <div class="rounded-lg border border-white/10 bg-black/30 p-4">
+            <div class="text-xs uppercase tracking-wider text-zinc-400 mb-1">Reroutes</div>
+            <div>Substitutes so your route still works if an app isn’t available or doesn’t report.</div>
+          </div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <!-- ======= ROUTE IMPACT SCORECARD ======= -->
+  <section id="route-scorecard" class="scroll-chapter max-w-7xl mx-auto px-6 pb-8 init-opacity" data-anim>
+    <div class="rounded-xl border border-white/10 bg-white/5 p-5 shadow-lg">
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <div class="text-[11px] tracking-wider uppercase text-zinc-400">Credit Route Impact</div>
+          <div class="mt-1 text-lg font-semibold text-white">Your route at a glance</div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <div class="rounded-full border border-lime-400/25 bg-lime-500/10 px-3 py-1 text-xs font-medium text-lime-300">
+            <span data-hook="scorecard-route">Growth</span> Route
+          </div>
+
+          <div class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-zinc-200/90">
+            Route Strength: <span class="text-white font-semibold" data-hook="scorecard-confidence">High</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-3">
+        <div class="h-2 w-full rounded-full bg-white/10 overflow-hidden">
+          <div class="h-2 bg-gradient-to-r from-lime-400 to-emerald-500" style="width:100%" data-hook="scorecard-confidence-bar"></div>
+        </div>
+        <div class="mt-2 text-xs text-zinc-400" data-hook="scorecard-confidence-note">
+          Strong match based on your profile inputs.
+        </div>
+      </div>
+
+      <div class="mt-4 grid gap-4 md:grid-cols-3">
+        <div class="rounded-lg border border-white/10 bg-black/30 p-4">
+          <div class="text-xs text-zinc-400 mb-1">Estimated score potential</div>
+          <div class="text-2xl font-extrabold text-white" data-hook="scorecard-impact">+40–70 pts</div>
+          <div class="text-xs text-zinc-500 mt-1">Results vary by profile</div>
+        </div>
+
+        <div class="rounded-lg border border-white/10 bg-black/30 p-4">
+          <div class="text-xs text-zinc-400 mb-2">Signals activated</div>
+          <ul class="text-sm text-zinc-200/90 space-y-1" data-hook="scorecard-signals">
+            <li>✓ Utilities reporting</li>
+            <li>✓ Installment builder</li>
+            <li>✓ Route resilience</li>
+          </ul>
+        </div>
+
+        <div class="rounded-lg border border-white/10 bg-black/30 p-4">
+          <div class="text-xs text-zinc-400 mb-1">Estimated timeline</div>
+          <div class="text-2xl font-extrabold text-white" data-hook="scorecard-timeline">45–75 days</div>
+          <div class="text-xs text-zinc-500 mt-1">Common reporting window</div>
+        </div>
+      </div>
+
+      <div class="mt-3 text-xs text-zinc-400">
+        Tip: execute one tool at a time, confirm setup, then move to the next for clean reporting signals.
+      </div>
+    </div>
+  </section>
+
+  <!-- ======= SECTION NAV ======= -->
+  <div class="max-w-7xl mx-auto px-6 relative mb-6 no-print">
+    <div class="h-1 w-full bg-gradient-to-r from-lime-400 via-emerald-400 to-cyan-400 rounded-full"></div>
+    <nav class="flex justify-center space-x-4 md:space-x-8 -mt-3">
+      <a href="#main" class="flex items-center space-x-2 px-4 py-1.5 bg-black/70 rounded-full text-sm font-medium text-zinc-300 hover:text-white hover:bg-white/10 transition">
+        <i data-lucide="zap" class="w-4 h-4 text-lime-400"></i><span>Quick Start</span>
+      </a>
+      <a href="#compose" class="flex items-center space-x-2 px-4 py-1.5 bg-black/70 rounded-full text-sm font-medium text-zinc-300 hover:text-white hover:bg-white/10 transition">
+        <i data-lucide="route" class="w-4 h-4 text-emerald-400"></i><span>Your Route</span>
+      </a>
+      <a href="#instructions" class="flex items-center space-x-2 px-4 py-1.5 bg-black/70 rounded-full text-sm font-medium text-zinc-300 hover:text-white hover:bg-white/10 transition">
+        <i data-lucide="clipboard-list" class="w-4 h-4 text-cyan-400"></i><span>Instructions</span>
+      </a>
+      <a href="#why" class="flex items-center space-x-2 px-4 py-1.5 bg-black/70 rounded-full text-sm font-medium text-zinc-300 hover:text-white hover:bg-white/10 transition">
+        <i data-lucide="sparkles" class="w-4 h-4 text-lime-400"></i><span>Why</span>
+      </a>
+    </nav>
+  </div>
+
+  <!-- Answers banner -->
+  <section id="ss-answers-banner" class="max-w-7xl mx-auto px-6 pb-4" style="display:none;">
+    <div class="bg-amber-50/5 border border-amber-200/30 rounded-xl p-4">
+      <div class="flex items-start justify-between gap-4">
+        <div class="text-sm text-zinc-200/90">
+          <span class="font-semibold text-amber-200">Heads up:</span>
+          We didn’t detect your setup answers, so this route may not be fully personalized.
+        </div>
+        <a href="/activate" class="shrink-0 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-lime-500 text-black text-xs font-semibold hover:bg-lime-400">
+          Start My Credit Route
+        </a>
+      </div>
     </div>
   </section>
 
