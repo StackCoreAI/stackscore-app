@@ -11,45 +11,45 @@
   <link rel="stylesheet" href="/assets/guide.css?v=4" />
   <link rel="stylesheet" href="/assets/routing.css?v=2" />
 
+  <!-- GUIDE ACCESS GATE -->
+  <script>
+  (function () {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("t") || "";
+    const stackKey = params.get("stackKey") || "growth";
 
-<!-- GUIDE ACCESS GATE -->
-<script>
-(function () {
-  const params = new URLSearchParams(window.location.search);
-  const token = params.get("t") || "";
-  const stackKey = params.get("stackKey") || "growth";
+    document.documentElement.style.visibility = "hidden";
 
-  document.documentElement.style.visibility = "hidden";
+    async function verify() {
+      try {
+        if (!token) {
+          window.location.replace("/activate");
+          return;
+        }
 
-  async function verify() {
-    try {
-      if (!token) {
+        const res = await fetch(
+          `/.netlify/functions/verify-guide-token?t=${encodeURIComponent(token)}&stackKey=${encodeURIComponent(stackKey)}`,
+          { cache: "no-store" }
+        );
+
+        const data = await res.json().catch(() => ({}));
+
+        if (!res.ok || !data?.ok) {
+          window.location.replace("/activate");
+          return;
+        }
+
+        history.replaceState({}, "", `/guides/82.html?stackKey=${encodeURIComponent(stackKey)}`);
+        document.documentElement.style.visibility = "visible";
+      } catch {
         window.location.replace("/activate");
-        return;
       }
-
-      const res = await fetch(
-        `/.netlify/functions/verify-guide-token?t=${encodeURIComponent(token)}&stackKey=${encodeURIComponent(stackKey)}`,
-        { cache: "no-store" }
-      );
-
-      const data = await res.json().catch(() => ({}));
-
-      if (!res.ok || !data?.ok) {
-        window.location.replace("/activate");
-        return;
-      }
-
-      document.documentElement.style.visibility = "visible";
-    } catch {
-      window.location.replace("/activate");
     }
-  }
 
-  verify();
-})();
-</script>
-  
+    verify();
+  })();
+  </script>
+
   <!-- scripts -->
   <script defer src="/assets/lucide.min.js"></script>
   <script defer src="/assets/guide.js"></script>
@@ -58,9 +58,14 @@
   <style>
     html { scroll-behavior:smooth }
     body { font-family: Inter, ui-sans-serif, system-ui, sans-serif }
-    @keyframes fadeInUp { 0% { opacity:0; transform: translateY(28px) } 100% { opacity:1; transform: translateY(0) } }
+
+    @keyframes fadeInUp {
+      0% { opacity:0; transform: translateY(20px) }
+      100% { opacity:1; transform: translateY(0) }
+    }
+
     .init-opacity { opacity:0 }
-    .show { animation: fadeInUp .9s cubic-bezier(.22,1,.36,1) forwards }
+    .show { animation: fadeInUp .7s cubic-bezier(.22,1,.36,1) forwards }
     svg.lucide { stroke: currentColor; stroke-width: 1.5 }
     details summary::-webkit-details-marker { display:none }
     details[open] summary .chev { transform: rotate(180deg) }
@@ -72,12 +77,119 @@
 
     /* --- Print styles --- */
     @media print {
-      .no-print, nav, header, .site-nav, .builder, .sticky-cta, .footer-cta { display:none !important; }
-      html, body { background:#fff !important; color:#000 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-      .deck-safe, .container, .content, .guide-inner { max-width:100% !important; width:100% !important; padding:0 !important; margin:0 !important; box-shadow:none !important; background:transparent !important; }
-      .card, .app, .section, .panel, .grid > * { break-inside: avoid; page-break-inside: avoid; }
-      .page-break { break-before: page; page-break-before: always; }
+      .no-print,
+      nav,
+      header,
+      .site-nav,
+      .builder,
+      .sticky-cta,
+      .footer-cta {
+        display:none !important;
+      }
+
+      html,
+      body {
+        background:#fff !important;
+        color:#111 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      * {
+        color:#111 !important;
+        text-shadow:none !important;
+        box-shadow:none !important;
+      }
+
+      .bg-gradient-to-br,
+      .bg-gradient-to-r,
+      .from-\[\#101012\],
+      .via-\[\#0c0d0e\],
+      .to-\[\#08090a\],
+      .from-lime-400,
+      .via-emerald-400,
+      .to-cyan-400,
+      .to-emerald-500 {
+        background:#fff !important;
+        background-image:none !important;
+      }
+
+      .rounded-xl,
+      .rounded-lg,
+      .rounded-md,
+      .card,
+      .app,
+      .section,
+      .panel,
+      .grid > * {
+        background:#fff !important;
+        color:#111 !important;
+        border:1px solid #d1d5db !important;
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+
+      .bg-white\/5,
+      .bg-black\/30,
+      .bg-black\/40,
+      .bg-black\/20,
+      .bg-amber-50\/5,
+      .bg-emerald-500\/10,
+      .bg-lime-500\/10 {
+        background:#fff !important;
+      }
+
+      .border-white\/10,
+      .border-lime-400\/30,
+      .border-emerald-500\/20,
+      .border-amber-200\/30,
+      .border-emerald-400\/30 {
+        border-color:#d1d5db !important;
+      }
+
+      .text-white,
+      .text-zinc-100,
+      .text-zinc-200,
+      .text-zinc-200\/90,
+      .text-zinc-300,
+      .text-zinc-400,
+      .text-zinc-500,
+      .text-lime-300,
+      .text-emerald-300,
+      .text-cyan-400,
+      .text-amber-200,
+      .text-amber-300 {
+        color:#111 !important;
+      }
+
+      .bg-clip-text,
+      .text-transparent {
+        color:#111 !important;
+        -webkit-text-fill-color:#111 !important;
+      }
+
+      a {
+        color:#111 !important;
+        text-decoration:none !important;
+      }
+
+      .deck-safe,
+      .container,
+      .content,
+      .guide-inner {
+        max-width:100% !important;
+        width:100% !important;
+        padding:0 !important;
+        margin:0 !important;
+        background:transparent !important;
+      }
+
+      .page-break {
+        break-before: page;
+        page-break-before: always;
+      }
     }
+
     @page { size: Letter; margin: 12mm; }
 
     .no-print {}
@@ -98,7 +210,7 @@
   </button>
 
   <!-- ================= NAV ================= -->
-  <header class="max-w-7xl mx-auto px-6 py-6 flex flex-col md:flex-row md:items-center justify-between gap-4 init-opacity" data-anim>
+  <header class="max-w-7xl mx-auto px-6 py-5 flex flex-col md:flex-row md:items-center justify-between gap-4 init-opacity" data-anim>
     <a href="/" class="flex items-center gap-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-lime-400/70" aria-label="StackScore Home">
       <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" class="text-lime-400" aria-hidden="true">
         <path d="M4 4h16v3H4z"></path><path d="M4 10.5h16v3H4z"></path><path d="M4 17h16v3H4z"></path>
@@ -106,7 +218,7 @@
       <span class="text-lg font-semibold tracking-tight text-white">StackScore</span>
     </a>
 
-    <nav class="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-8">
+    <nav class="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-6">
       <a href="#main" class="text-neutral-300 hover:text-white transition-colors">Overview</a>
       <a href="#why" class="text-neutral-300 hover:text-white transition-colors">Why this route</a>
       <a href="#compose" class="text-neutral-300 hover:text-white transition-colors">Your route</a>
@@ -118,8 +230,8 @@
   </header>
 
   <!-- ================= HERO ================= -->
-  <section id="main" class="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center pt-20 pb-16 init-opacity" data-anim>
-    <div class="lg:col-span-7 space-y-6">
+  <section id="main" class="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center pt-10 pb-8 init-opacity" data-anim>
+    <div class="lg:col-span-7 space-y-5">
       <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-lime-400/30 bg-gradient-to-r from-lime-400/10 to-emerald-500/10 text-xs text-lime-300">
         <i data-lucide="sparkles" class="w-4 h-4"></i> Credit Route Guide
       </div>
@@ -131,12 +243,11 @@
         </span>
       </h1>
 
-      <!-- ✅ tiny AI stamp -->
       <div class="inline-flex items-center gap-2 mt-1 text-xs text-emerald-300 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-full">
         ⚡ AI Route Intelligence · Generated <span id="ss-gen-time">just now</span>
       </div>
 
-      <p class="mt-2 text-lg text-zinc-200/90 leading-relaxed">
+      <p class="mt-2 text-lg text-zinc-200/90 leading-relaxed max-w-3xl">
         This is your activation blueprint. Follow the steps below to turn on the right reporting features — with reroutes if something isn’t available.
       </p>
 
@@ -145,12 +256,11 @@
       </p>
     </div>
 
-    <!-- Right side intentionally empty (hero card removed) -->
     <div class="lg:col-span-5"></div>
   </section>
 
   <!-- ======= ROUTE INTELLIGENCE SNAPSHOT ======= -->
-  <section id="route-snapshot" class="scroll-chapter max-w-7xl mx-auto px-6 pb-6 init-opacity" data-anim>
+  <section id="route-snapshot" class="scroll-chapter max-w-7xl mx-auto px-6 pb-4 init-opacity" data-anim>
     <div class="rounded-xl border border-white/10 bg-black/30 p-5">
       <div class="flex items-center justify-between gap-4">
         <div class="flex items-center gap-2">
@@ -186,10 +296,8 @@
   </section>
 
   <!-- ======= ROUTE IMPACT SCORECARD ======= -->
-  <section id="route-scorecard" class="scroll-chapter max-w-7xl mx-auto px-6 pb-10 init-opacity" data-anim>
-    <div class="rounded-xl border border-white/10 bg-white/5 p-6 shadow-lg">
-
-      <!-- Header row -->
+  <section id="route-scorecard" class="scroll-chapter max-w-7xl mx-auto px-6 pb-6 init-opacity" data-anim>
+    <div class="rounded-xl border border-white/10 bg-white/5 p-5 shadow-lg">
       <div class="flex items-start justify-between gap-4">
         <div>
           <div class="text-[11px] tracking-wider uppercase text-zinc-400">Credit Route Impact</div>
@@ -207,7 +315,6 @@
         </div>
       </div>
 
-      <!-- Route Strength bar -->
       <div class="mt-3">
         <div class="h-2 w-full rounded-full bg-white/10 overflow-hidden">
           <div class="h-2 bg-gradient-to-r from-lime-400 to-emerald-500" style="width:100%" data-hook="scorecard-confidence-bar"></div>
@@ -217,8 +324,7 @@
         </div>
       </div>
 
-      <!-- Metrics -->
-      <div class="mt-5 grid gap-4 md:grid-cols-3">
+      <div class="mt-4 grid gap-4 md:grid-cols-3">
         <div class="rounded-lg border border-white/10 bg-black/30 p-4">
           <div class="text-xs text-zinc-400 mb-1">Estimated score potential</div>
           <div class="text-2xl font-extrabold text-white" data-hook="scorecard-impact">+40–70 pts</div>
@@ -241,15 +347,15 @@
         </div>
       </div>
 
-      <div class="mt-4 text-xs text-zinc-400">
+      <div class="mt-3 text-xs text-zinc-400">
         Tip: execute one tool at a time, confirm setup, then move to the next for clean reporting signals.
       </div>
     </div>
   </section>
 
   <!-- ======= AUTHORITY (HYBRID LAYER) ======= -->
-  <section class="scroll-chapter max-w-7xl mx-auto px-6 pb-10 init-opacity" data-anim>
-    <div class="rounded-xl border border-white/10 bg-white/5 p-6 shadow-lg">
+  <section class="scroll-chapter max-w-7xl mx-auto px-6 pb-6 init-opacity" data-anim>
+    <div class="rounded-xl border border-white/10 bg-white/5 p-5 shadow-lg">
       <div class="flex items-center gap-2 mb-3">
         <i data-lucide="sparkles" class="w-4 h-4 text-lime-300"></i>
         <h3 class="text-white font-semibold text-lg tracking-tight">What the AI optimized for</h3>
@@ -276,9 +382,9 @@
   </section>
 
   <!-- ======= SECTION NAV ======= -->
-  <div class="max-w-7xl mx-auto px-6 relative mb-12">
+  <div class="max-w-7xl mx-auto px-6 relative mb-6">
     <div class="h-1 w-full bg-gradient-to-r from-lime-400 via-emerald-400 to-cyan-400 rounded-full"></div>
-    <nav class="flex justify-center space-x-8 -mt-3">
+    <nav class="flex justify-center space-x-4 md:space-x-8 -mt-3">
       <a href="#main" class="flex items-center space-x-2 px-4 py-1.5 bg-black/70 rounded-full text-sm font-medium text-zinc-300 hover:text-white hover:bg-white/10 transition">
         <i data-lucide="zap" class="w-4 h-4 text-lime-400"></i><span>Quick Start</span>
       </a>
@@ -292,7 +398,7 @@
   </div>
 
   <!-- Answers banner -->
-  <section id="ss-answers-banner" class="max-w-7xl mx-auto px-6 pb-6" style="display:none;">
+  <section id="ss-answers-banner" class="max-w-7xl mx-auto px-6 pb-4" style="display:none;">
     <div class="bg-amber-50/5 border border-amber-200/30 rounded-xl p-4">
       <div class="flex items-start justify-between gap-4">
         <div class="text-sm text-zinc-200/90">
@@ -307,8 +413,8 @@
   </section>
 
   <!-- WHY THIS ROUTE -->
-  <section id="why" class="scroll-chapter max-w-7xl mx-auto px-6 pb-10 init-opacity" data-anim>
-    <div class="bg-white/5 border border-white/10 rounded-xl p-6 shadow-lg">
+  <section id="why" class="scroll-chapter max-w-7xl mx-auto px-6 pb-6 init-opacity" data-anim>
+    <div class="bg-white/5 border border-white/10 rounded-xl p-5 shadow-lg">
       <div class="flex items-start justify-between gap-6">
         <div class="min-w-0">
           <h3 class="text-white font-semibold text-lg tracking-tight" id="why-headline">Why this route</h3>
@@ -328,10 +434,9 @@
   </section>
 
   <!-- =============== YOUR ROUTE (COMPOSE) =============== -->
-  <section id="compose" class="scroll-chapter max-w-7xl mx-auto px-6 pb-24 init-opacity" data-anim>
+  <section id="compose" class="scroll-chapter max-w-7xl mx-auto px-6 pb-12 init-opacity" data-anim>
     <div class="bg-white/5 border border-white/10 shadow-xl rounded-xl overflow-hidden">
 
-      <!-- header -->
       <header class="flex flex-col md:flex-row items-start md:items-center justify-between md:px-6 bg-gradient-to-b from-white/5 via-white/0 to-white/5 border-b border-white/10 pt-4 pr-4 pb-4 pl-4">
         <a href="#compose" class="inline-block">
           <button class="bg-gradient-to-r from-lime-400 to-emerald-500 text-black rounded-full font-semibold px-6 py-3 transition hover:scale-105 hover:shadow-md hover:brightness-110">
@@ -340,8 +445,7 @@
         </a>
       </header>
 
-      <!-- AI Route-specific Instructions -->
-      <div class="mt-4 bg-amber-50/5 border border-amber-200/30 rounded-xl shadow p-5">
+      <div class="mt-2 mx-4 mb-4 bg-amber-50/5 border border-amber-200/30 rounded-xl shadow p-5">
         <div class="flex items-center gap-2 mb-2">
           <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-300"></i>
           <h4 class="text-amber-200 font-semibold">Important: Route-specific Instructions</h4>
@@ -361,13 +465,11 @@
         </details>
       </div>
 
-      <!-- content grid -->
-      <section class="grid grid-cols-1 lg:grid-cols-12 min-h-[60vh]">
+      <section class="grid grid-cols-1 lg:grid-cols-12 min-h-[40vh]">
 
         <!-- Sidebar -->
-        <aside class="page-break col-span-1 lg:col-span-3 lg:p-6 bg-gradient-to-b from-white/5 to-white/10 border-r border-white/10 pt-4 pr-4 pb-4 pl-4">
+        <aside class="page-break col-span-1 lg:col-span-3 lg:p-5 bg-gradient-to-b from-white/5 to-white/10 border-r border-white/10 pt-4 pr-4 pb-4 pl-4">
 
-          <!-- ✅ 10× Value Upgrade: Global Activation Checklist -->
           <div class="mb-5 rounded-xl border border-white/10 bg-black/30 p-4">
             <div class="text-[11px] tracking-wider uppercase text-zinc-400 mb-2">Start Here</div>
             <ol class="text-sm text-zinc-200/90 space-y-2 list-decimal pl-5 leading-relaxed">
@@ -380,7 +482,6 @@
             </div>
           </div>
 
-          <!-- Credit Routing summary (injected by plan.runtime.js) -->
           <section id="routing-slot" class="mb-4 init-opacity" style="display:none;">
             <div class="rounded-xl border border-white/10 bg-white/5 p-4 shadow">
               <div class="flex items-center justify-between mb-2">
@@ -403,7 +504,6 @@
             <div class="space-y-2" id="sidebar-slot" data-hook="app-list"></div>
           </div>
 
-          <!-- Resources -->
           <div class="space-y-3">
             <h3 class="text-xs font-medium text-zinc-400 uppercase tracking-wider">Resources &amp; Support</h3>
             <div class="space-y-1">
@@ -430,7 +530,7 @@
         </aside>
 
         <!-- Right panel -->
-        <main id="instructions" class="page-break col-span-1 lg:col-span-9 lg:p-8 space-y-5">
+        <main id="instructions" class="page-break col-span-1 lg:col-span-9 lg:p-6 space-y-4">
           <div class="flex items-center justify-between mb-2">
             <h1 class="text-lg font-semibold text-white">Route Instructions</h1>
           </div>
@@ -443,8 +543,7 @@
             </div>
           </div>
 
-          <!-- Read-only Instructions Panel (hydrated by plan.runtime.js) -->
-          <div id="ss-instructions" class="space-y-4">
+          <div id="ss-instructions" class="space-y-3">
             <div class="rounded-md bg-black/40 border border-white/10 px-3 py-3">
               <div class="text-xs text-zinc-400 mb-1">Website</div>
               <a data-hook="inst-website" href="#" target="_blank" rel="noopener noreferrer"
@@ -485,7 +584,7 @@
   </section>
 
   <!-- Legal Disclaimer -->
-  <footer class="max-w-7xl mx-auto px-6 pb-12 text-xs text-zinc-400">
+  <footer class="max-w-7xl mx-auto px-6 pb-8 text-xs text-zinc-400">
     <div class="bg-white/5 border border-white/10 rounded-lg p-4 leading-relaxed">
       <strong class="text-zinc-300">Disclaimer:</strong>
       We are not financial advisors, credit advisors, or credit counseling providers. The information in this guide is
