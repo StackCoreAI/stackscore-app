@@ -60,12 +60,12 @@
     body { font-family: Inter, ui-sans-serif, system-ui, sans-serif; }
 
     @keyframes fadeInUp {
-      0% { opacity: 0; transform: translateY(12px); }
+      0% { opacity: 0; transform: translateY(10px); }
       100% { opacity: 1; transform: translateY(0); }
     }
 
     .init-opacity { opacity: 0; }
-    .show { animation: fadeInUp .55s cubic-bezier(.22,1,.36,1) forwards; }
+    .show { animation: fadeInUp .5s cubic-bezier(.22,1,.36,1) forwards; }
 
     svg.lucide { stroke: currentColor; stroke-width: 1.5; }
 
@@ -213,7 +213,7 @@
   </button>
 
   <!-- ================= NAV ================= -->
-  <header class="max-w-5xl mx-auto px-6 py-3 flex flex-col md:flex-row md:items-center justify-between gap-3 init-opacity" data-anim>
+  <header class="max-w-6xl mx-auto px-6 py-3 flex flex-col md:flex-row md:items-center justify-between gap-2 init-opacity" data-anim>
     <a href="/" class="flex items-center gap-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-lime-400/70" aria-label="StackScore Home">
       <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" class="text-lime-400" aria-hidden="true">
         <path d="M4 4h16v3H4z"></path>
@@ -223,7 +223,7 @@
       <span class="text-lg font-semibold tracking-tight text-white">StackScore</span>
     </a>
 
-    <nav class="flex flex-col md:flex-row items-start md:items-center gap-3 md:gap-5 text-sm">
+    <nav class="flex flex-col md:flex-row items-start md:items-center gap-2 md:gap-4 text-sm">
       <a href="#main" class="text-neutral-300 hover:text-white transition-colors">Overview</a>
       <a href="#compose" class="text-neutral-300 hover:text-white transition-colors">Your route</a>
       <a href="#instructions" class="text-neutral-300 hover:text-white transition-colors">Instructions</a>
@@ -235,8 +235,8 @@
   </header>
 
   <!-- ================= HERO ================= -->
-  <section id="main" class="max-w-5xl mx-auto px-6 pt-4 pb-2 init-opacity" data-anim>
-    <div class="max-w-3xl space-y-2">
+  <section id="main" class="max-w-6xl mx-auto px-6 pt-3 pb-1 init-opacity" data-anim>
+    <div class="max-w-4xl space-y-1.5">
       <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-lime-400/30 bg-gradient-to-r from-lime-400/10 to-emerald-500/10 text-xs text-lime-300">
         <i data-lucide="sparkles" class="w-4 h-4"></i> Credit Route Guide
       </div>
@@ -252,7 +252,7 @@
         ⚡ AI Route Intelligence · Generated <span id="ss-gen-time">just now</span>
       </div>
 
-      <p class="text-sm md:text-base text-zinc-200/90 leading-relaxed">
+      <p class="text-sm md:text-base text-zinc-200/90 leading-relaxed max-w-3xl">
         This is your activation blueprint. Follow the steps below to turn on the right reporting features — with reroutes if something isn’t available.
       </p>
 
@@ -263,9 +263,9 @@
   </section>
 
   <!-- ======= ROUTE INTELLIGENCE SNAPSHOT ======= -->
-  <section id="route-snapshot" class="scroll-chapter max-w-5xl mx-auto px-6 pb-2 init-opacity" data-anim>
+  <section id="route-snapshot" class="scroll-chapter max-w-6xl mx-auto px-6 pb-1 init-opacity" data-anim>
     <div class="rounded-xl border border-white/10 bg-black/30 p-3">
-      <div class="flex items-center justify-between gap-4">
+      <div class="flex items-center justify-between gap-3">
         <div class="flex items-center gap-2">
           <i data-lucide="sparkles" class="w-4 h-4 text-lime-300"></i>
           <div class="text-sm font-semibold text-white">Route Intelligence Snapshot</div>
@@ -292,16 +292,16 @@
         </div>
       </div>
 
-      <div class="mt-2 text-sm text-zinc-100 leading-5.5" data-hook="snap-summary">
+      <div class="mt-2 text-sm text-zinc-100 leading-5" data-hook="snap-summary">
         We selected a route designed to compound reporting signals with minimal friction — and included reroutes so your plan stays reliable.
       </div>
     </div>
   </section>
 
   <!-- =============== YOUR ROUTE (COMPOSE) =============== -->
-  <section id="compose" class="scroll-chapter max-w-5xl mx-auto px-6 pb-3 init-opacity" data-anim>
+  <section id="compose" class="scroll-chapter max-w-6xl mx-auto px-6 pb-3 init-opacity" data-anim>
     <div class="-mt-1 bg-white/5 border border-white/10 shadow-xl rounded-xl overflow-hidden">
-      <header class="border-b border-white/10 px-4 py-2.5 bg-gradient-to-b from-white/5 via-white/0 to-white/5">
+      <header class="border-b border-white/10 px-4 py-2 bg-gradient-to-b from-white/5 via-white/0 to-white/5">
         <a href="#compose" class="inline-block">
           <button class="bg-gradient-to-r from-lime-400 to-emerald-500 text-black rounded-full font-semibold px-5 py-2 text-sm transition hover:scale-105 hover:shadow-md hover:brightness-110">
             Your Credit Route — Start Here
@@ -312,7 +312,7 @@
       <section class="grid grid-cols-1 lg:grid-cols-12 min-h-0">
         <!-- Sidebar -->
         <aside class="page-break col-span-1 lg:col-span-4 border-r border-white/10 px-4 py-3 bg-gradient-to-b from-white/5 to-white/10">
-          <div class="rounded-xl border border-amber-200/30 bg-amber-50/5 p-3 mb-3">
+          <div class="rounded-xl border border-amber-200/30 bg-amber-50/5 p-3 mb-2.5">
             <div class="flex items-center gap-2 mb-1.5">
               <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-300"></i>
               <h4 class="text-amber-200 font-semibold text-sm">Route-specific Instructions</h4>
@@ -330,7 +330,7 @@
             </details>
           </div>
 
-          <div class="rounded-xl border border-white/10 bg-black/30 p-3 mb-3">
+          <div class="rounded-xl border border-white/10 bg-black/30 p-3 mb-2.5">
             <div class="text-[11px] tracking-wider uppercase text-zinc-400 mb-2">Start Here</div>
             <ol class="text-xs text-zinc-200/90 space-y-1.5 list-decimal pl-4 leading-relaxed">
               <li>Open the first tool and complete setup.</li>
@@ -342,7 +342,7 @@
             </div>
           </div>
 
-          <section id="routing-slot" class="mb-3 init-opacity" style="display:none;">
+          <section id="routing-slot" class="mb-2.5 init-opacity" style="display:none;">
             <div class="rounded-xl border border-white/10 bg-white/5 p-3 shadow">
               <div class="flex items-center justify-between mb-2">
                 <div class="text-[11px] tracking-wider uppercase text-zinc-400">Credit Routing</div>
@@ -375,8 +375,8 @@
         </aside>
 
         <!-- Right panel -->
-        <main id="instructions" class="page-break col-span-1 lg:col-span-8 px-4 py-3 space-y-2.5">
-          <div class="flex items-center justify-between mb-1">
+        <main id="instructions" class="page-break col-span-1 lg:col-span-8 px-4 py-3 space-y-2">
+          <div class="flex items-center justify-between mb-0.5">
             <h1 class="text-base font-semibold text-white">Route Instructions</h1>
           </div>
 
@@ -427,9 +427,9 @@
   </section>
 
   <!-- ======= EXPLANATION ACCORDIONS ======= -->
-  <section id="why" class="scroll-chapter max-w-5xl mx-auto px-6 pb-3 init-opacity" data-anim>
-    <div class="space-y-2.5">
-      <details class="bg-white/5 border border-white/10 rounded-xl shadow-lg p-3.5" open>
+  <section id="why" class="scroll-chapter max-w-6xl mx-auto px-6 pb-3 init-opacity" data-anim>
+    <div class="space-y-2">
+      <details class="bg-white/5 border border-white/10 rounded-xl shadow-lg p-3" open>
         <summary class="cursor-pointer list-none flex items-center justify-between">
           <div class="flex items-center gap-2">
             <i data-lucide="sparkles" class="w-4 h-4 text-lime-300"></i>
@@ -437,13 +437,13 @@
           </div>
           <span class="text-[11px] text-zinc-400">Route Intelligence</span>
         </summary>
-        <div class="mt-2.5 text-zinc-200/90 leading-relaxed text-sm" id="why-overview">
+        <div class="mt-2 text-zinc-200/90 leading-relaxed text-sm" id="why-overview">
           StackScore selected this Credit Route based on your inputs, prioritizing the strongest reporting opportunities for your timeline, budget, and execution style. This route emphasizes reliable activation, practical setup, and reroutes when a tool or feature is unavailable.
         </div>
-        <ul class="mt-2.5 space-y-2 text-sm text-zinc-300" id="why-assumptions" style="display:none;"></ul>
+        <ul class="mt-2 space-y-2 text-sm text-zinc-300" id="why-assumptions" style="display:none;"></ul>
       </details>
 
-      <details class="bg-white/5 border border-white/10 rounded-xl shadow-lg p-3.5">
+      <details class="bg-white/5 border border-white/10 rounded-xl shadow-lg p-3">
         <summary class="cursor-pointer list-none flex items-center justify-between">
           <div class="flex items-center gap-2">
             <i data-lucide="sparkles" class="w-4 h-4 text-lime-300"></i>
@@ -451,7 +451,7 @@
           </div>
           <span class="text-[11px] text-zinc-400">Optional detail</span>
         </summary>
-        <div class="mt-2.5 grid gap-2.5 md:grid-cols-2 text-sm text-zinc-200/90">
+        <div class="mt-2 grid gap-2 md:grid-cols-2 text-sm text-zinc-200/90">
           <div class="rounded-lg border border-white/10 bg-black/30 p-2.5">
             <div class="text-[11px] uppercase tracking-wider text-zinc-400 mb-1">Impact + realism</div>
             <div>Highest-leverage reporting features that fit your timeline and budget.</div>
@@ -474,8 +474,8 @@
   </section>
 
   <!-- ======= ROUTE IMPACT SCORECARD ======= -->
-  <section id="route-scorecard" class="scroll-chapter max-w-5xl mx-auto px-6 pb-4 init-opacity" data-anim>
-    <div class="rounded-xl border border-white/10 bg-white/5 p-3.5 shadow-lg">
+  <section id="route-scorecard" class="scroll-chapter max-w-6xl mx-auto px-6 pb-4 init-opacity" data-anim>
+    <div class="rounded-xl border border-white/10 bg-white/5 p-3 shadow-lg">
       <div class="flex items-start justify-between gap-4">
         <div>
           <div class="text-[11px] tracking-wider uppercase text-zinc-400">Credit Route Impact</div>
@@ -493,16 +493,16 @@
         </div>
       </div>
 
-      <div class="mt-2.5">
+      <div class="mt-2">
         <div class="h-2 w-full rounded-full bg-white/10 overflow-hidden">
           <div class="h-2 bg-gradient-to-r from-lime-400 to-emerald-500" style="width:100%" data-hook="scorecard-confidence-bar"></div>
         </div>
-        <div class="mt-1.5 text-[11px] text-zinc-400" data-hook="scorecard-confidence-note">
+        <div class="mt-1 text-[11px] text-zinc-400" data-hook="scorecard-confidence-note">
           Strong match based on your profile inputs.
         </div>
       </div>
 
-      <div class="mt-3 grid gap-2.5 md:grid-cols-3">
+      <div class="mt-3 grid gap-2 md:grid-cols-3">
         <div class="rounded-lg border border-white/10 bg-black/30 p-3">
           <div class="text-[11px] text-zinc-400 mb-1">Estimated score potential</div>
           <div class="text-2xl font-extrabold text-white" data-hook="scorecard-impact">+40–70 pts</div>
@@ -525,14 +525,14 @@
         </div>
       </div>
 
-      <div class="mt-2.5 text-[11px] text-zinc-400">
+      <div class="mt-2 text-[11px] text-zinc-400">
         Tip: execute one tool at a time, confirm setup, then move to the next for clean reporting signals.
       </div>
     </div>
   </section>
 
   <!-- ======= SECTION NAV ======= -->
-  <div class="max-w-5xl mx-auto px-6 relative mb-4 no-print">
+  <div class="max-w-6xl mx-auto px-6 relative mb-4 no-print">
     <div class="h-1 w-full bg-gradient-to-r from-lime-400 via-emerald-400 to-cyan-400 rounded-full"></div>
     <nav class="flex justify-center space-x-3 md:space-x-5 -mt-3">
       <a href="#main" class="flex items-center space-x-2 px-3 py-1.5 bg-black/70 rounded-full text-xs md:text-sm font-medium text-zinc-300 hover:text-white hover:bg-white/10 transition">
@@ -551,7 +551,7 @@
   </div>
 
   <!-- Answers banner -->
-  <section id="ss-answers-banner" class="max-w-5xl mx-auto px-6 pb-3" style="display:none;">
+  <section id="ss-answers-banner" class="max-w-6xl mx-auto px-6 pb-3" style="display:none;">
     <div class="bg-amber-50/5 border border-amber-200/30 rounded-xl p-3">
       <div class="flex items-start justify-between gap-4">
         <div class="text-sm text-zinc-200/90">
@@ -566,7 +566,7 @@
   </section>
 
   <!-- Legal Disclaimer -->
-  <footer class="max-w-5xl mx-auto px-6 pb-5 text-xs text-zinc-400">
+  <footer class="max-w-6xl mx-auto px-6 pb-5 text-xs text-zinc-400">
     <div class="bg-white/5 border border-white/10 rounded-lg p-3 leading-relaxed">
       <strong class="text-zinc-300">Disclaimer:</strong>
       We are not financial advisors, credit advisors, or credit counseling providers. The information in this guide is
