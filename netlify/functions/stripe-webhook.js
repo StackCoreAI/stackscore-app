@@ -21,7 +21,6 @@ function sha256(s = "") {
 function getHeader(headers, name) {
   if (!headers) return "";
   const lower = name.toLowerCase();
-  // Netlify normalizes headers to lowercase keys, but be defensive
   return headers[lower] || headers[name] || "";
 }
 
@@ -34,21 +33,16 @@ export const handler = async (event) => {
     if (!process.env.STRIPE_WEBHOOK_SECRET) {
       return { statusCode: 500, body: "Missing STRIPE_WEBHOOK_SECRET" };
     }
+
     if (!process.env.STRIPE_SECRET_KEY) {
       return { statusCode: 500, body: "Missing STRIPE_SECRET_KEY" };
-    }
-    if (!pool) {
-      return { statusCode: 500, body: "Missing XATA_PG_URL" };
     }
 
     const sig = getHeader(event.headers, "stripe-signature");
     if (!sig) {
-      // Stripe always sends this; if missing, something is wrong with the request path/proxy
       return { statusCode: 400, body: "Missing stripe-signature header" };
     }
 
-    // Netlify functions deliver `event.body` as a raw string by default.
-    // If base64-encoded, decode first.
     const rawBody = event.isBase64Encoded
       ? Buffer.from(event.body || "", "base64").toString("utf8")
       : (event.body || "");
@@ -61,41 +55,101 @@ export const handler = async (event) => {
         process.env.STRIPE_WEBHOOK_SECRET
       );
     } catch (err) {
-      return { statusCode: 400, body: `Bad signature: ${String(err?.message || err)}` };
+      return {
+        statusCode: 400,
+        body: `Bad signature: ${String(err?.message || err)}`,
+      };
     }
 
-    // Only handle what we need for entitlements
     if (stripeEvent.type === "checkout.session.completed") {
       const session = stripeEvent.data.object;
 
-      // Prefer customer_details.email (newer), fall back to customer_email
       const emailRaw =
         session?.customer_details?.email ||
         session?.customer_email ||
+        session?.metadata?.email ||
         "";
 
       const email = String(emailRaw).toLowerCase().trim();
-      const stackKey = String(session?.metadata?.stack_key || "foundation")
+
+      const stackKey = String(
+        session?.metadata?.stackKey ||
+        session?.metadata?.stack_key ||
+        session?.metadata?.planKey ||
+        "growth"
+      )
         .toLowerCase()
         .trim();
 
       const sessionId = String(session?.id || "").trim();
-      if (!email) return { statusCode: 200, body: "No email; ignoring" };
-      if (!sessionId) return { statusCode: 200, body: "No session id; ignoring" };
+
+      if (!email) {
+        console.log("Webhook: no email found, skipping fulfillment.");
+        return { statusCode: 200, body: "No email; ignoring" };
+      }
+
+      if (!sessionId) {
+        console.log("Webhook: no session id found, skipping fulfillment.");
+        return { statusCode: 200, body: "No session id; ignoring" };
+      }
 
       const emailHash = sha256(email);
 
-      const q = `
-        insert into entitlements (email_hash, stack_key, status, stripe_session_id)
-        values ($1, $2, 'paid', $3)
-        on conflict (stripe_session_id) do nothing
-      `;
-      await pool.query(q, [emailHash, stackKey, sessionId]);
+      // 1) Store entitlement if DB is available
+      if (pool) {
+        try {
+          const q = `
+            insert into entitlements (email_hash, stack_key, status, stripe_session_id)
+            values ($1, $2, 'paid', $3)
+            on conflict (stripe_session_id) do nothing
+          `;
+          await pool.query(q, [emailHash, stackKey, sessionId]);
+          console.log("Webhook: entitlement stored", { emailHash, stackKey, sessionId });
+        } catch (dbErr) {
+          console.error("Webhook: entitlement insert failed", dbErr);
+          // Do not fail webhook delivery if DB insert fails
+        }
+      } else {
+        console.warn("Webhook: XATA_PG_URL missing, entitlement not stored.");
+      }
+
+      // 2) Build delivery links for backup email
+      const site =
+        process.env.URL ||
+        process.env.SITE_URL ||
+        "https://stackscore.ai";
+
+      const guideUrl = `${site}/guides/82.html?stackKey=${encodeURIComponent(stackKey)}`;
+      const pdfUrl = `${site}/downloads/stackscore-credit-guide.pdf`;
+
+      console.log("Webhook: delivery payload", {
+        email,
+        stackKey,
+        guideUrl,
+        pdfUrl,
+      });
+
+      // 3) TODO: send backup email here
+      // Example provider options:
+      // - Resend
+      // - Postmark
+      // - SendGrid
+      //
+      // Suggested email:
+      // Subject: Your StackScore Credit Route Is Ready
+      // Body:
+      //   Access your guide:
+      //   ${guideUrl}
+      //
+      //   Download your printable guide:
+      //   ${pdfUrl}
+      //
+      //   We recommend bookmarking or downloading your guide for future access.
     }
 
-    // Always 200 to acknowledge receipt (Stripe retries on non-2xx)
     return { statusCode: 200, body: "ok" };
   } catch (err) {
+    console.error("Webhook: unhandled error", err);
     return { statusCode: 500, body: String(err?.message || err) };
   }
 };
