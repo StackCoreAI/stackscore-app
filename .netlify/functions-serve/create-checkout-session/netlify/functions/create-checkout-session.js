@@ -8943,16 +8943,16 @@ exports.handler = async (event) => {
     const site = process.env.SITE_URL || "http://localhost:8888";
     const key = String(stackKey).toLowerCase();
     const session = await stripe.checkout.sessions.create({
-      mode: "payment",
-      customer_email: email,
-      line_items: [{ price, quantity: 1 }],
-      success_url: `${site}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${site}/preview`,
-      metadata: {
-        stackKey: key,
-        product: "stackscore-access"
-      }
-    });
+  mode: "payment",
+  customer_email: email,
+  line_items: [{ price, quantity: 1 }],
+  success_url: `${site}/success?session_id={CHECKOUT_SESSION_ID}&stackKey=${key}`,
+  cancel_url: `${site}/preview`,
+  metadata: {
+    stackKey: key,
+    product: "stackscore-access"
+  }
+});
     return {
       statusCode: 200,
       headers: { "Content-Type": "application/json" },
