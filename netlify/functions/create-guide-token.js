@@ -93,7 +93,7 @@ export const handler = async (event) => {
     ).toLowerCase();
 
     const now = Math.floor(Date.now() / 1000);
-    const exp = now + 60 * 60 * 24 * 7; // 7 days
+    const exp = now + 60 * 60 * 24; // 24 hours
 
     const payload = {
       sub: sha256(email),

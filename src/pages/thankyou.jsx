@@ -8,10 +8,12 @@ import Button from "@/components/ui/Button";
 export default function ThankYou() {
   const [sp] = useSearchParams();
   const sessionId = sp.get("session_id");
+  const stackKeyFromUrl = (sp.get("stackKey") || "growth").toLowerCase();
 
   const [checking, setChecking] = useState(true);
   const [ok, setOk] = useState(false);
   const [err, setErr] = useState("");
+  const [stackKey, setStackKey] = useState(stackKeyFromUrl);
 
   useEffect(() => {
     (async () => {
@@ -20,14 +22,25 @@ export default function ThankYou() {
         setChecking(false);
         return;
       }
+
       try {
         const res = await fetch(
           `/api/checkout/verify?session_id=${encodeURIComponent(sessionId)}`,
           { credentials: "include" }
         );
         const json = await res.json().catch(() => ({}));
+
         if (res.ok && json?.ok) {
-          try { localStorage.setItem("ss_access", "1"); } catch {}
+          const verifiedKey = String(json?.stackKey || stackKeyFromUrl || "growth").toLowerCase();
+
+          try {
+            localStorage.setItem("ss_access", "1");
+            localStorage.setItem("ss_route_key", verifiedKey);
+            sessionStorage.setItem("ss_selected", JSON.stringify(verifiedKey));
+            sessionStorage.setItem("selectedPlanKey", verifiedKey);
+          } catch {}
+
+          setStackKey(verifiedKey);
           setOk(true);
         } else {
           setErr(json?.error || "Verification failed. If you were charged, please contact support.");
@@ -38,21 +51,23 @@ export default function ThankYou() {
         setChecking(false);
       }
     })();
-  }, [sessionId]);
+  }, [sessionId, stackKeyFromUrl]);
+
+  function goToGuide() {
+    window.location.href = `/guides/82.html?stackKey=${encodeURIComponent(stackKey)}`;
+  }
 
   return (
     <div className="min-h-screen bg-neutral-950 text-white flex flex-col">
       <SiteHeader />
 
       <main className="flex-1 mx-auto w-full max-w-xl px-4 py-12">
-        {/* Loading */}
         {checking && (
           <div className="rounded-xl border border-white/10 bg-white/5 p-5">
             <p className="text-neutral-300">Verifying your purchase…</p>
           </div>
         )}
 
-        {/* Error */}
         {!checking && !ok && (
           <div className="space-y-5">
             <div className="rounded-xl border border-amber-400/30 bg-amber-500/10 p-5">
@@ -73,25 +88,30 @@ export default function ThankYou() {
           </div>
         )}
 
-        {/* Success */}
         {!checking && ok && (
           <div className="space-y-6">
             <h1 className="text-3xl font-bold">Thank you! 🎉</h1>
+
             <p className="text-neutral-300">
-              Your optimized stack is unlocked. You can download your digital brief now,
-              and we’ve saved your access for this device.
+              Your optimized stack is unlocked. You can access your Credit Route now
+              and download your digital brief for future reference.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3">
-              <Button size="lg" onClick={downloadPlan}>
+              <Button size="lg" onClick={goToGuide}>
+                Access my Credit Route
+              </Button>
+
+              <Button size="lg" variant="secondary" onClick={downloadPlan}>
                 Download my plan
               </Button>
-              <Link to="/preview" className="inline-flex">
-                <Button variant="secondary" size="lg">Back to preview</Button>
-              </Link>
             </div>
 
             <p className="text-sm text-neutral-400">
+              We recommend bookmarking or downloading your guide for future access.
+            </p>
+
+            <p className="text-sm text-neutral-500">
               Didn’t receive an email? Check your spam folder or{" "}
               <Link to="/support" className="underline">reach out to support</Link>.
             </p>
@@ -104,8 +124,8 @@ export default function ThankYou() {
   );
 
   async function downloadPlan() {
-    // Load answers and plan cache
     let answers = null, rawPlan = null;
+
     try {
       answers = JSON.parse(
         localStorage.getItem("ss_answers") ||
@@ -113,19 +133,18 @@ export default function ThankYou() {
         "null"
       );
     } catch {}
+
     try {
       rawPlan = JSON.parse(sessionStorage.getItem("ss_plan") || "null");
     } catch {}
 
-    // Unwrap common shapes before sending
     let plansForServer = rawPlan;
     if (rawPlan && typeof rawPlan === "object") {
       if (rawPlan.plans) plansForServer = rawPlan.plans;
       else if (rawPlan.plan) plansForServer = rawPlan.plan;
     }
 
-    // Respect selected planKey if present
-    let planKey = "growth";
+    let planKey = stackKey || "growth";
     try {
       const sel = JSON.parse(sessionStorage.getItem("ss_selected") || "null");
       if (typeof sel === "string") planKey = sel;
@@ -159,7 +178,7 @@ export default function ThankYou() {
       a.download = `StackScore-Plan-${planKey}.pdf`;
       a.click();
       URL.revokeObjectURL(url);
-    } catch (e) {
+    } catch {
       alert("Download failed. Please try again or contact support.");
     }
   }
