@@ -13,6 +13,52 @@ function getHeader(headers, name) {
   return headers[lower] || headers[name] || "";
 }
 
+async function fetchPlanPayload({ site, stackKey }) {
+  const res = await fetch(`${site}/.netlify/functions/generate-plan`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+    body: JSON.stringify({
+      stackKey,
+      answers: {},
+    }),
+  });
+
+  const json = await res.json().catch(() => ({}));
+
+  if (!res.ok) {
+    throw new Error(json?.error || `generate-plan failed (${res.status})`);
+  }
+
+  return json;
+}
+
+async function fetchPdfAttachment({ site, sessionId, stackKey, plans, answers }) {
+  const res = await fetch(`${site}/.netlify/functions/export-plan-pdf`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/pdf",
+    },
+    body: JSON.stringify({
+      session_id: sessionId,
+      planKey: stackKey,
+      answers: answers || {},
+      plans: plans || [],
+    }),
+  });
+
+  if (!res.ok) {
+    const json = await res.json().catch(() => ({}));
+    throw new Error(json?.error || `export-plan-pdf failed (${res.status})`);
+  }
+
+  const arrayBuffer = await res.arrayBuffer();
+  return Buffer.from(arrayBuffer);
+}
+
 async function sendDeliveryEmail({ email, sessionId, stackKey }) {
   if (!process.env.RESEND_API_KEY) {
     console.warn("RESEND_API_KEY missing. Skipping email send.");
@@ -25,13 +71,29 @@ async function sendDeliveryEmail({ email, sessionId, stackKey }) {
     "https://stackscore.ai";
 
   const successUrl = `${site}/success?session_id=${encodeURIComponent(sessionId)}`;
-  const pdfUrl = `${site}/downloads/stackscore-credit-guide.pdf`;
 
   const from =
     process.env.RESEND_FROM_EMAIL ||
     "onboarding@resend.dev";
 
   const subject = "Your StackScore Credit Route Is Ready";
+
+  const planPayload = await fetchPlanPayload({ site, stackKey });
+  const plans = Array.isArray(planPayload?.plans)
+    ? planPayload.plans
+    : Array.isArray(planPayload?.apps)
+      ? [{ apps: planPayload.apps }]
+      : planPayload?.plan
+        ? [planPayload.plan]
+        : [];
+
+  const pdfBuffer = await fetchPdfAttachment({
+    site,
+    sessionId,
+    stackKey,
+    plans,
+    answers: {},
+  });
 
   const html = `
     <div style="font-family: Inter, Arial, sans-serif; color: #111827; line-height: 1.6; max-width: 640px; margin: 0 auto;">
@@ -50,13 +112,8 @@ async function sendDeliveryEmail({ email, sessionId, stackKey }) {
         </a>
       </p>
 
-      <p>
-        <a
-          href="${pdfUrl}"
-          style="display:inline-block;padding:12px 18px;border:1px solid #d1d5db;color:#111827;text-decoration:none;border-radius:10px;font-weight:700;"
-        >
-          Download Printable Guide
-        </a>
+      <p style="color:#4b5563;font-size:14px;">
+        Your printable StackScore guide is attached to this email as a PDF.
       </p>
 
       <p style="color:#4b5563;font-size:14px;">
@@ -70,7 +127,7 @@ async function sendDeliveryEmail({ email, sessionId, stackKey }) {
       </p>
 
       <p style="font-size:13px;color:#6b7280;">
-        If you have any trouble accessing your purchase, reply to this email for support.
+        If you have any trouble accessing your purchase, please contact support.
       </p>
     </div>
   `;
@@ -80,6 +137,12 @@ async function sendDeliveryEmail({ email, sessionId, stackKey }) {
     to: email,
     subject,
     html,
+    attachments: [
+      {
+        filename: `StackScore-Plan-${stackKey}.pdf`,
+        content: pdfBuffer.toString("base64"),
+      },
+    ],
   });
 
   console.log("Resend result:", result);
@@ -146,28 +209,22 @@ export const handler = async (event) => {
         sessionId,
       });
 
-      const site =
-        process.env.SITE_URL ||
-        process.env.URL ||
-        "https://stackscore.ai";
-
-      const guideUrl = `${site}/guides/82.html?stackKey=${encodeURIComponent(stackKey)}`;
-      const pdfUrl = `${site}/downloads/stackscore-credit-guide.pdf`;
-
-      console.log("Delivery links", { guideUrl, pdfUrl });
-
       if (email && sessionId) {
         try {
           await sendDeliveryEmail({ email, sessionId, stackKey });
-          console.log("Backup delivery email sent", { email, sessionId, stackKey });
+          console.log("Backup delivery email sent", {
+            email,
+            sessionId,
+            stackKey,
+          });
         } catch (emailErr) {
           console.error("Failed to send backup delivery email:", emailErr);
         }
       } else {
-        console.warn("Skipping email send because email or sessionId is missing.", {
-          email,
-          sessionId,
-        });
+        console.warn(
+          "Skipping email send because email or sessionId is missing.",
+          { email, sessionId }
+        );
       }
     }
 

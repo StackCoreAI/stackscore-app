@@ -1,4 +1,3 @@
-// src/pages/thankyou.jsx
 import React, { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import SiteHeader from "../components/SiteHeader.jsx";
@@ -14,6 +13,7 @@ export default function ThankYou() {
   const [ok, setOk] = useState(false);
   const [err, setErr] = useState("");
   const [stackKey, setStackKey] = useState(stackKeyFromUrl);
+  const [downloading, setDownloading] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -25,25 +25,35 @@ export default function ThankYou() {
 
       try {
         const res = await fetch(
-          `/api/checkout/verify?session_id=${encodeURIComponent(sessionId)}`,
+          `/.netlify/functions/get-checkout-session?session_id=${encodeURIComponent(sessionId)}`,
           { credentials: "include" }
         );
+
         const json = await res.json().catch(() => ({}));
 
-        if (res.ok && json?.ok) {
-          const verifiedKey = String(json?.stackKey || stackKeyFromUrl || "growth").toLowerCase();
+        if (res.ok && json?.paid) {
+          const verifiedKey = String(
+            json?.stackKey || stackKeyFromUrl || "growth"
+          ).toLowerCase();
 
           try {
             localStorage.setItem("ss_access", "1");
             localStorage.setItem("ss_route_key", verifiedKey);
             sessionStorage.setItem("ss_selected", JSON.stringify(verifiedKey));
             sessionStorage.setItem("selectedPlanKey", verifiedKey);
+
+            if (json?.email) {
+              localStorage.setItem("stackscore_paid_email", json.email);
+            }
           } catch {}
 
           setStackKey(verifiedKey);
           setOk(true);
         } else {
-          setErr(json?.error || "Verification failed. If you were charged, please contact support.");
+          setErr(
+            json?.error ||
+              "Verification failed. If you were charged, please contact support."
+          );
         }
       } catch (e) {
         setErr(e?.message || "Network error while verifying your payment.");
@@ -54,7 +64,87 @@ export default function ThankYou() {
   }, [sessionId, stackKeyFromUrl]);
 
   function goToGuide() {
-    window.location.href = `/guides/82.html?stackKey=${encodeURIComponent(stackKey)}`;
+    if (!sessionId) return;
+    window.location.href = `/success?session_id=${encodeURIComponent(sessionId)}`;
+  }
+
+  async function downloadPlan() {
+    if (!sessionId) {
+      alert("Missing session. Please refresh and try again.");
+      return;
+    }
+
+    let answers = null;
+    let rawPlan = null;
+
+    try {
+      answers = JSON.parse(
+        localStorage.getItem("ss_answers") ||
+          localStorage.getItem("stackscoreUserData") ||
+          localStorage.getItem("stackscore_answers") ||
+          "null"
+      );
+    } catch {}
+
+    try {
+      rawPlan = JSON.parse(sessionStorage.getItem("ss_plan") || "null");
+    } catch {}
+
+    let plansForServer = rawPlan;
+    if (rawPlan && typeof rawPlan === "object") {
+      if (rawPlan.plans) plansForServer = rawPlan.plans;
+      else if (rawPlan.plan) plansForServer = rawPlan.plan;
+    }
+
+    let planKey = stackKey || "growth";
+    try {
+      const sel = JSON.parse(sessionStorage.getItem("ss_selected") || "null");
+      if (typeof sel === "string") planKey = sel;
+      else if (sel?.planKey) planKey = sel.planKey;
+    } catch {}
+
+    const body = {
+      session_id: sessionId,
+      planKey,
+      answers: answers || {},
+      plans: plansForServer || [],
+    };
+
+    try {
+      setDownloading(true);
+
+      const res = await fetch("/.netlify/functions/export-plan-pdf", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(body),
+      });
+
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({}));
+        alert(
+          json?.error ||
+            "Export failed. If you were charged, please contact support."
+        );
+        return;
+      }
+
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `StackScore-Plan-${planKey}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      alert(
+        e?.message || "Download failed. Please try again or contact support."
+      );
+    } finally {
+      setDownloading(false);
+    }
   }
 
   return (
@@ -79,7 +169,9 @@ export default function ThankYou() {
 
             <div className="flex gap-3">
               <Link to="/preview" className="inline-flex">
-                <Button variant="secondary" size="md">Back to preview</Button>
+                <Button variant="secondary" size="md">
+                  Back to preview
+                </Button>
               </Link>
               <Link to="/support" className="inline-flex">
                 <Button size="md">Contact support</Button>
@@ -93,8 +185,8 @@ export default function ThankYou() {
             <h1 className="text-3xl font-bold">Thank you! 🎉</h1>
 
             <p className="text-neutral-300">
-              Your optimized stack is unlocked. You can access your Credit Route now
-              and download your digital brief for future reference.
+              Your optimized stack is unlocked. You can access your Credit Route
+              now and download your digital brief for future reference.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3">
@@ -102,18 +194,27 @@ export default function ThankYou() {
                 Access my Credit Route
               </Button>
 
-              <Button size="lg" variant="secondary" onClick={downloadPlan}>
-                Download my plan
+              <Button
+                size="lg"
+                variant="secondary"
+                onClick={downloadPlan}
+                disabled={downloading}
+              >
+                {downloading ? "Preparing PDF…" : "Download my plan"}
               </Button>
             </div>
 
             <p className="text-sm text-neutral-400">
-              We recommend bookmarking or downloading your guide for future access.
+              For security, your access link expires in 24 hours. We recommend
+              bookmarking or downloading your guide for future access.
             </p>
 
             <p className="text-sm text-neutral-500">
               Didn’t receive an email? Check your spam folder or{" "}
-              <Link to="/support" className="underline">reach out to support</Link>.
+              <Link to="/support" className="underline">
+                reach out to support
+              </Link>
+              .
             </p>
           </div>
         )}
@@ -122,64 +223,4 @@ export default function ThankYou() {
       <SiteFooter />
     </div>
   );
-
-  async function downloadPlan() {
-    let answers = null, rawPlan = null;
-
-    try {
-      answers = JSON.parse(
-        localStorage.getItem("ss_answers") ||
-        localStorage.getItem("stackscoreUserData") ||
-        "null"
-      );
-    } catch {}
-
-    try {
-      rawPlan = JSON.parse(sessionStorage.getItem("ss_plan") || "null");
-    } catch {}
-
-    let plansForServer = rawPlan;
-    if (rawPlan && typeof rawPlan === "object") {
-      if (rawPlan.plans) plansForServer = rawPlan.plans;
-      else if (rawPlan.plan) plansForServer = rawPlan.plan;
-    }
-
-    let planKey = stackKey || "growth";
-    try {
-      const sel = JSON.parse(sessionStorage.getItem("ss_selected") || "null");
-      if (typeof sel === "string") planKey = sel;
-      else if (sel?.planKey) planKey = sel.planKey;
-    } catch {}
-
-    const body = {
-      ss_access: "1",
-      planKey,
-      answers: answers || {},
-      plans: plansForServer || [],
-    };
-
-    try {
-      const res = await fetch(`/api/plan/export`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(body),
-      });
-
-      if (!res.ok) {
-        alert("Export failed. If you were charged, please contact support.");
-        return;
-      }
-
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `StackScore-Plan-${planKey}.pdf`;
-      a.click();
-      URL.revokeObjectURL(url);
-    } catch {
-      alert("Download failed. Please try again or contact support.");
-    }
-  }
 }
