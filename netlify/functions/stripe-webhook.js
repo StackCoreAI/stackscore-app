@@ -1,13 +1,88 @@
 import Stripe from "stripe";
+import { Resend } from "resend";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
   apiVersion: "2024-06-20",
 });
 
+const resend = new Resend(process.env.RESEND_API_KEY || "");
+
 function getHeader(headers, name) {
   if (!headers) return "";
   const lower = name.toLowerCase();
   return headers[lower] || headers[name] || "";
+}
+
+async function sendDeliveryEmail({ email, sessionId, stackKey }) {
+  if (!process.env.RESEND_API_KEY) {
+    console.warn("RESEND_API_KEY missing. Skipping email send.");
+    return;
+  }
+
+  const site =
+    process.env.SITE_URL ||
+    process.env.URL ||
+    "https://stackscore.ai";
+
+  const successUrl = `${site}/success?session_id=${encodeURIComponent(sessionId)}`;
+  const pdfUrl = `${site}/downloads/stackscore-credit-guide.pdf`;
+
+  const from =
+    process.env.RESEND_FROM_EMAIL ||
+    "onboarding@resend.dev";
+
+  const subject = "Your StackScore Credit Route Is Ready";
+
+  const html = `
+    <div style="font-family: Inter, Arial, sans-serif; color: #111827; line-height: 1.6; max-width: 640px; margin: 0 auto;">
+      <h2 style="margin-bottom: 8px;">Your StackScore Credit Route Is Ready</h2>
+
+      <p style="margin-top: 0;">
+        Thank you for your purchase. Your personalized AI-generated Credit Route is now available.
+      </p>
+
+      <p>
+        <a
+          href="${successUrl}"
+          style="display:inline-block;padding:12px 18px;background:#84cc16;color:#111827;text-decoration:none;border-radius:10px;font-weight:700;"
+        >
+          Access My Credit Route
+        </a>
+      </p>
+
+      <p>
+        <a
+          href="${pdfUrl}"
+          style="display:inline-block;padding:12px 18px;border:1px solid #d1d5db;color:#111827;text-decoration:none;border-radius:10px;font-weight:700;"
+        >
+          Download Printable Guide
+        </a>
+      </p>
+
+      <p style="color:#4b5563;font-size:14px;">
+        For security, this access link expires in 24 hours. We recommend bookmarking or downloading your guide for future access.
+      </p>
+
+      <hr style="border:none;border-top:1px solid #e5e7eb;margin:24px 0;" />
+
+      <p style="font-size:13px;color:#6b7280;">
+        Route selected: <strong>${stackKey}</strong>
+      </p>
+
+      <p style="font-size:13px;color:#6b7280;">
+        If you have any trouble accessing your purchase, reply to this email for support.
+      </p>
+    </div>
+  `;
+
+  const result = await resend.emails.send({
+    from,
+    to: email,
+    subject,
+    html,
+  });
+
+  console.log("Resend result:", result);
 }
 
 export const handler = async (event) => {
@@ -71,17 +146,29 @@ export const handler = async (event) => {
         sessionId,
       });
 
-      // TODO: backup email delivery goes here later
-      // Example links:
       const site =
-        process.env.URL ||
         process.env.SITE_URL ||
+        process.env.URL ||
         "https://stackscore.ai";
 
       const guideUrl = `${site}/guides/82.html?stackKey=${encodeURIComponent(stackKey)}`;
       const pdfUrl = `${site}/downloads/stackscore-credit-guide.pdf`;
 
       console.log("Delivery links", { guideUrl, pdfUrl });
+
+      if (email && sessionId) {
+        try {
+          await sendDeliveryEmail({ email, sessionId, stackKey });
+          console.log("Backup delivery email sent", { email, sessionId, stackKey });
+        } catch (emailErr) {
+          console.error("Failed to send backup delivery email:", emailErr);
+        }
+      } else {
+        console.warn("Skipping email send because email or sessionId is missing.", {
+          email,
+          sessionId,
+        });
+      }
     }
 
     return { statusCode: 200, body: "ok" };
