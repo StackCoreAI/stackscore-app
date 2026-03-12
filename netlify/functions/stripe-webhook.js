@@ -9,8 +9,53 @@ const resend = new Resend(process.env.RESEND_API_KEY || "");
 
 function getHeader(headers, name) {
   if (!headers) return "";
-  const lower = name.toLowerCase();
-  return headers[lower] || headers[name] || "";
+  const lower = String(name || "").toLowerCase();
+
+  for (const key of Object.keys(headers)) {
+    if (String(key).toLowerCase() === lower) {
+      return headers[key];
+    }
+  }
+
+  return "";
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function getSiteUrl() {
+  return (
+    process.env.SITE_URL ||
+    process.env.URL ||
+    process.env.DEPLOY_PRIME_URL ||
+    "https://stackscore.ai"
+  ).replace(/\/+$/, "");
+}
+
+function buildSuccessUrl(site, sessionId) {
+  return `${site}/success?session_id=${encodeURIComponent(sessionId)}`;
+}
+
+function buildPdfUrl(site, sessionId, stackKey) {
+  const params = new URLSearchParams({
+    session_id: sessionId,
+    planKey: stackKey,
+  });
+
+  return `${site}/.netlify/functions/export-plan-pdf?${params.toString()}`;
+}
+
+function normalizePlans(planPayload) {
+  if (Array.isArray(planPayload?.plans)) return planPayload.plans;
+  if (Array.isArray(planPayload?.apps)) return [{ apps: planPayload.apps }];
+  if (planPayload?.plan) return [planPayload.plan];
+  return [];
 }
 
 async function fetchPlanPayload({ site, stackKey }) {
@@ -51,12 +96,103 @@ async function fetchPdfAttachment({ site, sessionId, stackKey, plans, answers })
   });
 
   if (!res.ok) {
-    const json = await res.json().catch(() => ({}));
-    throw new Error(json?.error || `export-plan-pdf failed (${res.status})`);
+    const maybeJson = await res.json().catch(() => null);
+    throw new Error(
+      maybeJson?.error || `export-plan-pdf failed (${res.status})`
+    );
   }
 
   const arrayBuffer = await res.arrayBuffer();
   return Buffer.from(arrayBuffer);
+}
+
+function buildEmailHtml({ successUrl, pdfUrl, stackKey }) {
+  const safeSuccessUrl = escapeHtml(successUrl);
+  const safePdfUrl = escapeHtml(pdfUrl);
+  const safeStackKey = escapeHtml(stackKey);
+
+  return `
+<div style="font-family: Inter, Arial, sans-serif; color: #111827; line-height: 1.6; max-width: 640px; margin: 0 auto; padding: 24px 16px;">
+  <h2 style="margin: 0 0 8px; font-size: 28px; line-height: 1.2;">
+    Your StackScore Credit Route Is Ready
+  </h2>
+
+  <p style="margin: 0 0 16px;">
+    Thank you for your purchase. Your personalized AI-generated Credit Route is now available.
+  </p>
+
+  <p style="margin: 0 0 18px;">
+    You can access it in three ways:
+  </p>
+
+  <div style="margin: 0 0 18px;">
+    <a
+      href="${safeSuccessUrl}"
+      style="display:inline-block; padding:12px 18px; background:#84cc16; color:#111827; text-decoration:none; border-radius:10px; font-weight:700; margin-right:10px; margin-bottom:10px;"
+    >
+      Access My Credit Route
+    </a>
+
+    <a
+      href="${safePdfUrl}"
+      style="display:inline-block; padding:12px 18px; background:#111827; color:#ffffff; text-decoration:none; border-radius:10px; font-weight:700; margin-bottom:10px;"
+    >
+      Open Printable PDF
+    </a>
+  </div>
+
+  <p style="margin: 0 0 12px; color:#4b5563; font-size:14px;">
+    Your printable StackScore guide is also attached to this email as a PDF.
+  </p>
+
+  <p style="margin: 0 0 18px; color:#4b5563; font-size:14px;">
+    If your email app does not show attachments properly, you can use the PDF button above to open or download your printable guide.
+  </p>
+
+  <div style="background:#f9fafb; border:1px solid #e5e7eb; border-radius:12px; padding:14px 16px; margin: 0 0 20px;">
+    <p style="margin:0 0 8px; font-size:13px; color:#374151;">
+      <strong>Direct guide link:</strong><br />
+      <a href="${safeSuccessUrl}" style="color:#2563eb; word-break:break-all;">${safeSuccessUrl}</a>
+    </p>
+
+    <p style="margin:0; font-size:13px; color:#374151;">
+      <strong>Direct PDF link:</strong><br />
+      <a href="${safePdfUrl}" style="color:#2563eb; word-break:break-all;">${safePdfUrl}</a>
+    </p>
+  </div>
+
+  <p style="margin: 0 0 8px; color:#6b7280; font-size:13px;">
+    Route selected: <strong>${safeStackKey}</strong>
+  </p>
+
+  <p style="margin: 0 0 8px; color:#6b7280; font-size:13px;">
+    For security, your guide access link may be time-limited. We recommend saving this email and downloading your PDF for future reference.
+  </p>
+
+  <hr style="border:none; border-top:1px solid #e5e7eb; margin:24px 0;" />
+
+  <p style="margin: 0; font-size:13px; color:#6b7280;">
+    If you have any trouble accessing your purchase, reply to this email for support.
+  </p>
+</div>
+`;
+}
+
+function buildEmailText({ successUrl, pdfUrl, stackKey }) {
+  return [
+    "Your StackScore Credit Route Is Ready",
+    "",
+    "Thank you for your purchase. Your personalized AI-generated Credit Route is now available.",
+    "",
+    `Access your guide: ${successUrl}`,
+    `Open/download your PDF: ${pdfUrl}`,
+    "",
+    "Your printable StackScore guide is also attached to this email as a PDF.",
+    "",
+    `Route selected: ${stackKey}`,
+    "",
+    "If you have any trouble accessing your purchase, reply to this email for support.",
+  ].join("\n");
 }
 
 async function sendDeliveryEmail({ email, sessionId, stackKey }) {
@@ -65,12 +201,9 @@ async function sendDeliveryEmail({ email, sessionId, stackKey }) {
     return;
   }
 
-  const site =
-    process.env.SITE_URL ||
-    process.env.URL ||
-    "https://stackscore.ai";
-
-  const successUrl = `${site}/success?session_id=${encodeURIComponent(sessionId)}`;
+  const site = getSiteUrl();
+  const successUrl = buildSuccessUrl(site, sessionId);
+  const pdfUrl = buildPdfUrl(site, sessionId, stackKey);
 
   const from =
     process.env.RESEND_FROM_EMAIL ||
@@ -79,13 +212,7 @@ async function sendDeliveryEmail({ email, sessionId, stackKey }) {
   const subject = "Your StackScore Credit Route Is Ready";
 
   const planPayload = await fetchPlanPayload({ site, stackKey });
-  const plans = Array.isArray(planPayload?.plans)
-    ? planPayload.plans
-    : Array.isArray(planPayload?.apps)
-      ? [{ apps: planPayload.apps }]
-      : planPayload?.plan
-        ? [planPayload.plan]
-        : [];
+  const plans = normalizePlans(planPayload);
 
   const pdfBuffer = await fetchPdfAttachment({
     site,
@@ -95,57 +222,35 @@ async function sendDeliveryEmail({ email, sessionId, stackKey }) {
     answers: {},
   });
 
-  const html = `
-    <div style="font-family: Inter, Arial, sans-serif; color: #111827; line-height: 1.6; max-width: 640px; margin: 0 auto;">
-      <h2 style="margin-bottom: 8px;">Your StackScore Credit Route Is Ready</h2>
+  const html = buildEmailHtml({
+    successUrl,
+    pdfUrl,
+    stackKey,
+  });
 
-      <p style="margin-top: 0;">
-        Thank you for your purchase. Your personalized AI-generated Credit Route is now available.
-      </p>
-
-      <p>
-        <a
-          href="${successUrl}"
-          style="display:inline-block;padding:12px 18px;background:#84cc16;color:#111827;text-decoration:none;border-radius:10px;font-weight:700;"
-        >
-          Access My Credit Route
-        </a>
-      </p>
-
-      <p style="color:#4b5563;font-size:14px;">
-        Your printable StackScore guide is attached to this email as a PDF.
-      </p>
-
-      <p style="color:#4b5563;font-size:14px;">
-        For security, this access link expires in 24 hours. We recommend bookmarking or downloading your guide for future access.
-      </p>
-
-      <hr style="border:none;border-top:1px solid #e5e7eb;margin:24px 0;" />
-
-      <p style="font-size:13px;color:#6b7280;">
-        Route selected: <strong>${stackKey}</strong>
-      </p>
-
-      <p style="font-size:13px;color:#6b7280;">
-        If you have any trouble accessing your purchase, please contact support.
-      </p>
-    </div>
-  `;
+  const text = buildEmailText({
+    successUrl,
+    pdfUrl,
+    stackKey,
+  });
 
   const result = await resend.emails.send({
     from,
     to: email,
     subject,
     html,
+    text,
     attachments: [
       {
         filename: `StackScore-Plan-${stackKey}.pdf`,
         content: pdfBuffer.toString("base64"),
+        contentType: "application/pdf",
       },
     ],
   });
 
   console.log("Resend result:", result);
+  return result;
 }
 
 export const handler = async (event) => {
@@ -207,18 +312,26 @@ export const handler = async (event) => {
         email,
         stackKey,
         sessionId,
+        payment_status: session?.payment_status,
       });
+
+      if (session?.payment_status !== "paid") {
+        console.warn("checkout.session.completed received but payment_status is not paid", {
+          sessionId,
+          payment_status: session?.payment_status,
+        });
+      }
 
       if (email && sessionId) {
         try {
           await sendDeliveryEmail({ email, sessionId, stackKey });
-          console.log("Backup delivery email sent", {
+          console.log("Delivery email sent", {
             email,
             sessionId,
             stackKey,
           });
         } catch (emailErr) {
-          console.error("Failed to send backup delivery email:", emailErr);
+          console.error("Failed to send delivery email:", emailErr);
         }
       } else {
         console.warn(

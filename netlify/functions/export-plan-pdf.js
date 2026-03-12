@@ -26,6 +26,15 @@ function safeParse(v, fallback = null) {
   }
 }
 
+function getSiteUrl() {
+  return (
+    process.env.SITE_URL ||
+    process.env.URL ||
+    process.env.DEPLOY_PRIME_URL ||
+    "https://stackscore.ai"
+  ).replace(/\/+$/, "");
+}
+
 function normalizeAnswers(raw = {}) {
   return {
     living: raw.living || raw.housing || "",
@@ -48,8 +57,9 @@ function normalizeApps(input) {
   }
 
   if (Array.isArray(input?.apps)) return input.apps;
+
   if (Array.isArray(input?.plans)) {
-    return input.plans.flatMap((p) => Array.isArray(p?.apps) ? p.apps : []);
+    return input.plans.flatMap((p) => (Array.isArray(p?.apps) ? p.apps : []));
   }
 
   return [];
@@ -62,9 +72,11 @@ function uniqueApps(apps = []) {
   for (const app of apps) {
     const name = String(app?.app_name || app?.name || "").trim();
     if (!name) continue;
+
     const key = name.toLowerCase();
     if (seen.has(key)) continue;
     seen.add(key);
+
     out.push({
       app_name: name,
       app_url: String(app?.app_url || app?.url || "").trim(),
@@ -86,25 +98,63 @@ function stepsFor(app) {
   }
 
   if (n.includes("experian") && n.includes("boost")) {
-    return ["Connect bank account", "Add utility bills", "Confirm reporting is active"];
-  }
-  if (n.includes("kikoff")) {
-    return ["Open Kikoff account", "Enable autopay", "Keep utilization under 10%"];
-  }
-  if (n.includes("kovo")) {
-    return ["Create Kovo account", "Choose your plan", "Make on-time payments"];
-  }
-  if (n.includes("self")) {
-    return ["Open Self Credit Builder", "Fund first payment", "Enable autopay"];
-  }
-  if (n.includes("rent") || n.includes("boom") || n.includes("rentreporter") || n.includes("pinata")) {
-    return ["Verify lease or rent history", "Connect payment source", "Turn on rent reporting"];
-  }
-  if (n.includes("dovly") || n.includes("dispute")) {
-    return ["Import credit report", "Scan for issues", "Start first dispute round"];
+    return [
+      "Connect bank account",
+      "Add utility bills",
+      "Confirm reporting is active",
+    ];
   }
 
-  return ["Create account", "Connect payment or required source", "Activate the core feature"];
+  if (n.includes("kikoff")) {
+    return [
+      "Open Kikoff account",
+      "Enable autopay",
+      "Keep utilization under 10%",
+    ];
+  }
+
+  if (n.includes("kovo")) {
+    return [
+      "Create Kovo account",
+      "Choose your plan",
+      "Make on-time payments",
+    ];
+  }
+
+  if (n.includes("self")) {
+    return [
+      "Open Self Credit Builder",
+      "Fund first payment",
+      "Enable autopay",
+    ];
+  }
+
+  if (
+    n.includes("rent") ||
+    n.includes("boom") ||
+    n.includes("rentreporter") ||
+    n.includes("pinata")
+  ) {
+    return [
+      "Verify lease or rent history",
+      "Connect payment source",
+      "Turn on rent reporting",
+    ];
+  }
+
+  if (n.includes("dovly") || n.includes("dispute")) {
+    return [
+      "Import credit report",
+      "Scan for issues",
+      "Start first dispute round",
+    ];
+  }
+
+  return [
+    "Create account",
+    "Connect payment or required source",
+    "Activate the core feature",
+  ];
 }
 
 function titleForPlanKey(planKey = "growth") {
@@ -120,15 +170,22 @@ function receiptSummary({ planKey, answers, apps }) {
   const signals = [];
   const names = apps.map((a) => a.app_name.toLowerCase()).join(" | ");
 
-  if (/rent|boom|rentreporter|pinata/.test(names)) signals.push("Rent reporting");
-  if (/boost|experian|grow credit|grain/.test(names)) signals.push("Utilities or bill reporting");
-  if (/kikoff|self|kovo/.test(names)) signals.push("Installment builder");
-  if (/dovly|dispute/.test(names)) signals.push("Dispute support");
+  if (/rent|boom|rentreporter|pinata/.test(names)) {
+    signals.push("Rent reporting");
+  }
+  if (/boost|experian|grow credit|grain/.test(names)) {
+    signals.push("Utilities or bill reporting");
+  }
+  if (/kikoff|self|kovo/.test(names)) {
+    signals.push("Installment builder");
+  }
+  if (/dovly|dispute/.test(names)) {
+    signals.push("Dispute support");
+  }
 
-  const strategy =
-    answers.living?.toLowerCase().includes("rent")
-      ? "Rent-optimized activation"
-      : "Low-friction reporting strategy";
+  const strategy = answers.living?.toLowerCase().includes("rent")
+    ? "Rent-optimized activation"
+    : "Low-friction reporting strategy";
 
   return {
     title: titleForPlanKey(planKey),
@@ -145,6 +202,7 @@ function wrapText(text, font, size, maxWidth) {
   for (const word of words) {
     const test = line ? `${line} ${word}` : word;
     const width = font.widthOfTextAtSize(test, size);
+
     if (width <= maxWidth) {
       line = test;
     } else {
@@ -152,6 +210,7 @@ function wrapText(text, font, size, maxWidth) {
       line = word;
     }
   }
+
   if (line) lines.push(line);
   return lines;
 }
@@ -189,10 +248,48 @@ async function verifyPaidSession(sessionId) {
   return session;
 }
 
+async function fetchPlanPayload({ site, stackKey }) {
+  const res = await fetch(`${site}/.netlify/functions/generate-plan`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+    body: JSON.stringify({
+      stackKey,
+      answers: {},
+    }),
+  });
+
+  const json = await res.json().catch(() => ({}));
+
+  if (!res.ok) {
+    throw new Error(json?.error || `generate-plan failed (${res.status})`);
+  }
+
+  return json;
+}
+
+function normalizePlans(planPayload) {
+  if (Array.isArray(planPayload?.plans)) return planPayload.plans;
+  if (Array.isArray(planPayload?.apps)) return [{ apps: planPayload.apps }];
+  if (planPayload?.plan) return [planPayload.plan];
+  return [];
+}
+
+async function resolveApps({ apps, site, planKey }) {
+  if (Array.isArray(apps) && apps.length) {
+    return uniqueApps(apps);
+  }
+
+  const planPayload = await fetchPlanPayload({ site, stackKey: planKey });
+  return uniqueApps(normalizeApps(normalizePlans(planPayload)));
+}
+
 async function buildPdf({ planKey, answers, apps, email }) {
   const pdf = await PDFDocument.create();
-  const page = pdf.addPage([612, 792]);
-  const { width, height } = page.getSize();
+  let currentPage = pdf.addPage([612, 792]);
+  const { width, height } = currentPage.getSize();
 
   const fontRegular = await pdf.embedFont(StandardFonts.Helvetica);
   const fontBold = await pdf.embedFont(StandardFonts.HelveticaBold);
@@ -203,15 +300,19 @@ async function buildPdf({ planKey, answers, apps, email }) {
   const dark = rgb(0.08, 0.08, 0.08);
   const panel = rgb(0.12, 0.12, 0.12);
 
-  page.drawRectangle({
-    x: 0,
-    y: 0,
-    width,
-    height,
-    color: dark,
-  });
+  const paintPageBase = (page) => {
+    page.drawRectangle({
+      x: 0,
+      y: 0,
+      width,
+      height,
+      color: dark,
+    });
+  };
 
-  page.drawText("StackScore", {
+  paintPageBase(currentPage);
+
+  currentPage.drawText("StackScore", {
     x: 48,
     y: height - 54,
     size: 16,
@@ -219,7 +320,7 @@ async function buildPdf({ planKey, answers, apps, email }) {
     color: lime,
   });
 
-  page.drawText(titleForPlanKey(planKey), {
+  currentPage.drawText(titleForPlanKey(planKey), {
     x: 48,
     y: height - 92,
     size: 28,
@@ -231,7 +332,7 @@ async function buildPdf({ planKey, answers, apps, email }) {
 
   const summary = receiptSummary({ planKey, answers, apps });
 
-  page.drawRectangle({
+  currentPage.drawRectangle({
     x: 48,
     y: y - 76,
     width: width - 96,
@@ -241,7 +342,7 @@ async function buildPdf({ planKey, answers, apps, email }) {
     borderWidth: 1,
   });
 
-  page.drawText("Route Summary", {
+  currentPage.drawText("Route Summary", {
     x: 62,
     y: y - 22,
     size: 12,
@@ -249,7 +350,7 @@ async function buildPdf({ planKey, answers, apps, email }) {
     color: lime,
   });
 
-  page.drawText(summary.strategy, {
+  currentPage.drawText(summary.strategy, {
     x: 62,
     y: y - 44,
     size: 14,
@@ -257,7 +358,7 @@ async function buildPdf({ planKey, answers, apps, email }) {
     color: white,
   });
 
-  page.drawText(`Signals: ${summary.signals.join(", ")}`, {
+  currentPage.drawText(`Signals: ${summary.signals.join(", ")}`, {
     x: 62,
     y: y - 62,
     size: 10,
@@ -267,7 +368,7 @@ async function buildPdf({ planKey, answers, apps, email }) {
 
   y -= 110;
 
-  page.drawText("Profile Inputs", {
+  currentPage.drawText("Profile Inputs", {
     x: 48,
     y,
     size: 14,
@@ -286,7 +387,7 @@ async function buildPdf({ planKey, answers, apps, email }) {
   ];
 
   for (const line of answerLines) {
-    page.drawText(line, {
+    currentPage.drawText(line, {
       x: 60,
       y,
       size: 10,
@@ -298,7 +399,7 @@ async function buildPdf({ planKey, answers, apps, email }) {
 
   y -= 10;
 
-  page.drawText("Your Route", {
+  currentPage.drawText("Your Route", {
     x: 48,
     y,
     size: 16,
@@ -308,24 +409,11 @@ async function buildPdf({ planKey, answers, apps, email }) {
 
   y -= 24;
 
-  for (let i = 0; i < apps.length; i++) {
-    const app = apps[i];
-    const steps = stepsFor(app);
-
-    if (y < 140) {
-      const next = pdf.addPage([612, 792]);
-      next.drawRectangle({ x: 0, y: 0, width, height, color: dark });
-      y = height - 60;
-      pageRef.current = next;
-    }
-  }
-
-  let currentPage = page;
-
-  const ensureSpace = (needed = 120) => {
+  const ensureSpace = (needed = 140) => {
     if (y > needed) return;
+
     currentPage = pdf.addPage([612, 792]);
-    currentPage.drawRectangle({ x: 0, y: 0, width, height, color: dark });
+    paintPageBase(currentPage);
     y = height - 60;
   };
 
@@ -334,11 +422,13 @@ async function buildPdf({ planKey, answers, apps, email }) {
     const steps = stepsFor(app);
     const features = Array.isArray(app.features) ? app.features : [];
 
-    ensureSpace(180);
+    ensureSpace(190);
+
+    const cardTopY = y;
 
     currentPage.drawRectangle({
       x: 48,
-      y: y - 120,
+      y: cardTopY - 120,
       width: width - 96,
       height: 120,
       color: panel,
@@ -348,29 +438,29 @@ async function buildPdf({ planKey, answers, apps, email }) {
 
     currentPage.drawText(`${i + 1}. ${app.app_name}`, {
       x: 62,
-      y: y - 22,
+      y: cardTopY - 22,
       size: 14,
       font: fontBold,
       color: lime,
     });
 
+    let contentY = cardTopY - 42;
+
     if (app.app_url) {
-      y = drawWrappedText(currentPage, app.app_url, 62, y - 42, {
+      contentY = drawWrappedText(currentPage, app.app_url, 62, contentY, {
         font: fontRegular,
         size: 9,
         color: gray,
         maxWidth: width - 124,
         lineGap: 2,
       });
-    } else {
-      y -= 42;
     }
 
     const featureText = features.length
       ? `Key features: ${features.join(", ")}`
       : "Key features: Follow the guided activation steps inside your route.";
 
-    y = drawWrappedText(currentPage, featureText, 62, y - 4, {
+    contentY = drawWrappedText(currentPage, featureText, 62, contentY - 4, {
       font: fontRegular,
       size: 10,
       color: white,
@@ -378,30 +468,30 @@ async function buildPdf({ planKey, answers, apps, email }) {
       lineGap: 3,
     });
 
-    y -= 10;
+    contentY -= 10;
 
     currentPage.drawText("Activation steps:", {
       x: 62,
-      y,
+      y: contentY,
       size: 10,
       font: fontBold,
       color: white,
     });
 
-    y -= 16;
+    contentY -= 16;
 
     for (const step of steps.slice(0, 3)) {
-      y = drawWrappedText(currentPage, `• ${step}`, 72, y, {
+      contentY = drawWrappedText(currentPage, `• ${step}`, 72, contentY, {
         font: fontRegular,
         size: 10,
         color: gray,
         maxWidth: width - 140,
         lineGap: 3,
       });
-      y -= 4;
+      contentY -= 4;
     }
 
-    y -= 24;
+    y = cardTopY - 144;
   }
 
   ensureSpace(90);
@@ -416,8 +506,11 @@ async function buildPdf({ planKey, answers, apps, email }) {
 
   y -= 18;
 
-  const footerText = `Purchased access${email ? ` for ${email}` : ""}. For security, your guide link expires in 24 hours. We recommend bookmarking or downloading your guide for future access.`;
-  y = drawWrappedText(currentPage, footerText, 48, y, {
+  const footerText = `Purchased access${
+    email ? ` for ${email}` : ""
+  }. For security, your guide link may be time-limited. We recommend bookmarking or downloading your guide for future access.`;
+
+  drawWrappedText(currentPage, footerText, 48, y, {
     font: fontRegular,
     size: 9,
     color: gray,
@@ -430,15 +523,22 @@ async function buildPdf({ planKey, answers, apps, email }) {
 
 export const handler = async (event) => {
   try {
-    if (event.httpMethod !== "POST") {
+    const method = String(event.httpMethod || "").toUpperCase();
+
+    if (method !== "POST" && method !== "GET") {
       return json({}, 405, { error: "Method Not Allowed" });
     }
 
-    const body = safeParse(event.body || "{}", {}) || {};
+    const body =
+      method === "POST" ? safeParse(event.body || "{}", {}) || {} : {};
+
+    const query = event.queryStringParameters || {};
+
     const sessionId =
       body.session_id ||
       body.sessionId ||
-      event.queryStringParameters?.session_id ||
+      query.session_id ||
+      query.sessionId ||
       "";
 
     if (!sessionId) {
@@ -450,14 +550,25 @@ export const handler = async (event) => {
     const verifiedStackKey = String(
       body.planKey ||
       body.stackKey ||
+      query.planKey ||
+      query.stackKey ||
       session.metadata?.stackKey ||
       session.metadata?.stack_key ||
       session.metadata?.planKey ||
       "growth"
-    ).toLowerCase();
+    )
+      .toLowerCase()
+      .trim();
 
     const answers = normalizeAnswers(body.answers || {});
-    const apps = uniqueApps(normalizeApps(body.plans || []));
+    const site = getSiteUrl();
+
+    const submittedApps = uniqueApps(normalizeApps(body.plans || body.apps || []));
+    const apps = await resolveApps({
+      apps: submittedApps,
+      site,
+      planKey: verifiedStackKey,
+    });
 
     if (!apps.length) {
       return json({}, 400, {
