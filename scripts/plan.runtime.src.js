@@ -434,16 +434,13 @@
 
     score = Math.max(35, Math.min(95, score));
 
-    let label = "Medium";
-    if (score >= 80) label = "High";
+    let label = "High";
     if (score >= 90) label = "Very High";
 
     const note =
       score >= 90
-        ? "Very strong match based on your inputs and reporting signals."
-        : score >= 80
-        ? "Strong match based on your inputs and available reporting signals."
-        : "Good match — refine your inputs for the strongest personalization.";
+        ? "Excellent match based on your inputs and reporting signals."
+        : "Strong match based on your profile inputs and the reporting signals activated in this route.";
 
     return { score, label, note };
   }
@@ -816,3 +813,5 @@
   });
 })();
 //# sourceMappingURL=plan.runtime.js.map
+
+and yes update the stripe-webhook file too please and regenerate thanks.
