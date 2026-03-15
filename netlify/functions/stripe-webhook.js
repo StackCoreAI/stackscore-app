@@ -111,7 +111,9 @@ async function fetchPdfAttachment({ site, sessionId, stackKey, plans, answers })
 
   if (!res.ok) {
     const maybeJson = await res.json().catch(() => null);
-    throw new Error(maybeJson?.error || `export-plan-pdf failed (${res.status})`);
+    throw new Error(
+      maybeJson?.error || `export-plan-pdf failed (${res.status})`
+    );
   }
 
   const arrayBuffer = await res.arrayBuffer();
@@ -151,7 +153,18 @@ function buildEmailHtml({ successUrl, pdfUrl, stackKey }) {
   <div style="margin: 0 0 18px;">
     <a
       href="${safeSuccessUrl}"
-      style="display:inline-block; padding:12px 18px; background:#84cc16; color:#111827; text-decoration:none; border-radius:10px; font-weight:700; margin-bottom:10px;"
+      style="
+        display:inline-block;
+        padding:14px 22px;
+        background:linear-gradient(90deg,#84cc16,#10b981);
+        color:#0a0a0a;
+        text-decoration:none;
+        border-radius:10px;
+        font-weight:700;
+        font-size:16px;
+        margin-bottom:10px;
+        box-shadow:0 4px 12px rgba(0,0,0,0.25);
+      "
     >
       Access My Credit Route
     </a>
@@ -159,6 +172,11 @@ function buildEmailHtml({ successUrl, pdfUrl, stackKey }) {
 
   <p style="margin: 0 0 12px; color:#4b5563; font-size:14px;">
     Your printable StackScore guide is attached to this email as a PDF.
+  </p>
+
+  <p style="margin: 0 0 12px; color:#4b5563; font-size:14px;">
+    If you don’t see this email in your inbox, please check your junk or spam folder for messages from
+    <strong>delivery@stackscore.ai</strong>.
   </p>
 
   <p style="margin: 0 0 18px; color:#4b5563; font-size:14px;">
@@ -213,6 +231,7 @@ function buildEmailText({ successUrl, pdfUrl, stackKey }) {
     `Fallback PDF link: ${pdfUrl}`,
     "",
     "Your printable StackScore guide is also attached to this email as a PDF.",
+    "If you don’t see this email in your inbox, please check your junk or spam folder for messages from delivery@stackscore.ai.",
     "",
     "If you have any trouble accessing your purchase, reply to this email for support.",
   ].join("\n");
