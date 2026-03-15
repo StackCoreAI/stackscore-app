@@ -4,141 +4,197 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
   <title>StackScore — Credit Route Activated</title>
-  <link rel="stylesheet" href="/assets/app.css?v=boot4" />
+  <link rel="stylesheet" href="/assets/app.css?v=boot5" />
 </head>
 
 <body class="min-h-screen bg-black text-white flex items-center justify-center p-8">
-  <div class="max-w-lg w-full rounded-2xl border border-white/10 bg-white/5 p-8 shadow-xl shadow-lime-500/10">
+  <div class="max-w-xl w-full rounded-2xl border border-white/10 bg-white/5 p-8 shadow-xl shadow-lime-500/10">
+    <div class="inline-flex items-center rounded-full border border-lime-400/25 bg-lime-400/10 px-3 py-1 text-xs font-medium text-lime-300 mb-4">
+      Purchase confirmed
+    </div>
 
-    <h1 class="text-2xl font-semibold mb-3">Credit Route Activated ✅</h1>
+    <h1 class="text-3xl font-semibold mb-3">Your StackScore Credit Route Is Ready</h1>
 
-    <p class="text-white/80 mb-6">
-      Your personalized <span class="text-lime-400 font-medium">Credit Route</span> is now unlocked and ready.
+    <p class="text-white/80 mb-5">
+      Thank you for your purchase. Your personalized
+      <span class="text-lime-400 font-medium">Credit Route</span>
+      is now unlocked and ready.
     </p>
 
-   <div id="status" class="text-white/70 text-sm mb-6">
-  Verifying payment…
-</div>
+    <div class="rounded-xl border border-white/10 bg-black/20 p-4 mb-5">
+      <p class="text-xs font-semibold uppercase tracking-wide text-lime-300 mb-1">
+        Route selected
+      </p>
+      <p id="planTitle" class="text-lg font-semibold text-white">
+        Loading your selected route…
+      </p>
+    </div>
 
-<button id="go" class="px-4 py-2 rounded-xl bg-lime-500 text-black font-semibold hidden">
-  Continue to your Credit Route
-</button>
+    <div class="mb-6">
+      <p class="text-sm font-medium text-white mb-2">You can access it in three ways:</p>
+      <ol class="list-decimal pl-5 space-y-2 text-sm text-white/75">
+        <li>Open your online Credit Route using the button below</li>
+        <li>Open the printable PDF attached to your delivery email</li>
+        <li>Print or save your route from inside the online guide</li>
+      </ol>
+    </div>
 
-<p class="text-xs text-white/60 mt-4 leading-relaxed">
-  For security, this access link expires in 24 hours. We recommend bookmarking or downloading your guide for future access.
-</p>
+    <div id="status" class="text-white/70 text-sm mb-6">
+      Verifying payment…
+    </div>
 
+    <div class="flex flex-col sm:flex-row gap-3">
+      <button id="go" class="px-4 py-3 rounded-xl bg-lime-500 text-black font-semibold hidden">
+        Access My Credit Route
+      </button>
 
-<script>
-  const params = new URLSearchParams(location.search);
-  const sessionId = params.get("session_id");
+      <button id="refresh" class="px-4 py-3 rounded-xl border border-white/15 bg-white/5 text-white font-semibold hidden">
+        Refresh
+      </button>
+    </div>
 
-  const statusEl = document.getElementById("status");
-  const goBtn = document.getElementById("go");
+    <p class="text-xs text-white/60 mt-5 leading-relaxed">
+      For security, your access link may be time-limited. We recommend opening your guide now and downloading the PDF from your email for future reference.
+    </p>
 
-  async function getSessionDetails() {
-    const res = await fetch(
-      `/.netlify/functions/get-checkout-session?session_id=${encodeURIComponent(sessionId)}`
-    );
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(data?.error || "Unable to read Stripe session.");
-    return data;
-  }
+    <p class="text-xs text-white/50 mt-3 leading-relaxed">
+      If you do not see your email, check spam or junk.
+    </p>
+  </div>
 
-  async function getGuideToken() {
-    const res = await fetch(
-      `/.netlify/functions/create-guide-token?session_id=${encodeURIComponent(sessionId)}`
-    );
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok || !data?.token) {
-      throw new Error(data?.error || "Unable to create guide token.");
+  <script>
+    const params = new URLSearchParams(location.search);
+    const sessionId = params.get("session_id");
+    const stackKeyFromUrl = (params.get("stackKey") || "growth").toLowerCase();
+
+    const statusEl = document.getElementById("status");
+    const goBtn = document.getElementById("go");
+    const refreshBtn = document.getElementById("refresh");
+    const planTitleEl = document.getElementById("planTitle");
+
+    function titleForPlanKey(planKey) {
+      const k = String(planKey || "growth").toLowerCase().trim();
+      if (k === "foundation") return "Foundation Credit Route";
+      if (k === "growth") return "Growth Credit Route";
+      if (k === "accelerator") return "Accelerator Credit Route";
+      if (k === "elite") return "Elite Credit Route";
+      return `${k.charAt(0).toUpperCase()}${k.slice(1)} Credit Route`;
     }
-    return data;
-  }
 
-  function setRouteContext({ email, stackKey }) {
-    try {
-      const key = String(stackKey || "growth").toLowerCase();
+    function showRefresh(message) {
+      if (message) statusEl.textContent = message;
+      refreshBtn.classList.remove("hidden");
+      refreshBtn.onclick = () => location.reload();
+    }
 
-      localStorage.setItem("stackscore_paid", "1");
-      if (email) localStorage.setItem("stackscore_paid_email", email);
+    async function getSessionDetails() {
+      const res = await fetch(
+        `/.netlify/functions/get-checkout-session?session_id=${encodeURIComponent(sessionId)}`,
+        { credentials: "include" }
+      );
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data?.error || "Unable to read Stripe session.");
+      return data;
+    }
 
-      sessionStorage.setItem("ss_selected", JSON.stringify(key));
-      sessionStorage.setItem("selectedPlanKey", key);
-
-      localStorage.setItem("ss_selected", JSON.stringify(key));
-      localStorage.setItem("selectedPlanKey", key);
-
-      const cached = sessionStorage.getItem("ss_plan");
-      if (cached) localStorage.setItem("ss_plan", cached);
-
-      localStorage.setItem("ss_route_key", key);
-    } catch {}
-  }
-
-  function showContinue(stackKey, token) {
-    const key = String(stackKey || "growth").toLowerCase();
-    goBtn.classList.remove("hidden");
-    goBtn.onclick = () => {
-      location.href = `/guides/82.html?stackKey=${encodeURIComponent(key)}&t=${encodeURIComponent(token)}`;
-    };
-  }
-
-  async function run() {
-    try {
-      if (!sessionId) {
-        statusEl.textContent = "Missing session ID. Please return to checkout.";
-        return;
+    async function getGuideToken() {
+      const res = await fetch(
+        `/.netlify/functions/create-guide-token?session_id=${encodeURIComponent(sessionId)}`,
+        { credentials: "include" }
+      );
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data?.token) {
+        throw new Error(data?.error || "Unable to create guide token.");
       }
+      return data;
+    }
 
-      statusEl.textContent = "Verifying payment…";
+    function setRouteContext({ email, stackKey }) {
+      try {
+        const key = String(stackKey || "growth").toLowerCase().trim();
 
-      const sessionData = await getSessionDetails();
+        localStorage.setItem("stackscore_paid", "1");
+        localStorage.setItem("ss_access", "1");
+        localStorage.setItem("ss_route_key", key);
 
-      const paid = !!sessionData.paid;
-      const email = (sessionData.email || "").trim();
-      const stackKey = String(sessionData.stackKey || "growth").toLowerCase();
+        if (email) {
+          localStorage.setItem("stackscore_paid_email", email);
+        }
 
-      if (!paid) {
-        statusEl.textContent = "Payment is still processing. Please refresh in a moment.";
-        goBtn.textContent = "Refresh";
-        goBtn.classList.remove("hidden");
-        goBtn.onclick = () => location.reload();
-        return;
-      }
+        sessionStorage.setItem("ss_selected", JSON.stringify(key));
+        sessionStorage.setItem("selectedPlanKey", key);
 
-      setRouteContext({ email, stackKey });
+        localStorage.setItem("ss_selected", JSON.stringify(key));
+        localStorage.setItem("selectedPlanKey", key);
 
-      statusEl.textContent = "Creating secure access…";
+        const cached = sessionStorage.getItem("ss_plan");
+        if (cached) localStorage.setItem("ss_plan", cached);
+      } catch {}
+    }
 
-      const tokenData = await getGuideToken();
-      const token = tokenData.token;
+    function showContinue(stackKey, token) {
+      const key = String(stackKey || "growth").toLowerCase().trim();
+      const target = `/guides/82.html?stackKey=${encodeURIComponent(key)}&t=${encodeURIComponent(token)}`;
 
-      const target = `/guides/82.html?stackKey=${encodeURIComponent(stackKey)}&t=${encodeURIComponent(token)}`;
-
-      statusEl.textContent = "Activated. Redirecting…";
-      showContinue(stackKey, token);
-
-      setTimeout(() => {
-        location.href = target;
-      }, 600);
-
-      setTimeout(() => {
-        statusEl.textContent = "If you're not redirected automatically, click below.";
-        showContinue(stackKey, token);
-      }, 2500);
-
-    } catch (e) {
-      console.error(e);
-      statusEl.textContent = "Error verifying payment. Please refresh.";
-      goBtn.textContent = "Refresh";
       goBtn.classList.remove("hidden");
-      goBtn.onclick = () => location.reload();
+      goBtn.onclick = () => {
+        location.href = target;
+      };
     }
-  }
 
-  run();
-</script>
+    async function run() {
+      try {
+        if (!sessionId) {
+          planTitleEl.textContent = titleForPlanKey(stackKeyFromUrl);
+          showRefresh("Missing session ID. Please return to checkout.");
+          return;
+        }
 
+        planTitleEl.textContent = titleForPlanKey(stackKeyFromUrl);
+        statusEl.textContent = "Verifying payment…";
+
+        const sessionData = await getSessionDetails();
+
+        const paid = !!sessionData.paid;
+        const email = (sessionData.email || "").trim();
+        const stackKey = String(sessionData.stackKey || stackKeyFromUrl || "growth")
+          .toLowerCase()
+          .trim();
+
+        planTitleEl.textContent = titleForPlanKey(stackKey);
+
+        if (!paid) {
+          showRefresh("Payment is still processing. Please refresh in a moment.");
+          return;
+        }
+
+        setRouteContext({ email, stackKey });
+
+        statusEl.textContent = "Creating secure access…";
+
+        const tokenData = await getGuideToken();
+        const token = tokenData.token;
+
+        const target = `/guides/82.html?stackKey=${encodeURIComponent(stackKey)}&t=${encodeURIComponent(token)}`;
+
+        statusEl.textContent = "Activated. Redirecting to your route…";
+        showContinue(stackKey, token);
+
+        setTimeout(() => {
+          location.href = target;
+        }, 700);
+
+        setTimeout(() => {
+          statusEl.textContent = "If you are not redirected automatically, click below.";
+          showContinue(stackKey, token);
+        }, 2500);
+      } catch (e) {
+        console.error(e);
+        showRefresh("Error verifying payment. Please refresh.");
+      }
+    }
+
+    run();
+  </script>
 </body>
 </html>

@@ -6,19 +6,30 @@
   <title>StackScore — Your Personalized Credit Route</title>
   <link rel="icon" href="/favicon.ico" />
 
-  <!-- PROD: built Tailwind bundle -->
-  <link rel="stylesheet" href="/assets/app.css?v=boot2" />
-  <link rel="stylesheet" href="/assets/guide.css?v=4" />
-  <link rel="stylesheet" href="/assets/routing.css?v=2" />
+  <link rel="stylesheet" href="/assets/app.css?v=boot3" />
+  <link rel="stylesheet" href="/assets/guide.css?v=5" />
+  <link rel="stylesheet" href="/assets/routing.css?v=3" />
 
-  <!-- GUIDE ACCESS GATE -->
   <script>
   (function () {
     const params = new URLSearchParams(window.location.search);
     const token = params.get("t") || "";
     const stackKey = params.get("stackKey") || "growth";
+    const sessionId = params.get("session_id") || "";
 
     document.documentElement.style.visibility = "hidden";
+
+    function persistRouteContext() {
+      try {
+        localStorage.setItem("ss_route_key", String(stackKey || "growth").toLowerCase());
+        sessionStorage.setItem("selectedPlanKey", String(stackKey || "growth").toLowerCase());
+        sessionStorage.setItem("ss_selected", JSON.stringify(String(stackKey || "growth").toLowerCase()));
+        if (sessionId) {
+          localStorage.setItem("ss_last_session_id", sessionId);
+          sessionStorage.setItem("ss_last_session_id", sessionId);
+        }
+      } catch {}
+    }
 
     async function verify() {
       try {
@@ -39,7 +50,13 @@
           return;
         }
 
-        history.replaceState({}, "", `/guides/82.html?stackKey=${encodeURIComponent(stackKey)}`);
+        persistRouteContext();
+
+        const cleanParams = new URLSearchParams();
+        cleanParams.set("stackKey", stackKey);
+        if (sessionId) cleanParams.set("session_id", sessionId);
+
+        history.replaceState({}, "", `/guides/82.html?${cleanParams.toString()}`);
         document.documentElement.style.visibility = "visible";
       } catch {
         window.location.replace("/activate");
@@ -50,10 +67,9 @@
   })();
   </script>
 
-  <!-- scripts -->
   <script defer src="/assets/lucide.min.js"></script>
   <script defer src="/assets/guide.js"></script>
-  <script defer src="/assets/plan.runtime.js?v=19"></script>
+  <script defer src="/assets/plan.runtime.js?v=20"></script>
 
   <style>
     html { scroll-behavior: smooth; }
@@ -202,7 +218,6 @@
 
 <body class="bg-gradient-to-br from-[#101012] via-[#0c0d0e] to-[#08090a] text-white antialiased">
 
-  <!-- Floating print button -->
   <button
     id="print-plan"
     class="no-print"
@@ -212,7 +227,6 @@
     Print Route
   </button>
 
-  <!-- ================= NAV ================= -->
   <header class="max-w-6xl mx-auto px-6 py-3 flex flex-col md:flex-row md:items-center justify-between gap-2 init-opacity" data-anim>
     <a href="/" class="flex items-center gap-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-lime-400/70" aria-label="StackScore Home">
       <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" class="text-lime-400" aria-hidden="true">
@@ -234,7 +248,6 @@
     </nav>
   </header>
 
-  <!-- ================= HERO ================= -->
   <section id="main" class="max-w-6xl mx-auto px-6 pt-3 pb-1 init-opacity" data-anim>
     <div class="max-w-4xl space-y-1.5">
       <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-lime-400/30 bg-gradient-to-r from-lime-400/10 to-emerald-500/10 text-xs text-lime-300">
@@ -262,7 +275,16 @@
     </div>
   </section>
 
-  <!-- ======= ROUTE INTELLIGENCE SNAPSHOT ======= -->
+  <section class="max-w-6xl mx-auto px-6 pb-3 init-opacity" data-anim>
+    <div class="rounded-xl border border-white/10 bg-black/20 p-4">
+      <p class="text-xs font-semibold uppercase tracking-wide text-lime-300">Selected Plan</p>
+      <p id="selected-plan-title" class="mt-1 text-lg font-semibold text-white">Loading your route…</p>
+      <p class="mt-1 text-sm text-zinc-400">
+        This is the Credit Route you purchased and should activate first.
+      </p>
+    </div>
+  </section>
+
   <section id="route-snapshot" class="scroll-chapter max-w-6xl mx-auto px-6 pb-1 init-opacity" data-anim>
     <div class="rounded-xl border border-white/10 bg-black/30 p-3">
       <div class="flex items-center justify-between gap-3">
@@ -298,7 +320,6 @@
     </div>
   </section>
 
-  <!-- =============== YOUR ROUTE (COMPOSE) =============== -->
   <section id="compose" class="scroll-chapter max-w-6xl mx-auto px-6 pb-3 init-opacity" data-anim>
     <div class="-mt-1 bg-white/5 border border-white/10 shadow-xl rounded-xl overflow-hidden">
       <header class="border-b border-white/10 px-4 py-2 bg-gradient-to-b from-white/5 via-white/0 to-white/5">
@@ -310,7 +331,6 @@
       </header>
 
       <section class="grid grid-cols-1 lg:grid-cols-12 min-h-0">
-        <!-- Sidebar -->
         <aside class="page-break col-span-1 lg:col-span-4 border-r border-white/10 px-4 py-3 bg-gradient-to-b from-white/5 to-white/10">
           <div class="rounded-xl border border-amber-200/30 bg-amber-50/5 p-3 mb-2.5">
             <div class="flex items-center gap-2 mb-1.5">
@@ -325,7 +345,7 @@
                 Learn more ▾
               </summary>
               <div class="mt-2 text-xs text-zinc-300 leading-relaxed">
-                Apps contain many features, but only certain ones move the needle for your profile. This guide tells you exactly which actions to take.
+                Apps contain many features, but only certain ones move the needle for your profile. This guide tells you exactly which actions to take inside each app.
               </div>
             </details>
           </div>
@@ -333,12 +353,12 @@
           <div class="rounded-xl border border-white/10 bg-black/30 p-3 mb-2.5">
             <div class="text-[11px] tracking-wider uppercase text-zinc-400 mb-2">Start Here</div>
             <ol class="text-xs text-zinc-200/90 space-y-1.5 list-decimal pl-4 leading-relaxed">
-              <li>Open the first tool and complete setup.</li>
-              <li>Turn on reporting features, including autopay if offered.</li>
-              <li>Confirm activation and watch for first reporting.</li>
+              <li>Open the first tool and complete setup before moving on.</li>
+              <li>Use the named reporting or credit-building feature inside that app.</li>
+              <li>Enable autopay or the recurring setting if offered, then confirm activation.</li>
             </ol>
             <div class="mt-2 text-[11px] text-zinc-300 leading-relaxed">
-              Tip: Updates usually appear within 7–14 days.
+              Tip: Updates often begin to appear within 7–14 days, but timing varies by tool.
             </div>
           </div>
 
@@ -374,7 +394,6 @@
           </div>
         </aside>
 
-        <!-- Right panel -->
         <main id="instructions" class="page-break col-span-1 lg:col-span-8 px-4 py-3 space-y-2">
           <div class="flex items-center justify-between mb-0.5">
             <h1 class="text-base font-semibold text-white">Route Instructions</h1>
@@ -426,7 +445,6 @@
     </div>
   </section>
 
-  <!-- ======= EXPLANATION ACCORDIONS ======= -->
   <section id="why" class="scroll-chapter max-w-6xl mx-auto px-6 pb-3 init-opacity" data-anim>
     <div class="space-y-2">
       <details class="bg-white/5 border border-white/10 rounded-xl shadow-lg p-3" open>
@@ -458,7 +476,7 @@
           </div>
           <div class="rounded-lg border border-white/10 bg-black/30 p-2.5">
             <div class="text-[11px] uppercase tracking-wider text-zinc-400 mb-1">Low friction</div>
-            <div>Routes that are easy to execute.</div>
+            <div>Routes that are easy to execute in sequence.</div>
           </div>
           <div class="rounded-lg border border-white/10 bg-black/30 p-2.5">
             <div class="text-[11px] uppercase tracking-wider text-zinc-400 mb-1">Coverage</div>
@@ -473,7 +491,6 @@
     </div>
   </section>
 
-  <!-- ======= ROUTE IMPACT SCORECARD ======= -->
   <section id="route-scorecard" class="scroll-chapter max-w-6xl mx-auto px-6 pb-4 init-opacity" data-anim>
     <div class="rounded-xl border border-white/10 bg-white/5 p-3 shadow-lg">
       <div class="flex items-start justify-between gap-4">
@@ -531,7 +548,6 @@
     </div>
   </section>
 
-  <!-- ======= SECTION NAV ======= -->
   <div class="max-w-6xl mx-auto px-6 relative mb-4 no-print">
     <div class="h-1 w-full bg-gradient-to-r from-lime-400 via-emerald-400 to-cyan-400 rounded-full"></div>
     <nav class="flex justify-center space-x-3 md:space-x-5 -mt-3">
@@ -550,7 +566,6 @@
     </nav>
   </div>
 
-  <!-- Answers banner -->
   <section id="ss-answers-banner" class="max-w-6xl mx-auto px-6 pb-3" style="display:none;">
     <div class="bg-amber-50/5 border border-amber-200/30 rounded-xl p-3">
       <div class="flex items-start justify-between gap-4">
@@ -565,7 +580,6 @@
     </div>
   </section>
 
-  <!-- Legal Disclaimer -->
   <footer class="max-w-6xl mx-auto px-6 pb-5 text-xs text-zinc-400">
     <div class="bg-white/5 border border-white/10 rounded-lg p-3 leading-relaxed">
       <strong class="text-zinc-300">Disclaimer:</strong>
@@ -576,7 +590,29 @@
     </div>
   </footer>
 
-  <!-- Reveal routing block if populated by runtime -->
+  <script>
+    function titleForPlanKey(planKey) {
+      const k = String(planKey || "growth").toLowerCase().trim();
+      if (k === "foundation") return "Foundation Credit Route";
+      if (k === "growth") return "Growth Credit Route";
+      if (k === "accelerator") return "Accelerator Credit Route";
+      if (k === "elite") return "Elite Credit Route";
+      return `${k.charAt(0).toUpperCase()}${k.slice(1)} Credit Route`;
+    }
+
+    (function hydratePlanTitle() {
+      const params = new URLSearchParams(window.location.search);
+      const stackKey =
+        params.get("stackKey") ||
+        localStorage.getItem("ss_route_key") ||
+        sessionStorage.getItem("selectedPlanKey") ||
+        "growth";
+
+      const el = document.getElementById("selected-plan-title");
+      if (el) el.textContent = titleForPlanKey(stackKey);
+    })();
+  </script>
+
   <script>
     setTimeout(() => {
       const slot = document.getElementById("routing-slot");
@@ -606,6 +642,85 @@
     }, { threshold: 0.15 });
 
     sections.forEach((section) => observer.observe(section));
+  </script>
+
+  <script>
+    async function openPrintableRoute() {
+      const params = new URLSearchParams(window.location.search);
+      const planKey =
+        params.get("stackKey") ||
+        localStorage.getItem("ss_route_key") ||
+        sessionStorage.getItem("selectedPlanKey") ||
+        "growth";
+
+      const sessionId =
+        params.get("session_id") ||
+        sessionStorage.getItem("ss_last_session_id") ||
+        localStorage.getItem("ss_last_session_id") ||
+        "";
+
+      if (!sessionId) {
+        window.print();
+        return;
+      }
+
+      let answers = {};
+      let plans = [];
+
+      try {
+        answers = JSON.parse(
+          localStorage.getItem("ss_answers") ||
+          localStorage.getItem("stackscoreUserData") ||
+          localStorage.getItem("stackscore_answers") ||
+          "{}"
+        ) || {};
+      } catch {}
+
+      try {
+        const rawPlan = JSON.parse(
+          sessionStorage.getItem("ss_plan") ||
+          localStorage.getItem("ss_plan") ||
+          "null"
+        );
+
+        if (rawPlan && typeof rawPlan === "object") {
+          if (rawPlan.plans) plans = rawPlan.plans;
+          else if (rawPlan.plan) plans = rawPlan.plan;
+          else if (rawPlan.apps) plans = rawPlan.apps;
+        }
+      } catch {}
+
+      try {
+        const res = await fetch("/.netlify/functions/export-plan-pdf", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({
+            session_id: sessionId,
+            planKey,
+            answers,
+            plans,
+          }),
+        });
+
+        if (!res.ok) {
+          window.print();
+          return;
+        }
+
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        window.open(url, "_blank", "noopener,noreferrer");
+        setTimeout(() => URL.revokeObjectURL(url), 20000);
+      } catch {
+        window.print();
+      }
+    }
+
+    const printBtn = document.getElementById("print-plan");
+    if (printBtn) {
+      printBtn.addEventListener("click", openPrintableRoute);
+    }
   </script>
 
 </body>

@@ -1,8 +1,17 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import SiteHeader from "../components/SiteHeader.jsx";
 import SiteFooter from "../components/SiteFooter.jsx";
 import Button from "@/components/ui/Button";
+
+function titleForPlanKey(planKey = "growth") {
+  const k = String(planKey || "growth").toLowerCase().trim();
+  if (k === "foundation") return "Foundation Credit Route";
+  if (k === "growth") return "Growth Credit Route";
+  if (k === "accelerator") return "Accelerator Credit Route";
+  if (k === "elite") return "Elite Credit Route";
+  return `${k.charAt(0).toUpperCase()}${k.slice(1)} Credit Route`;
+}
 
 export default function ThankYou() {
   const [sp] = useSearchParams();
@@ -15,6 +24,11 @@ export default function ThankYou() {
   const [stackKey, setStackKey] = useState(stackKeyFromUrl);
   const [downloading, setDownloading] = useState(false);
 
+  const planTitle = useMemo(
+    () => titleForPlanKey(stackKey || stackKeyFromUrl || "growth"),
+    [stackKey, stackKeyFromUrl]
+  );
+
   useEffect(() => {
     (async () => {
       if (!sessionId) {
@@ -25,7 +39,9 @@ export default function ThankYou() {
 
       try {
         const res = await fetch(
-          `/.netlify/functions/get-checkout-session?session_id=${encodeURIComponent(sessionId)}`,
+          `/.netlify/functions/get-checkout-session?session_id=${encodeURIComponent(
+            sessionId
+          )}`,
           { credentials: "include" }
         );
 
@@ -34,7 +50,9 @@ export default function ThankYou() {
         if (res.ok && json?.paid) {
           const verifiedKey = String(
             json?.stackKey || stackKeyFromUrl || "growth"
-          ).toLowerCase();
+          )
+            .toLowerCase()
+            .trim();
 
           try {
             localStorage.setItem("ss_access", "1");
@@ -65,7 +83,14 @@ export default function ThankYou() {
 
   function goToGuide() {
     if (!sessionId) return;
-    window.location.href = `/success?session_id=${encodeURIComponent(sessionId)}`;
+
+    const key = String(stackKey || stackKeyFromUrl || "growth")
+      .toLowerCase()
+      .trim();
+
+    window.location.href = `/success?session_id=${encodeURIComponent(
+      sessionId
+    )}&stackKey=${encodeURIComponent(key)}`;
   }
 
   async function downloadPlan() {
@@ -151,16 +176,16 @@ export default function ThankYou() {
     <div className="min-h-screen bg-neutral-950 text-white flex flex-col">
       <SiteHeader />
 
-      <main className="flex-1 mx-auto w-full max-w-xl px-4 py-12">
+      <main className="flex-1 mx-auto w-full max-w-2xl px-4 py-12">
         {checking && (
-          <div className="rounded-xl border border-white/10 bg-white/5 p-5">
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
             <p className="text-neutral-300">Verifying your purchase…</p>
           </div>
         )}
 
         {!checking && !ok && (
           <div className="space-y-5">
-            <div className="rounded-xl border border-amber-400/30 bg-amber-500/10 p-5">
+            <div className="rounded-2xl border border-amber-400/30 bg-amber-500/10 p-6">
               <h1 className="text-xl font-semibold text-amber-300">
                 We couldn’t verify your payment.
               </h1>
@@ -182,40 +207,69 @@ export default function ThankYou() {
 
         {!checking && ok && (
           <div className="space-y-6">
-            <h1 className="text-3xl font-bold">Thank you! 🎉</h1>
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-6 sm:p-8">
+              <div className="inline-flex items-center rounded-full border border-lime-400/25 bg-lime-400/10 px-3 py-1 text-xs font-medium text-lime-300">
+                Purchase confirmed
+              </div>
 
-            <p className="text-neutral-300">
-              Your optimized stack is unlocked. You can access your Credit Route
-              now and download your digital brief for future reference.
-            </p>
+              <h1 className="mt-4 text-3xl font-bold sm:text-4xl">
+                Your StackScore Credit Route Is Ready
+              </h1>
 
-            <div className="flex flex-col sm:flex-row gap-3">
-              <Button size="lg" onClick={goToGuide}>
-                Access my Credit Route
-              </Button>
+              <p className="mt-3 text-neutral-300">
+                Thank you for your purchase. Your personalized AI-generated
+                Credit Route is now available.
+              </p>
 
-              <Button
-                size="lg"
-                variant="secondary"
-                onClick={downloadPlan}
-                disabled={downloading}
-              >
-                {downloading ? "Preparing PDF…" : "Download my plan"}
-              </Button>
+              <div className="mt-5 rounded-xl border border-white/10 bg-black/20 p-4">
+                <p className="text-xs font-semibold uppercase tracking-wide text-lime-300">
+                  Route selected
+                </p>
+                <p className="mt-1 text-lg font-semibold text-white">
+                  {planTitle}
+                </p>
+              </div>
+
+              <div className="mt-6">
+                <p className="text-sm font-medium text-white">
+                  You can access it in three ways:
+                </p>
+                <ol className="mt-3 space-y-2 text-sm text-neutral-300 list-decimal pl-5">
+                  <li>Open your online Credit Route using the button below</li>
+                  <li>Download your printable PDF guide</li>
+                  <li>Print or save your route from inside the online guide</li>
+                </ol>
+              </div>
+
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+                <Button size="lg" onClick={goToGuide}>
+                  Access My Credit Route
+                </Button>
+
+                <Button
+                  size="lg"
+                  variant="secondary"
+                  onClick={downloadPlan}
+                  disabled={downloading}
+                >
+                  {downloading ? "Preparing PDF…" : "Download Printable PDF"}
+                </Button>
+              </div>
+
+              <p className="mt-5 text-sm text-neutral-400">
+                For security, your access link may be time-limited. We recommend
+                opening your route now and downloading the PDF for future
+                reference.
+              </p>
+
+              <p className="mt-3 text-sm text-neutral-500">
+                Didn’t receive an email? Check your spam folder or{" "}
+                <Link to="/support" className="underline underline-offset-4">
+                  reach out to support
+                </Link>
+                .
+              </p>
             </div>
-
-            <p className="text-sm text-neutral-400">
-              For security, your access link expires in 24 hours. We recommend
-              bookmarking or downloading your guide for future access.
-            </p>
-
-            <p className="text-sm text-neutral-500">
-              Didn’t receive an email? Check your spam folder or{" "}
-              <Link to="/support" className="underline">
-                reach out to support
-              </Link>
-              .
-            </p>
           </div>
         )}
       </main>

@@ -1,5 +1,24 @@
 import crypto from "crypto";
 
+function json(statusCode, body) {
+  return {
+    statusCode,
+    headers: {
+      "content-type": "application/json",
+      "cache-control": "no-store",
+    },
+    body: JSON.stringify(body),
+  };
+}
+
+function safeParse(value, fallback = {}) {
+  try {
+    return typeof value === "string" ? JSON.parse(value) : value || fallback;
+  } catch {
+    return fallback;
+  }
+}
+
 function sign(data, secret) {
   return crypto
     .createHmac("sha256", secret)
@@ -10,89 +29,119 @@ function sign(data, secret) {
     .replace(/=+$/g, "");
 }
 
-function b64urlDecode(s = "") {
-  const normalized = s.replace(/-/g, "+").replace(/_/g, "/");
-  const padded = normalized + "=".repeat((4 - (normalized.length % 4)) % 4);
+function b64urlDecode(value = "") {
+  const normalized = String(value || "")
+    .replace(/-/g, "+")
+    .replace(/_/g, "/");
+  const padded =
+    normalized + "=".repeat((4 - (normalized.length % 4)) % 4);
   return Buffer.from(padded, "base64").toString("utf8");
 }
 
 export const handler = async (event) => {
   try {
-    const token =
-      event.queryStringParameters?.t ||
-      JSON.parse(event.body || "{}")?.t ||
-      "";
-
-    const requestedStackKey = String(
-      event.queryStringParameters?.stackKey ||
-      JSON.parse(event.body || "{}")?.stackKey ||
-      ""
-    ).toLowerCase();
-
     if (!process.env.GUIDE_TOKEN_SECRET) {
-      return {
-        statusCode: 500,
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ error: "Missing GUIDE_TOKEN_SECRET" }),
-      };
+      return json(500, {
+        ok: false,
+        error: "Missing GUIDE_TOKEN_SECRET",
+      });
     }
 
+    const method = String(event.httpMethod || "GET").toUpperCase();
+    if (method !== "GET" && method !== "POST") {
+      return json(405, {
+        ok: false,
+        error: "Method Not Allowed",
+      });
+    }
+
+    const body = method === "POST" ? safeParse(event.body || "{}", {}) : {};
+    const query = event.queryStringParameters || {};
+
+    const token = String(
+      body.t ||
+        body.token ||
+        query.t ||
+        query.token ||
+        ""
+    ).trim();
+
+    const requestedStackKey = String(
+      body.stackKey ||
+        body.planKey ||
+        query.stackKey ||
+        query.planKey ||
+        ""
+    )
+      .toLowerCase()
+      .trim();
+
     if (!token || !token.includes(".")) {
-      return {
-        statusCode: 401,
-        headers: { "content-type": "application/json", "cache-control": "no-store" },
-        body: JSON.stringify({ ok: false, error: "Missing or invalid token" }),
-      };
+      return json(401, {
+        ok: false,
+        error: "Missing or invalid token",
+      });
     }
 
     const [encoded, signature] = token.split(".");
+    if (!encoded || !signature) {
+      return json(401, {
+        ok: false,
+        error: "Malformed token",
+      });
+    }
+
     const expected = sign(encoded, process.env.GUIDE_TOKEN_SECRET);
 
     if (signature !== expected) {
-      return {
-        statusCode: 401,
-        headers: { "content-type": "application/json", "cache-control": "no-store" },
-        body: JSON.stringify({ ok: false, error: "Bad signature" }),
-      };
+      return json(401, {
+        ok: false,
+        error: "Bad signature",
+      });
     }
 
-    const payload = JSON.parse(b64urlDecode(encoded));
+    let payload;
+    try {
+      payload = JSON.parse(b64urlDecode(encoded));
+    } catch {
+      return json(401, {
+        ok: false,
+        error: "Invalid token payload",
+      });
+    }
+
     const now = Math.floor(Date.now() / 1000);
 
     if (!payload?.exp || now > payload.exp) {
-      return {
-        statusCode: 401,
-        headers: { "content-type": "application/json", "cache-control": "no-store" },
-        body: JSON.stringify({ ok: false, error: "Token expired" }),
-      };
+      return json(401, {
+        ok: false,
+        error: "Token expired",
+      });
     }
 
     if (
       requestedStackKey &&
       payload?.stackKey &&
-      String(payload.stackKey).toLowerCase() !== requestedStackKey
+      String(payload.stackKey).toLowerCase().trim() !== requestedStackKey
     ) {
-      return {
-        statusCode: 401,
-        headers: { "content-type": "application/json", "cache-control": "no-store" },
-        body: JSON.stringify({ ok: false, error: "Stack mismatch" }),
-      };
+      return json(401, {
+        ok: false,
+        error: "Stack mismatch",
+      });
     }
 
-    return {
-      statusCode: 200,
-      headers: { "content-type": "application/json", "cache-control": "no-store" },
-      body: JSON.stringify({
-        ok: true,
-        stackKey: payload.stackKey,
-        exp: payload.exp,
-      }),
-    };
+    return json(200, {
+      ok: true,
+      stackKey: String(payload?.stackKey || "").toLowerCase().trim(),
+      exp: payload?.exp || 0,
+      iat: payload?.iat || 0,
+      session_id: payload?.sid || "",
+    });
   } catch (err) {
-    return {
-      statusCode: 500,
-      headers: { "content-type": "application/json", "cache-control": "no-store" },
-      body: JSON.stringify({ ok: false, error: String(err?.message || err) }),
-    };
+    console.error("verify-guide-token error:", err);
+    return json(500, {
+      ok: false,
+      error: String(err?.message || err),
+    });
   }
 };

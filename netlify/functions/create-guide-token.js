@@ -5,6 +5,25 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
   apiVersion: "2024-06-20",
 });
 
+function json(statusCode, body) {
+  return {
+    statusCode,
+    headers: {
+      "content-type": "application/json",
+      "cache-control": "no-store",
+    },
+    body: JSON.stringify(body),
+  };
+}
+
+function safeParse(value, fallback = {}) {
+  try {
+    return typeof value === "string" ? JSON.parse(value) : value || fallback;
+  } catch {
+    return fallback;
+  }
+}
+
 function b64url(input) {
   return Buffer.from(input)
     .toString("base64")
@@ -23,52 +42,48 @@ function sign(data, secret) {
     .replace(/=+$/g, "");
 }
 
-function sha256(s = "") {
+function sha256(value = "") {
   return crypto
     .createHash("sha256")
-    .update(String(s).toLowerCase().trim())
+    .update(String(value).toLowerCase().trim())
     .digest("hex");
 }
 
 export const handler = async (event) => {
   try {
-    const sessionId =
-      event.queryStringParameters?.session_id ||
-      JSON.parse(event.body || "{}")?.session_id;
-
-    if (!sessionId) {
-      return {
-        statusCode: 400,
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ error: "Missing session_id" }),
-      };
-    }
-
     if (!process.env.STRIPE_SECRET_KEY) {
-      return {
-        statusCode: 500,
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ error: "Missing STRIPE_SECRET_KEY" }),
-      };
+      return json(500, { ok: false, error: "Missing STRIPE_SECRET_KEY" });
     }
 
     if (!process.env.GUIDE_TOKEN_SECRET) {
-      return {
-        statusCode: 500,
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ error: "Missing GUIDE_TOKEN_SECRET" }),
-      };
+      return json(500, { ok: false, error: "Missing GUIDE_TOKEN_SECRET" });
+    }
+
+    const method = String(event.httpMethod || "GET").toUpperCase();
+    if (method !== "GET" && method !== "POST") {
+      return json(405, { ok: false, error: "Method Not Allowed" });
+    }
+
+    const body = method === "POST" ? safeParse(event.body || "{}", {}) : {};
+    const query = event.queryStringParameters || {};
+
+    const sessionId = String(
+      body.session_id ||
+        body.sessionId ||
+        query.session_id ||
+        query.sessionId ||
+        ""
+    ).trim();
+
+    if (!sessionId) {
+      return json(400, { ok: false, error: "Missing session_id" });
     }
 
     const session = await stripe.checkout.sessions.retrieve(sessionId);
 
     const paid = session.payment_status === "paid";
     if (!paid) {
-      return {
-        statusCode: 403,
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ error: "Session not paid" }),
-      };
+      return json(403, { ok: false, error: "Session not paid" });
     }
 
     const email =
@@ -78,19 +93,21 @@ export const handler = async (event) => {
       "";
 
     if (!email) {
-      return {
-        statusCode: 400,
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ error: "Missing customer email" }),
-      };
+      return json(400, { ok: false, error: "Missing customer email" });
     }
 
     const stackKey = String(
-      session.metadata?.stackKey ||
-      session.metadata?.stack_key ||
-      session.metadata?.planKey ||
-      "growth"
-    ).toLowerCase();
+      body.stackKey ||
+        body.planKey ||
+        query.stackKey ||
+        query.planKey ||
+        session.metadata?.stackKey ||
+        session.metadata?.stack_key ||
+        session.metadata?.planKey ||
+        "growth"
+    )
+      .toLowerCase()
+      .trim();
 
     const now = Math.floor(Date.now() / 1000);
     const exp = now + 60 * 60 * 24; // 24 hours
@@ -107,19 +124,18 @@ export const handler = async (event) => {
     const sig = sign(encoded, process.env.GUIDE_TOKEN_SECRET);
     const token = `${encoded}.${sig}`;
 
-    return {
-      statusCode: 200,
-      headers: {
-        "content-type": "application/json",
-        "cache-control": "no-store",
-      },
-      body: JSON.stringify({ token, stackKey }),
-    };
+    return json(200, {
+      ok: true,
+      token,
+      stackKey,
+      expires_at: exp,
+      session_id: session.id,
+    });
   } catch (err) {
-    return {
-      statusCode: 500,
-      headers: { "content-type": "application/json", "cache-control": "no-store" },
-      body: JSON.stringify({ error: String(err?.message || err) }),
-    };
+    console.error("create-guide-token error:", err);
+    return json(500, {
+      ok: false,
+      error: String(err?.message || err),
+    });
   }
 };

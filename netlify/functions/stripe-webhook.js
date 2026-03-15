@@ -38,8 +38,22 @@ function getSiteUrl() {
   ).replace(/\/+$/, "");
 }
 
-function buildSuccessUrl(site, sessionId) {
-  return `${site}/success?session_id=${encodeURIComponent(sessionId)}`;
+function titleForPlanKey(planKey = "growth") {
+  const k = String(planKey || "growth").toLowerCase().trim();
+  if (k === "foundation") return "Foundation Credit Route";
+  if (k === "growth") return "Growth Credit Route";
+  if (k === "accelerator") return "Accelerator Credit Route";
+  if (k === "elite") return "Elite Credit Route";
+  return `${k.charAt(0).toUpperCase()}${k.slice(1)} Credit Route`;
+}
+
+function buildSuccessUrl(site, sessionId, stackKey) {
+  const params = new URLSearchParams({
+    session_id: sessionId,
+    stackKey,
+  });
+
+  return `${site}/success?${params.toString()}`;
 }
 
 function buildPdfUrl(site, sessionId, stackKey) {
@@ -97,9 +111,7 @@ async function fetchPdfAttachment({ site, sessionId, stackKey, plans, answers })
 
   if (!res.ok) {
     const maybeJson = await res.json().catch(() => null);
-    throw new Error(
-      maybeJson?.error || `export-plan-pdf failed (${res.status})`
-    );
+    throw new Error(maybeJson?.error || `export-plan-pdf failed (${res.status})`);
   }
 
   const arrayBuffer = await res.arrayBuffer();
@@ -110,6 +122,7 @@ function buildEmailHtml({ successUrl, pdfUrl, stackKey }) {
   const safeSuccessUrl = escapeHtml(successUrl);
   const safePdfUrl = escapeHtml(pdfUrl);
   const safeStackKey = escapeHtml(stackKey);
+  const safePlanTitle = escapeHtml(titleForPlanKey(stackKey));
 
   return `
 <div style="font-family: Inter, Arial, sans-serif; color: #111827; line-height: 1.6; max-width: 640px; margin: 0 auto; padding: 24px 16px;">
@@ -121,32 +134,35 @@ function buildEmailHtml({ successUrl, pdfUrl, stackKey }) {
     Thank you for your purchase. Your personalized AI-generated Credit Route is now available.
   </p>
 
+  <p style="margin: 0 0 8px;">
+    <strong>Route selected:</strong> ${safePlanTitle}
+  </p>
+
   <p style="margin: 0 0 18px;">
     You can access it in three ways:
   </p>
 
+  <ol style="margin: 0 0 18px 20px; padding: 0;">
+    <li style="margin: 0 0 8px;">Open your online Credit Route using the button below</li>
+    <li style="margin: 0 0 8px;">Open the printable PDF attached to this email</li>
+    <li style="margin: 0;">Print or save your route from inside the online guide</li>
+  </ol>
+
   <div style="margin: 0 0 18px;">
     <a
       href="${safeSuccessUrl}"
-      style="display:inline-block; padding:12px 18px; background:#84cc16; color:#111827; text-decoration:none; border-radius:10px; font-weight:700; margin-right:10px; margin-bottom:10px;"
+      style="display:inline-block; padding:12px 18px; background:#84cc16; color:#111827; text-decoration:none; border-radius:10px; font-weight:700; margin-bottom:10px;"
     >
       Access My Credit Route
-    </a>
-
-    <a
-      href="${safePdfUrl}"
-      style="display:inline-block; padding:12px 18px; background:#111827; color:#ffffff; text-decoration:none; border-radius:10px; font-weight:700; margin-bottom:10px;"
-    >
-      Open Printable PDF
     </a>
   </div>
 
   <p style="margin: 0 0 12px; color:#4b5563; font-size:14px;">
-    Your printable StackScore guide is also attached to this email as a PDF.
+    Your printable StackScore guide is attached to this email as a PDF.
   </p>
 
   <p style="margin: 0 0 18px; color:#4b5563; font-size:14px;">
-    If your email app does not show attachments properly, you can use the PDF button above to open or download your printable guide.
+    If your email app does not show attachments properly, you can use the fallback PDF link below to open or download your printable guide.
   </p>
 
   <div style="background:#f9fafb; border:1px solid #e5e7eb; border-radius:12px; padding:14px 16px; margin: 0 0 20px;">
@@ -156,13 +172,13 @@ function buildEmailHtml({ successUrl, pdfUrl, stackKey }) {
     </p>
 
     <p style="margin:0; font-size:13px; color:#374151;">
-      <strong>Direct PDF link:</strong><br />
+      <strong>Fallback PDF link:</strong><br />
       <a href="${safePdfUrl}" style="color:#2563eb; word-break:break-all;">${safePdfUrl}</a>
     </p>
   </div>
 
   <p style="margin: 0 0 8px; color:#6b7280; font-size:13px;">
-    Route selected: <strong>${safeStackKey}</strong>
+    Internal route key: <strong>${safeStackKey}</strong>
   </p>
 
   <p style="margin: 0 0 8px; color:#6b7280; font-size:13px;">
@@ -179,17 +195,24 @@ function buildEmailHtml({ successUrl, pdfUrl, stackKey }) {
 }
 
 function buildEmailText({ successUrl, pdfUrl, stackKey }) {
+  const planTitle = titleForPlanKey(stackKey);
+
   return [
     "Your StackScore Credit Route Is Ready",
     "",
     "Thank you for your purchase. Your personalized AI-generated Credit Route is now available.",
     "",
+    `Route selected: ${planTitle}`,
+    "",
+    "You can access it in three ways:",
+    "1. Open your online Credit Route using the guide link below",
+    "2. Open the printable PDF attached to this email",
+    "3. Print or save your route from inside the online guide",
+    "",
     `Access your guide: ${successUrl}`,
-    `Open/download your PDF: ${pdfUrl}`,
+    `Fallback PDF link: ${pdfUrl}`,
     "",
     "Your printable StackScore guide is also attached to this email as a PDF.",
-    "",
-    `Route selected: ${stackKey}`,
     "",
     "If you have any trouble accessing your purchase, reply to this email for support.",
   ].join("\n");
@@ -202,13 +225,10 @@ async function sendDeliveryEmail({ email, sessionId, stackKey }) {
   }
 
   const site = getSiteUrl();
-  const successUrl = buildSuccessUrl(site, sessionId);
+  const successUrl = buildSuccessUrl(site, sessionId, stackKey);
   const pdfUrl = buildPdfUrl(site, sessionId, stackKey);
 
-  const from =
-    process.env.RESEND_FROM_EMAIL ||
-    "onboarding@resend.dev";
-
+  const from = process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev";
   const subject = "Your StackScore Credit Route Is Ready";
 
   const planPayload = await fetchPlanPayload({ site, stackKey });
@@ -274,7 +294,7 @@ export const handler = async (event) => {
 
     const rawBody = event.isBase64Encoded
       ? Buffer.from(event.body || "", "base64").toString("utf8")
-      : (event.body || "");
+      : event.body || "";
 
     let stripeEvent;
     try {
@@ -301,10 +321,12 @@ export const handler = async (event) => {
 
       const stackKey = String(
         session?.metadata?.stackKey ||
-        session?.metadata?.stack_key ||
-        session?.metadata?.planKey ||
-        "growth"
-      ).toLowerCase().trim();
+          session?.metadata?.stack_key ||
+          session?.metadata?.planKey ||
+          "growth"
+      )
+        .toLowerCase()
+        .trim();
 
       const sessionId = String(session?.id || "").trim();
 
@@ -316,10 +338,13 @@ export const handler = async (event) => {
       });
 
       if (session?.payment_status !== "paid") {
-        console.warn("checkout.session.completed received but payment_status is not paid", {
-          sessionId,
-          payment_status: session?.payment_status,
-        });
+        console.warn(
+          "checkout.session.completed received but payment_status is not paid",
+          {
+            sessionId,
+            payment_status: session?.payment_status,
+          }
+        );
       }
 
       if (email && sessionId) {
