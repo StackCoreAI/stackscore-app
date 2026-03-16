@@ -151,23 +151,24 @@ function buildEmailHtml({ successUrl, pdfUrl, stackKey }) {
   </ol>
 
   <div style="margin: 0 0 18px;">
-    <a
-      href="${safeSuccessUrl}"
-      style="
-        display:inline-block;
-        padding:14px 22px;
-        background:linear-gradient(90deg,#84cc16,#10b981);
-        color:#0a0a0a;
-        text-decoration:none;
-        border-radius:10px;
-        font-weight:700;
-        font-size:16px;
-        margin-bottom:10px;
-        box-shadow:0 4px 12px rgba(0,0,0,0.25);
-      "
-    >
-      Access My Credit Route
-    </a>
+   <a
+  href="${safeSuccessUrl}"
+  style="
+    display:inline-block;
+    padding:14px 22px;
+    background:#84cc16;
+    background-image:linear-gradient(90deg,#84cc16,#10b981);
+    color:#000000;
+    text-decoration:none;
+    border-radius:10px;
+    font-weight:700;
+    font-size:16px;
+    margin-bottom:10px;
+    box-shadow:0 4px 12px rgba(0,0,0,0.25);
+  "
+>
+  Access My Credit Route
+</a>
   </div>
 
   <p style="margin: 0 0 12px; color:#4b5563; font-size:14px;">
