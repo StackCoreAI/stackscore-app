@@ -150,26 +150,37 @@ function buildEmailHtml({ successUrl, pdfUrl, stackKey }) {
     <li style="margin: 0;">Print or save your route from inside the online guide</li>
   </ol>
 
-  <div style="margin: 0 0 18px;">
-   <a
-  href="${safeSuccessUrl}"
-  style="
-    display:inline-block;
-    padding:14px 22px;
-    background:#84cc16;
-    background-image:linear-gradient(90deg,#84cc16,#10b981);
-    color:#000000;
-    text-decoration:none;
-    border-radius:10px;
-    font-weight:700;
-    font-size:16px;
-    margin-bottom:10px;
-    box-shadow:0 4px 12px rgba(0,0,0,0.25);
-  "
->
-  Access My Credit Route
-</a>
-  </div>
+  <div style="margin:0 0 18px;">
+  <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+    <tr>
+      <td
+        bgcolor="#84cc16"
+        style="
+          background:#84cc16;
+          border-radius:10px;
+          box-shadow:0 4px 12px rgba(0,0,0,0.25);
+        "
+      >
+        <a
+          href="${safeSuccessUrl}"
+          style="
+            display:inline-block;
+            padding:14px 22px;
+            font-family:Inter, Arial, sans-serif;
+            font-size:16px;
+            font-weight:700;
+            line-height:1;
+            color:#000000;
+            text-decoration:none;
+            border-radius:10px;
+          "
+        >
+          <span style="color:#000000;">Access My Credit Route</span>
+        </a>
+      </td>
+    </tr>
+  </table>
+</div>
 
   <p style="margin: 0 0 12px; color:#4b5563; font-size:14px;">
     Your printable StackScore guide is attached to this email as a PDF.
