@@ -154,9 +154,9 @@ function buildEmailHtml({ successUrl, pdfUrl, stackKey }) {
   <table role="presentation" cellspacing="0" cellpadding="0" border="0">
     <tr>
       <td
-        bgcolor="#84cc16"
+        bgcolor="#10b981"
         style="
-          background:#84cc16;
+          background:#10b981;
           border-radius:10px;
           box-shadow:0 4px 12px rgba(0,0,0,0.25);
         "
