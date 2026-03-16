@@ -813,5 +813,3 @@
   });
 })();
 //# sourceMappingURL=plan.runtime.js.map
-
-and yes update the stripe-webhook file too please and regenerate thanks.
