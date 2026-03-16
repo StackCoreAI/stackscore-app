@@ -134,7 +134,7 @@ function buildEmailHtml({ successUrl, pdfUrl, stackKey }) {
 
   <p style="margin: 0 0 16px;">
     Thank you for your purchase. Your personalized AI-generated Credit Route is now available.
-  </p>
+   </p>
 
   <p style="margin: 0 0 8px;">
     <strong>Route selected:</strong> ${safePlanTitle}
@@ -150,15 +150,15 @@ function buildEmailHtml({ successUrl, pdfUrl, stackKey }) {
     <li style="margin: 0;">Print or save your route from inside the online guide</li>
   </ol>
 
-  <div style="margin:0 0 18px;">
+ <div style="margin:0 0 18px;">
   <table role="presentation" cellspacing="0" cellpadding="0" border="0">
     <tr>
       <td
-        bgcolor="#10b981"
+        bgcolor="#111827"
         style="
-          background:#10b981;
+          background:#111827;
+          border:1px solid #374151;
           border-radius:10px;
-          box-shadow:0 4px 12px rgba(0,0,0,0.25);
         "
       >
         <a
@@ -170,12 +170,12 @@ function buildEmailHtml({ successUrl, pdfUrl, stackKey }) {
             font-size:16px;
             font-weight:700;
             line-height:1;
-            color:#000000;
+            color:#ffffff;
             text-decoration:none;
             border-radius:10px;
           "
         >
-          <span style="color:#000000;">Access My Credit Route</span>
+          <span style="color:#ffffff; text-decoration:none;">Access My Credit Route</span>
         </a>
       </td>
     </tr>
