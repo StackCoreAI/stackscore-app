@@ -242,22 +242,28 @@ function PlanCard({ plan, selectedKey, onSelect, onUnlock }) {
         </ul>
       </div>
 
-      {/* CTA */}
-      <div className="mt-4">
-        <Button
-          size="sm"
-          className={`w-full rounded-full bg-gradient-to-r from-lime-500 to-emerald-500 text-neutral-950 ${
-            key === "growth" ? "py-3 text-base shadow-lg shadow-lime-500/25" : "hover:opacity-95"
-          }`}
-          onClick={(e) => {
-            e.stopPropagation();
-            onSelect();
-            onUnlock?.(key);
-          }}
-        >
-          Activate My Credit Route — $29
-        </Button>
-      </div>
+     {/* CTA */}
+<div className="mt-4">
+
+  {key === "growth" && (
+    <div className="text-xs text-neutral-400 mb-2">
+      Start here. You can adjust later if needed.
+    </div>
+  )}
+
+  <Button
+    size="sm"
+    className={`w-full rounded-full bg-gradient-to-r from-lime-500 to-emerald-500 text-neutral-950
+      ${key === "growth" ? "py-3 text-base shadow-lg shadow-lime-500/25" : "hover:opacity-95"}`}
+    onClick={(e) => {
+      e.stopPropagation();
+      onSelect();
+      onUnlock?.(key);
+    }}
+  >
+    Activate My Credit Route — $29
+  </Button>
+</div>
     </div>
   );
 }
