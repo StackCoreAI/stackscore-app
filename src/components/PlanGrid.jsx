@@ -178,21 +178,28 @@ function PlanCard({ plan, selectedKey, onSelect, onUnlock }) {
     >
       {isGrowth && (
         <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-lime-400/30 bg-lime-500/10 px-3 py-1 text-xs font-medium text-lime-300">
-          ★ Recommended Starting Point
+          ✓ Your Recommended Credit Route
         </div>
       )}
 
-      {/* Header */}
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <h3 className="text-xl font-semibold">{label}</h3>
+     {/* Header */}
+<div className="flex items-start justify-between gap-3">
+  <div className="min-w-0">
+    <h3 className="text-xl font-semibold">{label}</h3>
 
-          {sub && (
-            <span className={badgeClasses(sub.tone)}>
-              <span aria-hidden="true">{sub.emoji}</span>
-              <span>{sub.text}</span>
-            </span>
-          )}
+    {sub && (
+      <span className={badgeClasses(sub.tone)}>
+        <span aria-hidden="true">{sub.emoji}</span>
+        <span>{sub.text}</span>
+      </span>
+    )}
+
+    {key === "growth" && (
+      <div className="mt-2 text-sm text-lime-300 font-medium">
+        This is the route most aligned with your profile.
+      </div>
+    )}
+  </div>
 
           {isSelected && key !== "growth" && (
             <div className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-lime-400/30 bg-lime-500/15 px-2.5 py-1 text-xs font-medium text-lime-300">

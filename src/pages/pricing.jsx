@@ -255,22 +255,9 @@ const Pricing = ({ embedded = false }) => {
           }`}
           style={{ transitionDelay: "240ms" }}
         >
-          <h2 className="flex items-center justify-center gap-2 text-xl font-semibold tracking-tight text-white md:text-2xl">
-            <RotateCcw className="h-5 w-5 stroke-lime-400" strokeWidth="1.5" />
-            Refresh Later (Optional)
-          </h2>
-
-          <p className="text-sm text-neutral-400">
-            Life changes, budgets shift, and credit routes can evolve. You’ll be able to refresh
-            your route later as new tools and better-fit paths become available.
-          </p>
-
-          <div className="pt-2">
-            <Button variant="secondary" size="md" disabled>
-              <Lock className="mr-2 h-4 w-4" />
-              Refresh Available Later
-            </Button>
-          </div>
+         <div className="mt-10 text-center text-sm text-neutral-400">
+  Your route is ready to activate now.
+</div>
         </section>
       </main>
 
