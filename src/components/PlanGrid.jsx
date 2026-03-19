@@ -61,13 +61,9 @@ export default function PlanGrid({ plans, fallbackStack, onUnlock }) {
       const raw = sessionStorage.getItem("ss_selected");
       const v = raw ? JSON.parse(raw) : "";
       if (typeof v === "string" && v) return v.toLowerCase();
-    } catch {
-      // ignore session parse errors
-    }
-
+    } catch {}
     const legacy = sessionStorage.getItem("selectedPlanKey");
     if (legacy) return String(legacy).toLowerCase();
-
     return DEFAULT_SELECTED;
   });
 
@@ -82,9 +78,7 @@ export default function PlanGrid({ plans, fallbackStack, onUnlock }) {
     try {
       sessionStorage.setItem("ss_selected", JSON.stringify(selected));
       sessionStorage.setItem("selectedPlanKey", selected);
-    } catch {
-      // ignore session write errors
-    }
+    } catch {}
   }, [selected]);
 
   const growth = normalized.find((p) => p.key === "growth") || null;
@@ -127,8 +121,14 @@ function CompareToggle({ others, selected, setSelected, onUnlock }) {
         onClick={() => setOpen((v) => !v)}
         className="mt-3 inline-flex items-center gap-2 text-sm text-neutral-500 transition hover:text-neutral-300"
       >
-        {open ? "Hide alternative routes" : "View alternative routes"}
+        {open ? "Hide other route options" : "Compare other route options"}
       </button>
+
+      {open && (
+        <div className="mt-3 mb-2 text-sm text-neutral-400">
+          Your recommended route is above. These are alternative paths if you want a different approach.
+        </div>
+      )}
 
       {open && (
         <div className="mt-6 grid gap-6 md:grid-cols-2">
@@ -182,24 +182,23 @@ function PlanCard({ plan, selectedKey, onSelect, onUnlock }) {
         </div>
       )}
 
-     {/* Header */}
-<div className="flex items-start justify-between gap-3">
-  <div className="min-w-0">
-    <h3 className="text-xl font-semibold">{label}</h3>
+      {/* Header */}
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <h3 className="text-xl font-semibold">{label}</h3>
 
-    {sub && (
-      <span className={badgeClasses(sub.tone)}>
-        <span aria-hidden="true">{sub.emoji}</span>
-        <span>{sub.text}</span>
-      </span>
-    )}
+          {sub && (
+            <span className={badgeClasses(sub.tone)}>
+              <span aria-hidden="true">{sub.emoji}</span>
+              <span>{sub.text}</span>
+            </span>
+          )}
 
-    {key === "growth" && (
-      <div className="mt-2 text-sm text-lime-300 font-medium">
-        This is the route most aligned with your profile.
-      </div>
-    )}
-  </div>
+          {key === "growth" && (
+            <div className="mt-2 text-sm font-medium text-lime-300">
+              This is the route most aligned with your profile.
+            </div>
+          )}
 
           {isSelected && key !== "growth" && (
             <div className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-lime-400/30 bg-lime-500/15 px-2.5 py-1 text-xs font-medium text-lime-300">
@@ -256,7 +255,7 @@ function PlanCard({ plan, selectedKey, onSelect, onUnlock }) {
             onUnlock?.(key);
           }}
         >
-          Unlock My Full Credit Route — $29
+          Activate My Credit Route — $29
         </Button>
       </div>
     </div>
