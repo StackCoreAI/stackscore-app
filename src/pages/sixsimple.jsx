@@ -15,59 +15,68 @@ const SixSimple = ({ embedded = false }) => {
 
   const checklistItems = [
     {
-      title: "Living Situation",
-      description: "Rent or own — we route you toward the best reporting options for your situation.",
+      title: "Starting Point",
+      description:
+        "We identify where you are now — whether you are building from a thin file or working to rebuild around negative items.",
       delay: "0.10s",
     },
     {
-      title: "Subscriptions",
-      description: "Tell us what you already pay for — we look for reporting opportunities when available.",
+      title: "Timeline",
+      description:
+        "Tell us how quickly you want progress so we can prioritize the moves most likely to matter first.",
       delay: "0.20s",
     },
     {
-      title: "Utilities",
-      description: "Power, water, gas — we prioritize routes that can turn on-time payments into credit signals.",
+      title: "Budget",
+      description:
+        "We keep your route realistic by fitting it to what you can actually spend and sustain.",
       delay: "0.30s",
     },
     {
-      title: "Phone Plan",
-      description: "If your carrier can report, we factor it in as a clean, low-friction signal.",
+      title: "Living Situation",
+      description:
+        "Rent or own — we look for practical reporting opportunities that fit your real setup.",
       delay: "0.40s",
     },
     {
-      title: "Budget",
-      description: "Set your monthly budget — we keep your route realistic and aligned to what you’ll actually do.",
+      title: "Employment + Stability",
+      description:
+        "We use simple profile context to shape a route that feels executable, not theoretical.",
       delay: "0.50s",
     },
     {
-      title: "Style",
-      description: "Manual vs automated — you choose a route style that fits your habits.",
+      title: "Execution Style",
+      description:
+        "Manual or automated — StackScore helps you follow a route you are actually likely to complete.",
       delay: "0.60s",
     },
   ];
 
   const barData = [
-    { name: "Rent/Own", height: "h-48", color: "bg-cyan-400", delay: "0.10s" },
-    { name: "Subs", height: "h-40", color: "bg-green-400", delay: "0.22s" },
-    { name: "Utilities", height: "h-44", color: "bg-pink-500", delay: "0.34s" },
-    { name: "Phone", height: "h-36", color: "bg-purple-500", delay: "0.46s" },
-    { name: "Budget", height: "h-52", color: "bg-yellow-400", delay: "0.58s" },
-    { name: "Style", height: "h-48", color: "bg-orange-400", delay: "0.70s" },
+    { name: "Start", height: "h-44", color: "bg-cyan-400", delay: "0.10s" },
+    { name: "Time", height: "h-36", color: "bg-green-400", delay: "0.22s" },
+    { name: "Budget", height: "h-40", color: "bg-pink-500", delay: "0.34s" },
+    { name: "Living", height: "h-34", color: "bg-purple-500", delay: "0.46s" },
+    { name: "Profile", height: "h-48", color: "bg-yellow-400", delay: "0.58s" },
+    { name: "Style", height: "h-44", color: "bg-orange-400", delay: "0.70s" },
   ];
 
   const legendData = [
-    { name: "Rent/Own", color: "bg-cyan-400" },
-    { name: "Subs", color: "bg-green-400" },
-    { name: "Utilities", color: "bg-pink-500" },
-    { name: "Phone", color: "bg-purple-500" },
-    { name: "Budget", color: "bg-yellow-400" },
+    { name: "Start", color: "bg-cyan-400" },
+    { name: "Time", color: "bg-green-400" },
+    { name: "Budget", color: "bg-pink-500" },
+    { name: "Living", color: "bg-purple-500" },
+    { name: "Profile", color: "bg-yellow-400" },
     { name: "Style", color: "bg-orange-400" },
   ];
 
   return (
-    <div className="bg-neutral-950 text-white flex flex-col">
+    <div
+      id="how-it-works"
+      className="flex flex-col bg-neutral-950 text-white"
+    >
       {!embedded && (
-        <header className="w-full max-w-6xl mx-auto px-6 pt-6 pb-4 flex items-center justify-between">
+        <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 pt-6 pb-4">
           <Link
             to="/"
             className="flex items-center gap-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-lime-400/70"
@@ -92,8 +101,8 @@ const SixSimple = ({ embedded = false }) => {
           </Link>
 
           <div className="flex items-center gap-3">
-            <Link to="/activate" className="hidden sm:inline-flex" aria-label="Start my credit route">
-              <Button size="sm">🚀 Start My Credit Route</Button>
+            <Link to="/activate" className="hidden sm:inline-flex" aria-label="Get my credit route">
+              <Button size="sm">Get My Credit Route</Button>
             </Link>
 
             <Button
@@ -108,21 +117,27 @@ const SixSimple = ({ embedded = false }) => {
         </header>
       )}
 
-      <main className={`flex-1 flex justify-center p-6 ${embedded ? "items-start pt-8" : "items-center"}`}>
-        <div className="w-full max-w-6xl flex flex-col md:flex-row gap-12">
+      <main className={`flex flex-1 justify-center p-6 ${embedded ? "items-start pt-8" : "items-center"}`}>
+        <div className="flex w-full max-w-6xl flex-col gap-12 md:flex-row">
           <section className="md:w-1/2">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-lime-400/25 bg-lime-500/10 px-3 py-1 text-xs text-lime-300">
+              How StackScore Works
+            </div>
+
             <h1 className="mb-4 text-3xl font-extrabold leading-tight tracking-tight sm:text-4xl lg:text-5xl">
               Your Credit Route, in{" "}
-              <span className="text-cyan-400">6&nbsp;Simple&nbsp;Clicks</span>
+              <span className="text-cyan-400">6 Simple Inputs</span>
             </h1>
 
             <p className="max-w-xl text-lg text-slate-300">
-              No credit pull. No sensitive financial data. StackScore uses these six inputs to map a
-              Credit Route that fits your life — and helps your tools work together.
+              StackScore does not guess and it does not push random apps. It uses a few simple
+              inputs to identify the levers most likely to strengthen your credit profile and then
+              organizes them into a smarter route.
             </p>
 
             <p className="mt-4 text-sm text-slate-400">
-              The power isn’t one app — it’s the route you follow.
+              The value is not one product. The value is knowing what to do first, what to do next,
+              and where tools actually help.
             </p>
 
             <ul className="mt-8 space-y-6 text-lg">
@@ -146,9 +161,31 @@ const SixSimple = ({ embedded = false }) => {
               ))}
             </ul>
 
+            <div className="mt-10 rounded-2xl border border-white/10 bg-white/[0.04] p-5">
+              <h3 className="text-base font-semibold text-white">What happens after the 6 inputs?</h3>
+              <div className="mt-4 space-y-3 text-sm text-neutral-300">
+                <div className="flex items-start gap-2">
+                  <span className="mt-0.5 text-lime-300">1.</span>
+                  <span>We assess your profile and execution reality.</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="mt-0.5 text-lime-300">2.</span>
+                  <span>We identify the factors most likely to move your credit profile.</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="mt-0.5 text-lime-300">3.</span>
+                  <span>You get a prioritized Credit Route instead of a random stack of apps.</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="mt-0.5 text-lime-300">4.</span>
+                  <span>Tools are shown only where they actually help execute the route.</span>
+                </div>
+              </div>
+            </div>
+
             <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center">
-              <Link to="/activate" className="inline-flex" aria-label="Start my credit route">
-                <Button size="md">Start My Credit Route</Button>
+              <Link to="/activate" className="inline-flex" aria-label="Get my credit route">
+                <Button size="md">Get My Credit Route</Button>
               </Link>
               <Link to="/preview" className="inline-flex" aria-label="See my credit routes">
                 <Button variant="secondary" size="md">
@@ -158,14 +195,15 @@ const SixSimple = ({ embedded = false }) => {
             </div>
 
             <p className="mt-4 text-xs text-neutral-500">
-              Takes less than 60 seconds · No credit pull · Built for real-life habits
+              Takes less than 60 seconds · No credit pull · No sensitive financial data required
             </p>
           </section>
 
-          <section className="md:w-1/2 flex flex-col items-center text-center">
-            <h2 className="mb-3 text-2xl font-semibold sm:text-3xl">Your routing inputs</h2>
+          <section className="flex flex-col items-center text-center md:w-1/2">
+            <h2 className="mb-3 text-2xl font-semibold sm:text-3xl">What StackScore analyzes</h2>
             <p className="mb-6 max-w-md text-sm text-neutral-400">
-              These six inputs help StackScore map a route that fits your situation, budget, and style.
+              These inputs help StackScore decide which levers matter most, what sequence makes the
+              most sense, and how to keep your route realistic.
             </p>
 
             <div className="flex h-64 w-full max-w-md items-end justify-center gap-3">
@@ -195,14 +233,36 @@ const SixSimple = ({ embedded = false }) => {
               ))}
             </div>
 
+            <div className="mt-8 w-full max-w-md rounded-2xl border border-white/10 bg-white/[0.04] p-5 text-left">
+              <h3 className="text-base font-semibold text-white">What you get on the result screen</h3>
+              <div className="mt-4 space-y-3 text-sm text-neutral-300">
+                <div className="flex items-start gap-2">
+                  <span className="mt-0.5 text-lime-300">✓</span>
+                  <span>Your personalized Credit Route</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="mt-0.5 text-lime-300">✓</span>
+                  <span>Highest-impact moves first</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="mt-0.5 text-lime-300">✓</span>
+                  <span>Step-by-step execution guidance</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="mt-0.5 text-lime-300">✓</span>
+                  <span>Tools only where they actually help</span>
+                </div>
+              </div>
+            </div>
+
             <div className="mt-6 space-y-2 text-center">
               <p className="text-sm">
-                <span className="font-semibold">Route Strength:</span>
-                <span className="ml-2 text-xl text-green-400 drop-shadow-md">★★★★★</span>
+                <span className="font-semibold">Core principle:</span>
+                <span className="ml-2 font-semibold text-cyan-400">Sequence beats randomness</span>
               </p>
               <p className="text-sm">
-                <span className="font-semibold">Synergy Score:</span>
-                <span className="ml-2 font-semibold text-cyan-400">High</span>
+                <span className="font-semibold">Output:</span>
+                <span className="ml-2 text-green-400 drop-shadow-md">A prioritized route</span>
               </p>
             </div>
           </section>
@@ -212,13 +272,13 @@ const SixSimple = ({ embedded = false }) => {
       {!embedded && (
         <footer className="mt-12 px-4 pb-6 text-center text-xs text-neutral-500">
           <div className="space-x-4">
-            <a href="/privacy-policy" className="hover:text-white transition">
+            <a href="/privacy-policy" className="transition hover:text-white">
               Privacy Policy
             </a>
-            <a href="/terms" className="hover:text-white transition">
+            <a href="/terms" className="transition hover:text-white">
               Terms of Use
             </a>
-            <a href="/cookies" className="hover:text-white transition">
+            <a href="/cookies" className="transition hover:text-white">
               Cookie Disclaimer
             </a>
           </div>

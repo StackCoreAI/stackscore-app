@@ -7,9 +7,16 @@ import PlanGrid from "../components/PlanGrid.jsx";
 import Button from "@/components/ui/Button";
 
 /* ------------------------------------------------------------------ */
-/* Answers helpers (chips only; no PII)                                */
+/* Answers helpers (chips only; no PII)                               */
 /* ------------------------------------------------------------------ */
-const BLANK = { housing: "", subs: [], tools: "", employment: "", goal: "", budget: "45" };
+const BLANK = {
+  housing: "",
+  subs: [],
+  tools: "",
+  employment: "",
+  goal: "",
+  budget: "45",
+};
 
 function loadAnswers() {
   try {
@@ -17,6 +24,7 @@ function loadAnswers() {
       localStorage.getItem("stackscoreUserData") ||
       localStorage.getItem("ss_answers") ||
       localStorage.getItem("stackscore_answers");
+
     if (!raw) return null;
     return { ...BLANK, ...JSON.parse(raw) };
   } catch {
@@ -36,13 +44,19 @@ function answersForApi(a) {
 }
 
 /* ------------------------------------------------------------------ */
-/* API: Netlify Function calls                                         */
+/* API: Netlify Function calls                                        */
 /* ------------------------------------------------------------------ */
 async function fetchStackPlan(stackKey, answers) {
   const res = await fetch("/.netlify/functions/generate-plan", {
     method: "POST",
-    headers: { "Content-Type": "application/json", Accept: "application/json" },
-    body: JSON.stringify({ stackKey, answers: answersForApi(answers) }),
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+    body: JSON.stringify({
+      stackKey,
+      answers: answersForApi(answers),
+    }),
   });
 
   const text = await res.text();
@@ -58,19 +72,31 @@ async function fetchStackPlan(stackKey, answers) {
 
 async function buildPlanSet(answers) {
   const keys = ["foundation", "growth", "accelerator", "elite"];
-  const results = await Promise.all(keys.map((k) => fetchStackPlan(k, answers).catch((e) => ({ error: e }))));
+
+  const results = await Promise.all(
+    keys.map((k) =>
+      fetchStackPlan(k, answers).catch((e) => ({
+        error: e,
+      }))
+    )
+  );
 
   const plans = keys.map((k, i) => {
     const data = results[i] || {};
     const apps = Array.isArray(data?.apps) ? data.apps.slice(0, 5) : [];
-    return { key: k, displayName: k[0].toUpperCase() + k.slice(1), apps };
+
+    return {
+      key: k,
+      displayName: k[0].toUpperCase() + k.slice(1),
+      apps,
+    };
   });
 
   return { plans };
 }
 
 /* ------------------------------------------------------------------ */
-/* Component                                                           */
+/* Component                                                          */
 /* ------------------------------------------------------------------ */
 export default function Preview() {
   const nav = useNavigate();
@@ -90,7 +116,7 @@ export default function Preview() {
   // Prevent double checkout session creation
   const checkoutInFlight = useRef(false);
 
-  // ✅ Extra-clean: reset "Redirecting..." when coming back from Stripe (bfcache) or returning to tab
+  // Reset "Opening Stripe..." when coming back from Stripe (bfcache) or tab restore
   useEffect(() => {
     const resetUnlockUI = () => {
       checkoutInFlight.current = false;
@@ -98,7 +124,7 @@ export default function Preview() {
       setUnlockErr("");
     };
 
-    const onPageShow = () => resetUnlockUI(); // back-button restore
+    const onPageShow = () => resetUnlockUI();
     const onVisibility = () => {
       if (!document.hidden) resetUnlockUI();
     };
@@ -115,6 +141,7 @@ export default function Preview() {
   const runFetch = useCallback(async (useAnswers) => {
     setError("");
     setStatus("loading");
+
     try {
       const data = await buildPlanSet(useAnswers);
       setPlanSet(data);
@@ -149,7 +176,9 @@ export default function Preview() {
           setStatus("done");
           return;
         }
-      } catch {}
+      } catch {
+        // ignore corrupt cache and refetch
+      }
     }
 
     runFetch(a);
@@ -158,12 +187,16 @@ export default function Preview() {
   function handleRefresh(updates) {
     const merged = { ...(answers || {}), ...(updates || {}) };
     setAnswers(merged);
+
     try {
       localStorage.setItem("stackscoreUserData", JSON.stringify({ ...merged, step: 6 }));
       localStorage.setItem("ss_answers", JSON.stringify(merged));
       localStorage.setItem("stackscore_answers", JSON.stringify(merged));
       sessionStorage.removeItem("ss_plan");
-    } catch {}
+    } catch {
+      // ignore storage failures
+    }
+
     runFetch(merged);
   }
 
@@ -177,18 +210,19 @@ export default function Preview() {
       sessionStorage.removeItem("ss_plan");
       sessionStorage.removeItem("ss_selected");
       sessionStorage.removeItem("ss_refreshed_at");
-    } catch {}
+    } catch {
+      // ignore storage failures
+    }
+
     nav("/wizard?fresh=1", { replace: true });
   };
 
-  // ✅ Called from per-card unlock buttons (PlanGrid passes stackKey)
   function startUnlock(stackKey = "growth") {
     setPendingStackKey(stackKey);
     beginCheckout(stackKey);
   }
 
   async function beginCheckout(stackKey = "growth") {
-    // Double-fire protection
     if (checkoutInFlight.current) return;
     checkoutInFlight.current = true;
 
@@ -198,11 +232,15 @@ export default function Preview() {
     try {
       const res = await fetch("/.netlify/functions/create-checkout-session", {
         method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
         body: JSON.stringify({ stackKey }),
       });
 
       const payload = await res.json().catch(() => ({}));
+
       if (!res.ok || !payload?.url) {
         const msg = payload?.error || `Checkout failed (${res.status}). Please try again.`;
         throw new Error(msg);
@@ -213,7 +251,7 @@ export default function Preview() {
       console.error(e);
       setUnlockErr(e?.message || "Couldn’t start checkout. Please try again.");
       setUnlocking(false);
-      checkoutInFlight.current = false; // allow retry
+      checkoutInFlight.current = false;
     }
   }
 
@@ -231,13 +269,16 @@ export default function Preview() {
         <div className="mx-auto max-w-5xl px-4 pb-10">
           {status === "loading" && (
             <div className="mt-6">
-              <Loader label="Crunching your answers and assembling your routes…" />
+              <Loader label="Building your personalized Credit Routes…" />
             </div>
           )}
 
           {status === "error" && (
-            <div role="alert" className="mt-6 rounded-xl border border-red-200/30 bg-red-500/10 p-4 text-red-300">
-              Couldn’t load your routes. <span className="font-medium">Please try again.</span>
+            <div
+              role="alert"
+              className="mt-6 rounded-xl border border-red-200/30 bg-red-500/10 p-4 text-red-300"
+            >
+              Couldn’t load your Credit Routes. <span className="font-medium">Please try again.</span>
               <div className="mt-1 text-xs opacity-80">Details: {error}</div>
 
               <div className="mt-4 flex gap-2">
@@ -257,22 +298,20 @@ export default function Preview() {
                 <PlanGrid plans={planSet.plans} fallbackStack={planSet.stack} onUnlock={startUnlock} />
               </div>
 
-              {/* Your Activation Includes */}
               <div className="mt-5 rounded-xl border border-white/10 bg-white/[0.04] p-4">
                 <h3 className="text-sm font-semibold text-white">Your Activation Includes</h3>
-                <div className="mt-3 grid gap-4 sm:grid-cols-2 text-sm text-neutral-300">
-                  <ul className="space-y-1 list-disc pl-5">
+                <div className="mt-3 grid gap-4 text-sm text-neutral-300 sm:grid-cols-2">
+                  <ul className="list-disc space-y-1 pl-5">
                     <li>Immediate access to your full Credit Route</li>
-                    <li>Smart reroutes if an app isn’t available</li>
+                    <li>Highest-impact steps prioritized for your profile</li>
                   </ul>
-                  <ul className="space-y-1 list-disc pl-5">
-                    <li>Step-by-step activation guide</li>
-                    <li>Printable execution blueprint</li>
+                  <ul className="list-disc space-y-1 pl-5">
+                    <li>Step-by-step execution guide</li>
+                    <li>Smart reroutes if a tool is unavailable</li>
                   </ul>
                 </div>
               </div>
 
-              {/* Global CTA */}
               <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
                 <Button
                   size="lg"
@@ -280,13 +319,18 @@ export default function Preview() {
                   onClick={() => startUnlock(pendingStackKey)}
                   disabled={unlocking}
                 >
-                  {unlocking ? "Opening Stripe…" : "Activate My Full Credit Route — $29"}
+                  {unlocking ? "Opening Stripe…" : "Unlock My Full Credit Route — $29"}
                 </Button>
                 {unlockErr && <span className="text-sm text-red-300">{unlockErr}</span>}
               </div>
 
               <p className="mt-2 text-xs text-neutral-400">
                 Secure checkout • Instant access • No credit check required
+              </p>
+
+              <p className="mt-3 max-w-3xl text-xs text-neutral-500">
+                StackScore does not guarantee approval. It helps you focus on the moves most likely to
+                strengthen your credit profile based on your situation.
               </p>
             </>
           )}
@@ -295,7 +339,11 @@ export default function Preview() {
             <Button variant="secondary" size="sm" onClick={editAnswers}>
               Make changes
             </Button>
-            <Button variant="secondary" size="sm" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            >
               Scroll to top
             </Button>
           </div>

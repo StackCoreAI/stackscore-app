@@ -15,36 +15,38 @@ export default function Hero({ embedded = false }) {
   const goWizard = () => {
     try {
       localStorage.setItem("entryPoint", "hero");
-    } catch {}
+    } catch {
+      // ignore storage errors
+    }
     navigate("/activate");
   };
 
-  const GAINS = [
+  const ROUTES = [
     {
       key: "foundation",
       name: "Foundation Route",
-      pts: "+10–30 pts",
+      focus: "Build your base",
       tone: "lime",
       badge: { icon: "💰", label: "Best Value" },
     },
     {
       key: "growth",
       name: "Growth Route",
-      pts: "+40–70 pts",
+      focus: "Balanced next moves",
       tone: "amber",
       badge: { icon: "🔥", label: "Recommended" },
     },
     {
       key: "accelerator",
       name: "Accelerator Route",
-      pts: "+80–100 pts",
+      focus: "Higher-impact sequencing",
       tone: "cyan",
       badge: { icon: "🚀", label: "Power Boost" },
     },
     {
       key: "elite",
       name: "Elite Route",
-      pts: "100+ pts",
+      focus: "Maximum route depth",
       tone: "yellow",
       badge: { icon: "💎", label: "Premium" },
     },
@@ -102,24 +104,21 @@ export default function Hero({ embedded = false }) {
           </button>
 
           <nav className="flex flex-col items-start gap-4 md:flex-row md:items-center md:gap-8">
-            <Link to="/" className="text-neutral-300 transition-colors hover:text-white">
+            <a href="#main" className="text-neutral-300 transition-colors hover:text-white">
               Home
-            </Link>
-            <Link to="/sixsimple" className="text-neutral-300 transition-colors hover:text-white">
-              Features
-            </Link>
-            <Link to="/preview" className="text-neutral-300 transition-colors hover:text-white">
-              Results
-            </Link>
-            <Link to="/pricing" className="text-neutral-300 transition-colors hover:text-white">
+            </a>
+            <a href="#how-it-works" className="text-neutral-300 transition-colors hover:text-white">
+              How It Works
+            </a>
+            <a href="#pricing" className="text-neutral-300 transition-colors hover:text-white">
               Pricing
-            </Link>
-            <Link to="/faq" className="text-neutral-300 transition-colors hover:text-white">
+            </a>
+            <a href="#faq" className="text-neutral-300 transition-colors hover:text-white">
               FAQ
-            </Link>
+            </a>
 
-            <Link to="/activate" aria-label="Start my credit route" className="mt-1 inline-flex md:mt-0">
-              <Button size="sm">🚀 Start My Credit Route</Button>
+            <Link to="/activate" aria-label="Get my credit route" className="mt-1 inline-flex md:mt-0">
+              <Button size="sm">Get My Credit Route</Button>
             </Link>
           </nav>
         </header>
@@ -147,74 +146,101 @@ export default function Hero({ embedded = false }) {
               <path d="M4 10.5h16v3H4z" />
               <path d="M4 17h16v3H4z" />
             </svg>
-            StackScore is <span className="font-semibold text-white">Credit Routing</span>
+            Personalized <span className="font-semibold text-white">Credit Routing</span>
           </div>
 
           <h1 className="text-3xl font-light leading-tight tracking-tight sm:text-4xl md:text-5xl lg:text-6xl">
-            Route your credit score higher.
+            No single app fixes credit.
+            <span className="block bg-gradient-to-r from-lime-400 via-emerald-400 to-cyan-400 bg-clip-text font-semibold text-transparent">
+              StackScore shows you what actually moves it.
+            </span>
           </h1>
 
-          <p className="max-w-xl text-lg text-slate-300">
-            StackScore maps your highest-impact <span className="font-medium text-white">Credit Route</span> — selecting and
-            stacking the right tools so they work together.
+          <p className="max-w-2xl text-lg text-slate-300">
+            StackScore analyzes your situation and maps the highest-impact moves for your credit profile in the
+            right order. Because improving credit is not about one app. It is about the right actions,
+            sequenced correctly.
           </p>
 
-          <p className="mt-2 text-sm text-neutral-400">
-            Takes about 60 seconds • No credit pull • No sensitive financial data required
+          <p className="text-sm text-neutral-400">
+            Personalized credit routing based on your profile, timeline, budget, and goals.
           </p>
 
           <div className="flex flex-col gap-4 pt-2 sm:flex-row sm:items-center">
             <div className="flex flex-col gap-2">
-              <Button size="lg" onClick={goWizard} aria-label="Start my credit route">
-                🚀 Start My Credit Route
+              <Button size="lg" onClick={goWizard} aria-label="Get my credit route">
+                Get My Credit Route
               </Button>
               <p className="text-xs text-slate-500">
-                Quick questions → personalized routes → activate when you’re ready
+                Quick questions → personalized routes → unlock when you’re ready
               </p>
             </div>
 
-            <Link to="/sixsimple" aria-label="See how credit routing works" className="inline-flex">
+            <a href="#how-it-works" aria-label="See how StackScore works" className="inline-flex">
               <Button variant="secondary" size="lg">
-                📘 See How It Works
+                See How It Works
               </Button>
-            </Link>
+            </a>
           </div>
 
+          <p className="max-w-2xl text-xs text-slate-500">
+            StackScore does not guarantee approval. It helps you focus on the moves most likely to strengthen
+            your credit profile based on where you are now.
+          </p>
+
           <p className="text-xs text-slate-500">
-            Privacy-first. No sensitive financial data required. Results vary by credit profile and reporting timelines.
+            No credit pull • No sensitive financial data required • Results vary by credit profile and reporting
+            timelines
           </p>
         </div>
 
         <div className="lg:col-span-6">
           <div className="space-y-6 rounded-xl border border-white/10 bg-white/5 p-6 shadow-md backdrop-blur-sm">
             <h3 className="text-center text-lg font-semibold tracking-tight text-white">
-              Credit Routes You Can Activate
+              Credit Routes Built Around Your Situation
             </h3>
 
             <div className="grid grid-cols-2 gap-3">
-              {GAINS.map((g) => (
+              {ROUTES.map((route) => (
                 <div
-                  key={g.key}
-                  className={`rounded-lg border p-4 text-center transition hover:bg-white/10 ${toneBorder[g.tone]}`}
+                  key={route.key}
+                  className={`rounded-lg border p-4 text-center transition hover:bg-white/10 ${toneBorder[route.tone]}`}
                 >
-                  <p className={`font-semibold ${toneText[g.tone]}`}>{g.name}</p>
-                  <p className="text-xs text-slate-300">{g.pts}</p>
+                  <p className={`font-semibold ${toneText[route.tone]}`}>{route.name}</p>
+                  <p className="mt-1 text-xs text-slate-300">{route.focus}</p>
 
                   <span
-                    className={`mt-2 inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium ${toneBadge[g.tone]}`}
+                    className={`mt-3 inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium ${toneBadge[route.tone]}`}
                   >
                     <span aria-hidden="true" className="text-sm leading-none">
-                      {g.badge.icon}
+                      {route.badge.icon}
                     </span>
-                    <span className="leading-none">{g.badge.label}</span>
+                    <span className="leading-none">{route.badge.label}</span>
                   </span>
                 </div>
               ))}
             </div>
 
+            <div className="rounded-lg border border-white/10 bg-black/30 p-4">
+              <div className="grid gap-3 sm:grid-cols-3">
+                <div>
+                  <p className="text-[11px] uppercase tracking-wider text-slate-500">What we analyze</p>
+                  <p className="mt-1 text-sm text-white">Profile, timeline, budget, goals</p>
+                </div>
+                <div>
+                  <p className="text-[11px] uppercase tracking-wider text-slate-500">What we identify</p>
+                  <p className="mt-1 text-sm text-white">The levers most likely to move your profile</p>
+                </div>
+                <div>
+                  <p className="text-[11px] uppercase tracking-wider text-slate-500">What you get</p>
+                  <p className="mt-1 text-sm text-white">A prioritized route, not a random stack of apps</p>
+                </div>
+              </div>
+            </div>
+
             <div className="space-y-1 text-center">
-              <p className="text-lime-300">Route Strength: ★★★★★</p>
-              <p className="text-emerald-400">Synergy Score: High</p>
+              <p className="text-lime-300">Highest-impact moves first</p>
+              <p className="text-emerald-400">Tools only where they actually help</p>
               <p className="text-xs text-slate-500">Results vary by credit profile and reporting timelines.</p>
             </div>
           </div>

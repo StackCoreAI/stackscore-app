@@ -1,6 +1,5 @@
 // src/components/PreviewHeader.jsx
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
 import Button from "@/components/ui/Button";
 
 export default function PreviewHeader({
@@ -46,38 +45,40 @@ export default function PreviewHeader({
         </div>
 
         <div className="flex items-center gap-3">
-  <Button
-    variant="ghost"
-    className="opacity-80 hover:opacity-100"
-    onClick={onEdit}
-  >
-    Edit answers
-  </Button>
+          <Button
+            variant="ghost"
+            className="opacity-80 hover:opacity-100"
+            onClick={onEdit}
+          >
+            Edit answers
+          </Button>
 
-  <Button
-    variant="ghost"
-    className="opacity-50 hover:opacity-100"
-    onClick={onReset}
-  >
-    Start over
-  </Button>
-</div>
+          <Button
+            variant="ghost"
+            className="opacity-50 hover:opacity-100"
+            onClick={onReset}
+          >
+            Start over
+          </Button>
+        </div>
       </div>
 
       {/* hero */}
       <div className="mx-auto max-w-5xl px-4 pb-6">
         <h1 className="text-3xl font-extrabold md:text-4xl">
-  Your <span className="text-lime-400">Credit Routes</span> Are Ready
-</h1>
+          Your <span className="text-lime-400">Credit Routes</span> Are Ready
+        </h1>
 
-<p className="mt-3 text-neutral-300">
-  Your highest-impact route is mapped and ready to activate — in the right order with built-in reroutes.
-</p>
-<p className="mt-2 text-xs text-neutral-400">
-  Optimized for your current profile.
-</p>
+        <p className="mt-3 text-neutral-300">
+          StackScore mapped your highest-impact next moves based on your situation —
+          in the right order, with built-in reroutes when needed.
+        </p>
 
-        {/* chips — same order/labels as wizard */}
+        <p className="mt-2 text-xs text-neutral-400">
+          This is a prioritized Credit Route designed around your profile, timeline, and budget.
+        </p>
+
+        {/* chips */}
         <div className="mt-5 flex flex-wrap gap-2 text-sm">
           <Chip label="Living Situation" value={pretty(answers?.housing)} />
           <Chip
@@ -92,12 +93,13 @@ export default function PreviewHeader({
           <span className="ml-auto text-xs text-neutral-400">
             Last refreshed <span className="text-neutral-300">{lastRef}</span>
           </span>
+
           <Button
             variant="ghost"
             className="ml-1 px-3 py-1 text-xs"
             onClick={() => setOpen(true)}
           >
-            Refresh plan
+            Refresh route
           </Button>
         </div>
       </div>
@@ -139,7 +141,8 @@ function MiniRefresh({ initial = {}, onApply, onClose }) {
       <div className="w-full max-w-md rounded-2xl border border-white/10 bg-gray-900 p-5">
         <h2 className="text-lg font-semibold">Quick refresh</h2>
         <p className="mt-1 text-sm text-neutral-400">
-          Adjust these and we’ll rebuild your four stacks.
+          Adjust these inputs and we’ll rebuild your Credit Routes around the
+          new priorities.
         </p>
 
         <div className="mt-5 space-y-6">
@@ -169,7 +172,9 @@ function MiniRefresh({ initial = {}, onApply, onClose }) {
                   key={g.v}
                   onClick={() => setGoal(g.v)}
                   className={`rounded-lg border px-3 py-2 ${
-                    goal === g.v ? "border-white/30 bg-white/10" : "border-white/10 hover:bg-white/5"
+                    goal === g.v
+                      ? "border-white/30 bg-white/10"
+                      : "border-white/10 hover:bg-white/5"
                   }`}
                 >
                   {g.label}
@@ -197,12 +202,14 @@ function pretty(x) {
   if (!x) return "—";
   return x.replace(/-/g, " ").replace(/\b\w/g, (m) => m.toUpperCase());
 }
+
 function prettyTools(x) {
-  if (x === "auto") return "Automated (recommended)";
+  if (x === "auto") return "Automated";
   if (x === "manual") return "Manual";
   if (x === "not-sure") return "Not sure";
   return "—";
 }
+
 function prettyGoal(x) {
   if (x === "30") return "ASAP (30 days)";
   if (x === "90") return "90 Days";
