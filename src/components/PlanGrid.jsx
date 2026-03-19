@@ -247,7 +247,7 @@ function PlanCard({ plan, selectedKey, onSelect, onUnlock }) {
 
   {key === "growth" && (
     <div className="text-xs text-neutral-400 mb-2">
-      Start here. You can adjust later if needed.
+      Start here. You can always adjust your route later.
     </div>
   )}
 
