@@ -6,9 +6,6 @@ import PreviewHeader from "../components/PreviewHeader.jsx";
 import PlanGrid from "../components/PlanGrid.jsx";
 import Button from "@/components/ui/Button";
 
-/* ------------------------------------------------------------------ */
-/* Answers helpers (chips only; no PII)                               */
-/* ------------------------------------------------------------------ */
 const BLANK = {
   housing: "",
   subs: [],
@@ -43,9 +40,6 @@ function answersForApi(a) {
   };
 }
 
-/* ------------------------------------------------------------------ */
-/* API: Netlify Function calls                                        */
-/* ------------------------------------------------------------------ */
 async function fetchStackPlan(stackKey, answers) {
   const res = await fetch("/.netlify/functions/generate-plan", {
     method: "POST",
@@ -95,9 +89,6 @@ async function buildPlanSet(answers) {
   return { plans };
 }
 
-/* ------------------------------------------------------------------ */
-/* Component                                                          */
-/* ------------------------------------------------------------------ */
 export default function Preview() {
   const nav = useNavigate();
 
@@ -113,10 +104,8 @@ export default function Preview() {
   const [unlockErr, setUnlockErr] = useState("");
   const [pendingStackKey, setPendingStackKey] = useState("growth");
 
-  // Prevent double checkout session creation
   const checkoutInFlight = useRef(false);
 
-  // Reset "Opening Stripe..." when coming back from Stripe (bfcache) or tab restore
   useEffect(() => {
     const resetUnlockUI = () => {
       checkoutInFlight.current = false;
@@ -176,9 +165,7 @@ export default function Preview() {
           setStatus("done");
           return;
         }
-      } catch {
-        // ignore corrupt cache and refetch
-      }
+      } catch {}
     }
 
     runFetch(a);
@@ -193,9 +180,7 @@ export default function Preview() {
       localStorage.setItem("ss_answers", JSON.stringify(merged));
       localStorage.setItem("stackscore_answers", JSON.stringify(merged));
       sessionStorage.removeItem("ss_plan");
-    } catch {
-      // ignore storage failures
-    }
+    } catch {}
 
     runFetch(merged);
   }
@@ -210,9 +195,7 @@ export default function Preview() {
       sessionStorage.removeItem("ss_plan");
       sessionStorage.removeItem("ss_selected");
       sessionStorage.removeItem("ss_refreshed_at");
-    } catch {
-      // ignore storage failures
-    }
+    } catch {}
 
     nav("/wizard?fresh=1", { replace: true });
   };
@@ -269,7 +252,7 @@ export default function Preview() {
         <div className="mx-auto max-w-5xl px-4 pb-10">
           {status === "loading" && (
             <div className="mt-6">
-              <Loader label="Building your personalized Credit Routes…" />
+              <Loader label="Building your personalized CreditRoutes…" />
             </div>
           )}
 
@@ -278,7 +261,7 @@ export default function Preview() {
               role="alert"
               className="mt-6 rounded-xl border border-red-200/30 bg-red-500/10 p-4 text-red-300"
             >
-              Couldn’t load your Credit Routes. <span className="font-medium">Please try again.</span>
+              Couldn’t load your CreditRoutes. <span className="font-medium">Please try again.</span>
               <div className="mt-1 text-xs opacity-80">Details: {error}</div>
 
               <div className="mt-4 flex gap-2">
@@ -302,7 +285,7 @@ export default function Preview() {
                 <h3 className="text-sm font-semibold text-white">Your Activation Includes</h3>
                 <div className="mt-3 grid gap-4 text-sm text-neutral-300 sm:grid-cols-2">
                   <ul className="list-disc space-y-1 pl-5">
-                    <li>Immediate access to your full Credit Route</li>
+                    <li>Immediate access to your full CreditRoute</li>
                     <li>Highest-impact steps prioritized for your profile</li>
                   </ul>
                   <ul className="list-disc space-y-1 pl-5">
@@ -319,7 +302,7 @@ export default function Preview() {
                   onClick={() => startUnlock(pendingStackKey)}
                   disabled={unlocking}
                 >
-                  {unlocking ? "Opening Stripe…" : "Unlock My Full Credit Route — $29"}
+                  {unlocking ? "Opening Stripe…" : "Unlock CreditRoute — $29"}
                 </Button>
                 {unlockErr && <span className="text-sm text-red-300">{unlockErr}</span>}
               </div>
@@ -329,7 +312,7 @@ export default function Preview() {
               </p>
 
               <p className="mt-3 max-w-3xl text-xs text-neutral-500">
-                StackScore does not guarantee approval. It helps you focus on the moves most likely to
+                CreditRoute does not guarantee approval. It helps you focus on the moves most likely to
                 strengthen your credit profile based on your situation.
               </p>
             </>
