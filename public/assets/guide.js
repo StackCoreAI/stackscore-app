@@ -109,9 +109,9 @@ function fallbackStepsFor(app) {
     normalizeArray(app?.features)[0] || "the main reporting feature";
 
   return [
-    `Create your ${appName} account and complete the setup flow.`,
-    `Connect the payment source, bank account, or verification details required for ${String(primaryFeature).toLowerCase()}.`,
-    `Turn on the specific reporting or credit-building feature inside ${appName} so it starts contributing to your route.`,
+    `Open ${appName} and create your account.`,
+    `Connect the payment source, bank account, or verification details needed for ${String(primaryFeature).toLowerCase()}.`,
+    `Turn on the specific reporting or credit-building feature inside ${appName}.`,
   ];
 }
 
@@ -149,26 +149,22 @@ function computeSignals(apps = []) {
   const names = apps.map((a) => String(a?.app_name || "").toLowerCase()).join(" | ");
   const signals = [];
 
-  if (/rent|boom|rentreport|pinata|piñata/.test(names)) {
-    signals.push("✓ Rent reporting");
-  }
-  if (/boost|experian|grow credit|grain/.test(names)) {
-    signals.push("✓ Utilities reporting");
-  }
-  if (/kikoff|self|kovo/.test(names)) {
-    signals.push("✓ Installment builder");
-  }
-  if (/dovly|dispute/.test(names)) {
-    signals.push("✓ Dispute support");
-  }
-  if (/tomo|extra|grain/.test(names)) {
-    signals.push("✓ Tradeline support");
-  }
+  if (/rent|boom|rentreport|pinata|piñata/.test(names)) signals.push("✓ Rent reporting");
+  if (/boost|experian|grow credit|grain/.test(names)) signals.push("✓ Utilities reporting");
+  if (/kikoff|self|kovo/.test(names)) signals.push("✓ Installment builder");
+  if (/dovly|dispute/.test(names)) signals.push("✓ Dispute support");
+  if (/tomo|extra|grain/.test(names)) signals.push("✓ Tradeline support");
 
   if (!signals.length) signals.push("✓ Route resilience");
   if (signals.length < 3) signals.push("✓ Route resilience");
 
   return signals.slice(0, 4);
+}
+
+function asActionStep(text, index) {
+  const clean = String(text || "").trim();
+  if (!clean) return "";
+  return `<li><span class="font-medium text-white">${index + 1}.</span> ${clean}</li>`;
 }
 
 function fallbackOptionsHtml() {
@@ -188,18 +184,64 @@ function fallbackOptionsHtml() {
   `;
 }
 
+function checkpointHtml(app) {
+  const features = normalizeArray(app?.features);
+  const feature = features[0] || "recommended feature";
+  return `
+    <div class="rounded-md bg-black/40 border border-white/10 px-3 py-2.5">
+      <div class="text-[11px] text-zinc-400 mb-1.5">Checkpoint</div>
+      <ul class="list-disc pl-5 text-sm text-zinc-100/90 space-y-1">
+        <li>Check that your account setup is complete.</li>
+        <li>Confirm the ${feature} option is turned on or submitted.</li>
+        <li>Save any confirmation screen, email, or setup note for your records.</li>
+      </ul>
+    </div>
+  `;
+}
+
+function moveForwardHtml() {
+  return `
+    <div class="rounded-md bg-black/40 border border-white/10 px-3 py-2.5">
+      <div class="text-[11px] text-zinc-400 mb-1.5">How to Move Forward</div>
+      <ul class="list-disc pl-5 text-sm text-zinc-100/90 space-y-1">
+        <li>Move to the next step after setup is complete and saved.</li>
+        <li>Avoid adding extra tools until the current step is confirmed.</li>
+        <li>Use the fallback options if the tool, feature, or timing does not fit your situation.</li>
+      </ul>
+    </div>
+  `;
+}
+
+function completionHtml() {
+  return `
+    <div class="rounded-md bg-black/40 border border-white/10 px-3 py-2.5">
+      <div class="text-[11px] text-zinc-400 mb-1.5">You’re done when</div>
+      <ul class="list-disc pl-5 text-sm text-zinc-100/90 space-y-1">
+        <li>The account or tool setup is complete.</li>
+        <li>The recommended feature is enabled, submitted, or ready for review.</li>
+        <li>You know the next step in your CreditRoute.</li>
+      </ul>
+    </div>
+  `;
+}
+
+function timeRequiredHtml() {
+  return `
+    <div class="rounded-md bg-black/40 border border-white/10 px-3 py-2.5">
+      <div class="text-[11px] text-zinc-400 mb-1.5">Time required</div>
+      <p class="text-sm text-zinc-100/90 leading-relaxed">Most setup steps take about 10–20 minutes. Some tools may take longer if identity, bank, or account verification is required.</p>
+    </div>
+  `;
+}
+
 function initIconsAndAnim() {
   try {
-    if (window.lucide && typeof window.lucide.createIcons === "function") {
-      window.lucide.createIcons();
-    }
+    if (window.lucide && typeof window.lucide.createIcons === "function") window.lucide.createIcons();
   } catch {}
 
   const anim = document.querySelectorAll("[data-anim]");
   anim.forEach((el, i) => {
-    if (!el.classList.contains("show")) {
-      setTimeout(() => el.classList.add("show"), i * 120);
-    }
+    if (!el.classList.contains("show")) setTimeout(() => el.classList.add("show"), i * 120);
   });
 
   document.querySelectorAll(".init-opacity").forEach((el) => el.classList.add("show"));
@@ -218,9 +260,7 @@ function initLocalProgress() {
     });
   });
 
-  const saveBtn = [...document.querySelectorAll("button")].find((b) =>
-    /save progress/i.test(b.textContent || "")
-  );
+  const saveBtn = [...document.querySelectorAll("button")].find((b) => /save progress/i.test(b.textContent || ""));
   if (saveBtn) {
     saveBtn.addEventListener("click", () => {
       localStorage.setItem(prefix + "progress-saved", Date.now().toString());
@@ -228,9 +268,7 @@ function initLocalProgress() {
     });
   }
 
-  const completeBtn = [...document.querySelectorAll("button")].find((b) =>
-    /mark complete/i.test(b.textContent || "")
-  );
+  const completeBtn = [...document.querySelectorAll("button")].find((b) => /mark complete/i.test(b.textContent || ""));
   if (completeBtn) {
     const completeKey = prefix + "completed";
     if (localStorage.getItem(completeKey) === "1") {
@@ -255,8 +293,7 @@ function buildSidebarAppItem(app, index) {
   details.className = "group rounded-xl border border-white/10 bg-black/30 overflow-hidden";
 
   const summary = document.createElement("summary");
-  summary.className =
-    "cursor-pointer list-none px-3 py-2 flex items-center justify-between gap-3";
+  summary.className = "cursor-pointer list-none px-3 py-2 flex items-center justify-between gap-3";
   summary.dataset.app = app.app_name || "";
   summary.dataset.url = app.app_url || "";
   summary.dataset.step1 = steps[0] || "";
@@ -290,7 +327,7 @@ function buildSidebarAppItem(app, index) {
     : "";
 
   const rerouteMarkup = reroutes.length
-    ? `<div class="mt-2 text-[11px] text-zinc-400 uppercase tracking-wider">Reroutes</div>
+    ? `<div class="mt-2 text-[11px] text-zinc-400 uppercase tracking-wider">Fallback Options</div>
        <ul class="mt-1 text-xs text-zinc-300 space-y-1 list-disc pl-4">
          ${reroutes.map((r) => `<li>${r}</li>`).join("")}
        </ul>`
@@ -302,10 +339,10 @@ function buildSidebarAppItem(app, index) {
 
   body.innerHTML = `
     ${featureMarkup}
-    <div class="mt-2 text-[11px] text-zinc-400 uppercase tracking-wider">Activation steps</div>
-    <ul class="mt-1 text-xs text-zinc-200/90 space-y-1 list-disc pl-4">
-      ${steps.map((step) => `<li>${step}</li>`).join("")}
-    </ul>
+    <div class="mt-2 text-[11px] text-zinc-400 uppercase tracking-wider">Start Here</div>
+    <ol class="mt-1 text-xs text-zinc-200/90 space-y-1 pl-4">
+      ${steps.map((step, i) => asActionStep(step, i)).join("")}
+    </ol>
     ${tipMarkup}
     ${rerouteMarkup}
   `;
@@ -320,9 +357,7 @@ function renderSidebarApps(apps) {
   if (!slot) return;
 
   slot.innerHTML = "";
-  apps.forEach((app, index) => {
-    slot.appendChild(buildSidebarAppItem(app, index));
-  });
+  apps.forEach((app, index) => slot.appendChild(buildSidebarAppItem(app, index)));
 }
 
 function renderRouteSummary(plan, apps) {
@@ -340,9 +375,7 @@ function renderRouteSummary(plan, apps) {
   }
 
   const allReroutes = [
-    ...new Set(
-      apps.flatMap((app) => normalizeArray(app.reroutes).map((v) => String(v).trim())).filter(Boolean)
-    ),
+    ...new Set(apps.flatMap((app) => normalizeArray(app.reroutes).map((v) => String(v).trim())).filter(Boolean)),
   ];
 
   if (reroutesWrap && reroutesList) {
@@ -355,18 +388,14 @@ function renderRouteSummary(plan, apps) {
     }
   }
 
-  if (routingSlot && summaryEl && summaryEl.textContent.trim() !== "—") {
-    routingSlot.style.display = "block";
-  }
+  if (routingSlot && summaryEl && summaryEl.textContent.trim() !== "—") routingSlot.style.display = "block";
 }
 
 function renderWhy(plan) {
   const overview = document.getElementById("why-overview");
   const assumptions = document.getElementById("why-assumptions");
 
-  if (overview) {
-    overview.textContent = whyOverviewText(plan);
-  }
+  if (overview) overview.textContent = whyOverviewText(plan);
 
   if (assumptions) {
     const items = normalizeArray(plan?.assumptions).map((v) => String(v).trim()).filter(Boolean);
@@ -381,18 +410,8 @@ function renderWhy(plan) {
 }
 
 function renderSnapshot(plan, apps, planKey) {
-  const focus =
-    planKey === "elite"
-      ? "Maximum lift"
-      : planKey === "accelerator"
-      ? "Momentum + cleanup"
-      : planKey === "growth"
-      ? "Balanced lift"
-      : "Low-friction activation";
-
-  const strategy =
-    String(plan?.routing_summary || "").trim() ||
-    "Low-friction reporting signals";
+  const focus = planKey === "elite" ? "Maximum lift" : planKey === "accelerator" ? "Momentum + cleanup" : planKey === "growth" ? "Balanced lift" : "Low-friction activation";
+  const strategy = String(plan?.routing_summary || "").trim() || "Low-friction reporting signals";
 
   setText('[data-hook="snap-focus"]', focus);
   setText('[data-hook="snap-strategy"]', strategy.length > 58 ? strategy.slice(0, 58) + "…" : strategy);
@@ -401,9 +420,7 @@ function renderSnapshot(plan, apps, planKey) {
 
   const signals = computeSignals(apps);
   const signalsEl = document.querySelector('[data-hook="scorecard-signals"]');
-  if (signalsEl) {
-    signalsEl.innerHTML = signals.map((signal) => `<li>${signal}</li>`).join("");
-  }
+  if (signalsEl) signalsEl.innerHTML = signals.map((signal) => `<li>${signal}</li>`).join("");
 
   setText('[data-hook="scorecard-route"]', planLabelForScorecard(planKey));
 }
@@ -434,39 +451,43 @@ function renderInstructionPanel(apps, index = 0) {
   }
 
   if (whyEl) {
-    const summaryParts = [];
-    if (features.length) {
-      summaryParts.push(`Use these features in ${app.app_name}: ${features.join(", ")}.`);
-    } else {
-      summaryParts.push(`Use the recommended reporting or credit-building feature inside ${app.app_name}.`);
-    }
-    if (app.tip) {
-      summaryParts.push(`Tip: ${app.tip}`);
-    }
-    whyEl.textContent = summaryParts.join(" ");
+    const featureText = features.length ? `This step focuses on: ${features.join(", ")}.` : `This step focuses on the recommended reporting or credit-building feature inside ${app.app_name}.`;
+    whyEl.innerHTML = `
+      <div class="space-y-2">
+        <div><span class="text-[11px] uppercase tracking-wider text-zinc-400">Why This Step Matters</span></div>
+        <p>${featureText}</p>
+        <p>This helps you keep your CreditRoute organized around one action at a time.</p>
+      </div>
+    `;
   }
 
   if (stepsEl) {
-    stepsEl.innerHTML = steps.map((step) => `<li>${step}</li>`).join("");
+    stepsEl.innerHTML = steps.map((step, i) => asActionStep(step, i)).join("");
   }
 
   if (risksEl) {
     const items = executionInsights.length
       ? executionInsights
       : [
-          "Confirm setup before moving to the next tool.",
-          "Turn on the exact reporting feature named in this route.",
-          "Give the account time to report before making extra changes.",
+          "Setup may take 10–20 minutes, depending on verification requirements.",
+          "Some tools may require email, bank, identity, or account verification.",
+          "Wait for confirmation before moving to the next tool.",
         ];
     risksEl.innerHTML = items.map((item) => `<li>${item}</li>`).join("");
+    const label = risksEl.closest("div")?.querySelector("div");
+    if (label) label.textContent = "What to Expect";
   }
 
-  if (fallbackSummary) {
-    fallbackSummary.textContent = "Fallback Options";
-  }
+  if (fallbackSummary) fallbackSummary.textContent = "Fallback Options";
+  if (fallbacksEl) fallbacksEl.innerHTML = fallbackOptionsHtml();
 
-  if (fallbacksEl) {
-    fallbacksEl.innerHTML = fallbackOptionsHtml();
+  const instructionRoot = document.getElementById("ss-instructions");
+  if (instructionRoot && !document.getElementById("execution-clarity-blocks")) {
+    const wrap = document.createElement("div");
+    wrap.id = "execution-clarity-blocks";
+    wrap.className = "space-y-2";
+    wrap.innerHTML = `${timeRequiredHtml()}${checkpointHtml(app)}${completionHtml()}${moveForwardHtml()}`;
+    instructionRoot.appendChild(wrap);
   }
 }
 
@@ -490,49 +511,26 @@ function renderPlan(plan, planKey) {
 }
 
 async function fetchPlanFromServer(planKey) {
-  const answers =
-    safeParse(localStorage.getItem("ss_answers"), null) ||
-    safeParse(localStorage.getItem("stackscoreUserData"), null) ||
-    safeParse(localStorage.getItem("stackscore_answers"), null) ||
-    {};
+  const answers = safeParse(localStorage.getItem("ss_answers"), null) || safeParse(localStorage.getItem("stackscoreUserData"), null) || safeParse(localStorage.getItem("stackscore_answers"), null) || {};
 
   const res = await fetch("/.netlify/functions/generate-plan", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-    },
-    body: JSON.stringify({
-      stackKey: planKey,
-      answers,
-    }),
+    headers: { "Content-Type": "application/json", Accept: "application/json" },
+    body: JSON.stringify({ stackKey: planKey, answers }),
   });
 
   const json = await res.json().catch(() => ({}));
-  if (!res.ok) {
-    throw new Error(json?.error || `generate-plan failed (${res.status})`);
-  }
-
+  if (!res.ok) throw new Error(json?.error || `generate-plan failed (${res.status})`);
   return json;
 }
 
 async function initPlanHydration() {
-  const planKey =
-    String(
-      getQueryParam("stackKey", "") ||
-      localStorage.getItem("ss_route_key") ||
-      sessionStorage.getItem("selectedPlanKey") ||
-      "growth"
-    )
-      .toLowerCase()
-      .trim();
+  const planKey = String(getQueryParam("stackKey", "") || localStorage.getItem("ss_route_key") || sessionStorage.getItem("selectedPlanKey") || "growth").toLowerCase().trim();
 
   renderSelectedPlan(planKey);
 
   const cached = readCachedPlan();
-  if (cached) {
-    renderPlan(cached, planKey);
-  }
+  if (cached) renderPlan(cached, planKey);
 
   try {
     const fresh = await fetchPlanFromServer(planKey);
@@ -573,33 +571,33 @@ function initInstructionsBinder() {
     }
 
     if (whyEl) {
-      whyEl.textContent = ds.tip
-        ? `Follow the activation steps below and prioritize the key feature inside this app. Tip: ${ds.tip}`
-        : "Follow the activation steps below and prioritize the key feature inside this app.";
+      whyEl.innerHTML = `
+        <div class="space-y-2">
+          <div><span class="text-[11px] uppercase tracking-wider text-zinc-400">Why This Step Matters</span></div>
+          <p>Follow the activation steps below and prioritize the key feature inside this app.</p>
+          ${ds.tip ? `<p>Tip: ${ds.tip}</p>` : ""}
+        </div>
+      `;
     }
 
     if (stepsEl) {
       const steps = [ds.step1, ds.step2, ds.step3].filter(Boolean);
-      stepsEl.innerHTML = steps.length
-        ? steps.map((step) => `<li>${step}</li>`).join("")
-        : "<li>—</li>";
+      stepsEl.innerHTML = steps.length ? steps.map((step, i) => asActionStep(step, i)).join("") : "<li>—</li>";
     }
 
     if (risksEl && !risksEl.children.length) {
       risksEl.innerHTML = `
-        <li>Confirm setup before moving to the next tool.</li>
-        <li>Turn on the exact reporting feature named in this route.</li>
-        <li>Give the account time to report before making extra changes.</li>
+        <li>Setup may take 10–20 minutes, depending on verification requirements.</li>
+        <li>Some tools may require email, bank, identity, or account verification.</li>
+        <li>Wait for confirmation before moving to the next tool.</li>
       `;
     }
 
-    if (fallbackSummary) {
-      fallbackSummary.textContent = "Fallback Options";
-    }
+    const label = risksEl?.closest("div")?.querySelector("div");
+    if (label) label.textContent = "What to Expect";
 
-    if (fallbacksEl) {
-      fallbacksEl.innerHTML = fallbackOptionsHtml();
-    }
+    if (fallbackSummary) fallbackSummary.textContent = "Fallback Options";
+    if (fallbacksEl) fallbacksEl.innerHTML = fallbackOptionsHtml();
 
     if (ds.app) localStorage.setItem(kOpen, ds.app);
   }
@@ -619,9 +617,7 @@ function initInstructionsBinder() {
   let applied = false;
 
   if (lastApp) {
-    const targetSummary = [...document.querySelectorAll("#compose details.group summary")].find(
-      (s) => (s.dataset.app || "").toLowerCase() === lastApp.toLowerCase()
-    );
+    const targetSummary = [...document.querySelectorAll("#compose details.group summary")].find((s) => (s.dataset.app || "").toLowerCase() === lastApp.toLowerCase());
     if (targetSummary) {
       const parent = targetSummary.closest("details.group");
       if (parent) parent.open = true;
@@ -631,9 +627,7 @@ function initInstructionsBinder() {
   }
 
   if (!applied) {
-    const firstOpen =
-      document.querySelector("#compose details.group[open] summary") ||
-      document.querySelector("#compose details.group summary");
+    const firstOpen = document.querySelector("#compose details.group[open] summary") || document.querySelector("#compose details.group summary");
     if (firstOpen) {
       const parent = firstOpen.closest("details.group");
       if (parent) parent.open = true;
