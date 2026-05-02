@@ -6,7 +6,7 @@ export default function LockedCard() {
       <div className="text-center">
         <div className="font-semibold mb-2">Unlock this Credit Route</div>
         <div className="text-sm text-slate-600">
-          Unlock StackScore Access to view the full route and step-by-step Point Moves.
+          Unlock CreditRoute Access to view the full route and step-by-step Point Moves.
         </div>
       </div>
     </div>
