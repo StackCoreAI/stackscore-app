@@ -32,22 +32,22 @@ const NARRATIVE_FALLBACK = {
 
 const ROUTE_BULLETS = {
   foundation: [
-    "Prioritized Credit Route for a lower-friction starting point",
+    "Prioritized CreditRoute for a lower-friction starting point",
     "Step-by-step execution guidance for your next moves",
     "Reroutes if a tool or reporting path is unavailable",
   ],
   growth: [
-    "Prioritized Credit Route built around your highest-impact next steps",
+    "Prioritized CreditRoute built around your highest-impact next steps",
     "Step-by-step execution plan for your profile and timeline",
     "Reroutes and fallback options if a tool or path is unavailable",
   ],
   accelerator: [
-    "Higher-intensity Credit Route with stronger sequencing logic",
+    "Higher-intensity CreditRoute with stronger sequencing logic",
     "Execution guidance for faster, more focused progress",
     "Reroutes if a tool, path, or feature is unavailable",
   ],
   elite: [
-    "Most comprehensive Credit Route with expanded execution options",
+    "Most comprehensive CreditRoute with expanded execution options",
     "Deeper route coverage across tools and marketplace paths",
     "Reroutes and backup paths to keep execution moving",
   ],
@@ -147,8 +147,6 @@ function CompareToggle({ others, selected, setSelected, onUnlock }) {
   );
 }
 
-/* ---------- Card ---------- */
-
 function PlanCard({ plan, selectedKey, onSelect, onUnlock }) {
   const key = plan.key;
   const label = plan.displayName || friendlyLabel(key);
@@ -178,11 +176,10 @@ function PlanCard({ plan, selectedKey, onSelect, onUnlock }) {
     >
       {isGrowth && (
         <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-lime-400/30 bg-lime-500/10 px-3 py-1 text-xs font-medium text-lime-300">
-          ✓ Your Recommended Credit Route
+          ✓ Your Recommended CreditRoute
         </div>
       )}
 
-      {/* Header */}
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <h3 className="text-xl font-semibold">{label}</h3>
@@ -217,7 +214,6 @@ function PlanCard({ plan, selectedKey, onSelect, onUnlock }) {
         </div>
       </div>
 
-      {/* Narrative */}
       <div className="mt-4">
         {isGrowth && (
           <div className="mb-2 text-xs text-neutral-400">
@@ -228,7 +224,6 @@ function PlanCard({ plan, selectedKey, onSelect, onUnlock }) {
         <p className="text-sm leading-relaxed text-neutral-300">{narrative}</p>
       </div>
 
-      {/* What you unlock */}
       <div
         className={`mt-4 rounded-xl border border-white/10 bg-white/[0.04] p-4 transition ${
           !isSelected ? "opacity-70" : ""
@@ -242,33 +237,29 @@ function PlanCard({ plan, selectedKey, onSelect, onUnlock }) {
         </ul>
       </div>
 
-     {/* CTA */}
-<div className="mt-4">
+      <div className="mt-4">
+        {key === "growth" && (
+          <div className="text-xs text-neutral-400 mb-2">
+            Start here. You can always adjust your route later.
+          </div>
+        )}
 
-  {key === "growth" && (
-    <div className="text-xs text-neutral-400 mb-2">
-      Start here. You can always adjust your route later.
-    </div>
-  )}
-
-  <Button
-    size="sm"
-    className={`w-full rounded-full bg-gradient-to-r from-lime-500 to-emerald-500 text-neutral-950
-      ${key === "growth" ? "py-3 text-base shadow-lg shadow-lime-500/25" : "hover:opacity-95"}`}
-    onClick={(e) => {
-      e.stopPropagation();
-      onSelect();
-      onUnlock?.(key);
-    }}
-  >
-    Activate My Credit Route — $29
-  </Button>
-</div>
+        <Button
+          size="sm"
+          className={`w-full rounded-full bg-gradient-to-r from-lime-500 to-emerald-500 text-neutral-950
+            ${key === "growth" ? "py-3 text-base shadow-lg shadow-lime-500/25" : "hover:opacity-95"}`}
+          onClick={(e) => {
+            e.stopPropagation();
+            onSelect();
+            onUnlock?.(key);
+          }}
+        >
+          Start My CreditRoute — $29
+        </Button>
+      </div>
     </div>
   );
 }
-
-/* ---------- Helpers ---------- */
 
 function badgeClasses(tone) {
   const base = "mt-1 inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs";
