@@ -23,7 +23,6 @@ export default function PreviewHeader({
 
   return (
     <div className="bg-gray-900 text-gray-100">
-      {/* brand + actions */}
       <div className="mx-auto flex max-w-5xl items-center justify-between px-4 pb-4 pt-8">
         <div className="flex items-center gap-3">
           <svg
@@ -41,7 +40,7 @@ export default function PreviewHeader({
             <path d="M4 10.5h16v3H4z" />
             <path d="M4 17h16v3H4z" />
           </svg>
-          <span className="text-lg font-semibold tracking-tight">StackScore</span>
+          <span className="text-lg font-semibold tracking-tight">CreditRoute</span>
         </div>
 
         <div className="flex items-center gap-3">
@@ -63,22 +62,20 @@ export default function PreviewHeader({
         </div>
       </div>
 
-      {/* hero */}
       <div className="mx-auto max-w-5xl px-4 pb-6">
         <h1 className="text-3xl font-extrabold md:text-4xl">
-          Your <span className="text-lime-400">Credit Routes</span> Are Ready
+          Your <span className="text-lime-400">CreditRoutes</span> Are Ready
         </h1>
 
         <p className="mt-3 text-neutral-300">
-          StackScore mapped your highest-impact next moves based on your situation —
+          CreditRoute mapped your highest-impact next moves based on your situation —
           in the right order, with built-in reroutes when needed.
         </p>
 
         <p className="mt-2 text-xs text-neutral-400">
-          This is a prioritized Credit Route designed around your profile, timeline, and budget.
+          This is a prioritized CreditRoute plan designed around your profile, timeline, and budget.
         </p>
 
-        {/* chips */}
         <div className="mt-5 flex flex-wrap gap-2 text-sm">
           <Chip label="Living Situation" value={pretty(answers?.housing)} />
           <Chip
@@ -104,7 +101,6 @@ export default function PreviewHeader({
         </div>
       </div>
 
-      {/* mini refresh overlay */}
       {open && (
         <MiniRefresh
           initial={answers}
@@ -141,7 +137,7 @@ function MiniRefresh({ initial = {}, onApply, onClose }) {
       <div className="w-full max-w-md rounded-2xl border border-white/10 bg-gray-900 p-5">
         <h2 className="text-lg font-semibold">Quick refresh</h2>
         <p className="mt-1 text-sm text-neutral-400">
-          Adjust these inputs and we’ll rebuild your Credit Routes around the
+          Adjust these inputs and we’ll rebuild your CreditRoutes around the
           new priorities.
         </p>
 
@@ -197,7 +193,6 @@ function MiniRefresh({ initial = {}, onApply, onClose }) {
   );
 }
 
-/* helpers */
 function pretty(x) {
   if (!x) return "—";
   return x.replace(/-/g, " ").replace(/\b\w/g, (m) => m.toUpperCase());
