@@ -22,28 +22,26 @@ const About = () => {
 
   return (
     <div className="bg-neutral-950 text-white font-sans scroll-smooth px-6 py-12 md:py-16 space-y-16 max-w-3xl mx-auto min-h-screen">
-      {/* Logo */}
       <Link to="/" className="flex items-center gap-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-lime-400/70">
         <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none" className="text-lime-400" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden="true">
           <path d="M4 4h16v5H4z" /><path d="M4 15h16v5H4z" />
         </svg>
-        <span className="text-lg font-semibold tracking-tight">StackScore</span>
+        <span className="text-lg font-semibold tracking-tight">CreditRoute</span>
       </Link>
 
-      {/* Title */}
       <header className={`space-y-4 text-center transition-all duration-700 ease-out ${reveal(1)}`}>
-        <h1 className="text-4xl md:text-5xl font-semibold tracking-tight text-lime-400">About StackScore</h1>
+        <h1 className="text-4xl md:text-5xl font-semibold tracking-tight text-lime-400">About CreditRoute</h1>
         <p className="text-neutral-300 text-sm md:text-base max-w-xl mx-auto leading-relaxed">
-          Discover how StackScore helps you build credit faster, smarter, and with real results — powered by verified data and tailored stacks.
+          Discover how CreditRoute helps you build credit faster, smarter, and with real results — powered by verified data and tailored stacks.
         </p>
       </header>
 
       <div className="border-t border-neutral-800/60" />
 
       <section className={`space-y-3 transition-all duration-700 ease-out ${reveal(2)}`}>
-        <h2 className="text-2xl font-medium tracking-tight text-lime-300">What is StackScore?</h2>
+        <h2 className="text-2xl font-medium tracking-tight text-lime-300">What is CreditRoute?</h2>
         <p className="text-neutral-300 text-sm leading-relaxed">
-          StackScore is an AI-powered tool that builds customized credit-building stacks using verified apps — matched to your goals, timeline, and budget.
+          CreditRoute is an AI-powered tool that builds customized credit-building stacks using verified apps — matched to your goals, timeline, and budget.
         </p>
       </section>
 
@@ -55,7 +53,7 @@ const About = () => {
       </section>
 
       <section className={`space-y-4 transition-all duration-700 ease-out ${reveal(4)}`}>
-        <h2 className="text-2xl font-medium tracking-tight text-lime-300">Who is StackScore for?</h2>
+        <h2 className="text-2xl font-medium tracking-tight text-lime-300">Who is CreditRoute for?</h2>
         <ul className="space-y-3">
           {targetAudience.map((item, i) => {
             const Icon = item.icon;
@@ -79,7 +77,7 @@ const About = () => {
       <section className={`space-y-3 transition-all duration-700 ease-out ${reveal(6)}`}>
         <h2 className="text-2xl font-medium tracking-tight text-lime-300">Our Mission</h2>
         <p className="text-neutral-300 text-sm leading-relaxed">
-          Unlock financial mobility for everyone—no gatekeepers, no guessing. Strong credit is a right; StackScore puts you in control.
+          Unlock financial mobility for everyone—no gatekeepers, no guessing. Strong credit is a right; CreditRoute puts you in control.
         </p>
       </section>
 
