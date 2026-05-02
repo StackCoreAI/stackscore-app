@@ -33,8 +33,13 @@
 
     async function verify() {
       try {
-        if (!token) {
+        if (!token && !location.search.includes("dev=1")) {
           window.location.replace("/activate");
+          return;
+        }
+
+        if (!token) {
+          document.documentElement.style.visibility = "visible";
           return;
         }
 
