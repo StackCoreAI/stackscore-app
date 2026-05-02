@@ -7,7 +7,6 @@ import SixSimple from "../pages/sixsimple.jsx";
 import Pricing from "../pages/pricing.jsx";
 import FAQ from "../pages/faq.jsx";
 
-// Minimal ErrorBoundary
 class SectionBoundary extends React.Component {
   constructor(p) {
     super(p);
@@ -43,13 +42,12 @@ export default function Landing() {
 
   return (
     <div className="min-h-[100svh] overflow-x-hidden bg-neutral-950 text-white">
-      {/* Master header */}
       <header className="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-neutral-950/70 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
           <a
             href="#hero"
             className="flex items-center gap-2 font-semibold"
-            aria-label="StackScore — go to top"
+            aria-label="CreditRoute — go to top"
           >
             <svg
               viewBox="0 0 24 24"
@@ -63,7 +61,7 @@ export default function Landing() {
               <path d="M4 10.5h16v3H4z" />
               <path d="M4 17h16v3H4z" />
             </svg>
-            <span className="tracking-tight">StackScore</span>
+            <span className="tracking-tight">CreditRoute</span>
           </a>
 
           <nav className="hidden items-center gap-6 text-sm md:flex">
@@ -73,50 +71,50 @@ export default function Landing() {
           </nav>
 
           <div className="flex items-center gap-3">
-            <a href="/activate" aria-label="Start building your stack" className="hidden sm:block">
-              <Button size="sm">🚀 Start my Credit Route</Button>
+            <a href="/activate" aria-label="Start My CreditRoute" className="hidden sm:block">
+              <Button size="sm">🚀 Start My CreditRoute</Button>
             </a>
 
             <a href="#pricing" className="hidden sm:inline-flex">
-              <Button variant="secondary" size="sm">Get StackScore</Button>
+              <Button variant="secondary" size="sm">Start My CreditRoute</Button>
             </a>
 
-            <a href="/activate" aria-label="Start my Credit Route" className="inline-flex sm:hidden">
-              <Button size="sm">Build</Button>
+            <a href="/activate" aria-label="Start My CreditRoute" className="inline-flex sm:hidden">
+              <Button size="sm">Start</Button>
             </a>
           </div>
         </div>
       </header>
 
       <main className="pt-24">
-  <SectionBoundary label="Hero">
-    <section id="hero" className="scroll-mt-24 pb-8 md:pb-12">
-      <Hero embedded />
-    </section>
-  </SectionBoundary>
+        <SectionBoundary label="Hero">
+          <section id="hero" className="scroll-mt-24 pb-8 md:pb-12">
+            <Hero embedded />
+          </section>
+        </SectionBoundary>
 
-  <SectionBoundary label="SixSimple">
-    <section id="features" className="scroll-mt-24 py-8 md:py-12">
-      <SixSimple embedded />
-    </section>
-  </SectionBoundary>
+        <SectionBoundary label="SixSimple">
+          <section id="features" className="scroll-mt-24 py-8 md:py-12">
+            <SixSimple embedded />
+          </section>
+        </SectionBoundary>
 
-  <SectionBoundary label="Pricing">
-    <section id="pricing" className="scroll-mt-24 py-8 md:py-12">
-      <Pricing embedded />
-    </section>
-  </SectionBoundary>
+        <SectionBoundary label="Pricing">
+          <section id="pricing" className="scroll-mt-24 py-8 md:py-12">
+            <Pricing embedded />
+          </section>
+        </SectionBoundary>
 
-  <SectionBoundary label="FAQ">
-  <section className="pt-8 md:pt-12">
-    <FAQ embedded />
-  </section>
-</SectionBoundary>
-</main>
+        <SectionBoundary label="FAQ">
+          <section className="pt-8 md:pt-12">
+            <FAQ embedded />
+          </section>
+        </SectionBoundary>
+      </main>
 
       <footer className="border-t border-white/10 py-10 text-center text-white/60">
         <div className="mx-auto max-w-6xl px-4">
-          <p>&copy; {new Date().getFullYear()} StackScore. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} CreditRoute. All rights reserved.</p>
         </div>
       </footer>
     </div>
