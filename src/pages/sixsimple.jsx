@@ -47,7 +47,7 @@ const SixSimple = ({ embedded = false }) => {
     {
       title: "Execution Style",
       description:
-        "Manual or automated — StackScore helps you follow a route you are actually likely to complete.",
+        "Manual or automated — CreditRoute helps you follow a route you are actually likely to complete.",
       delay: "0.60s",
     },
   ];
@@ -80,7 +80,7 @@ const SixSimple = ({ embedded = false }) => {
           <Link
             to="/"
             className="flex items-center gap-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-lime-400/70"
-            aria-label="StackScore — home"
+            aria-label="CreditRoute — home"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -97,12 +97,12 @@ const SixSimple = ({ embedded = false }) => {
               <path d="M4 10.5h16v3H4z" />
               <path d="M4 17h16v3H4z" />
             </svg>
-            <span className="text-lg font-semibold tracking-tight">StackScore</span>
+            <span className="text-lg font-semibold tracking-tight">CreditRoute</span>
           </Link>
 
           <div className="flex items-center gap-3">
-            <Link to="/activate" className="hidden sm:inline-flex" aria-label="Get my credit route">
-              <Button size="sm">Get My Credit Route</Button>
+            <Link to="/activate" className="hidden sm:inline-flex" aria-label="Start My CreditRoute">
+              <Button size="sm">Start My CreditRoute</Button>
             </Link>
 
             <Button
@@ -121,16 +121,16 @@ const SixSimple = ({ embedded = false }) => {
         <div className="flex w-full max-w-6xl flex-col gap-12 md:flex-row">
           <section className="md:w-1/2">
             <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-lime-400/25 bg-lime-500/10 px-3 py-1 text-xs text-lime-300">
-              How StackScore Works
+              How CreditRoute Works
             </div>
 
             <h1 className="mb-4 text-3xl font-extrabold leading-tight tracking-tight sm:text-4xl lg:text-5xl">
-              Your Credit Route, in{" "}
+              Your CreditRoute, in{" "}
               <span className="text-cyan-400">6 Simple Inputs</span>
             </h1>
 
             <p className="max-w-xl text-lg text-slate-300">
-              StackScore does not guess and it does not push random apps. It uses a few simple
+              CreditRoute does not guess and it does not push random apps. It uses a few simple
               inputs to identify the levers most likely to strengthen your credit profile and then
               organizes them into a smarter route.
             </p>
@@ -174,7 +174,7 @@ const SixSimple = ({ embedded = false }) => {
                 </div>
                 <div className="flex items-start gap-2">
                   <span className="mt-0.5 text-lime-300">3.</span>
-                  <span>You get a prioritized Credit Route instead of a random stack of apps.</span>
+                  <span>You get a prioritized CreditRoute instead of a random stack of apps.</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <span className="mt-0.5 text-lime-300">4.</span>
@@ -184,12 +184,12 @@ const SixSimple = ({ embedded = false }) => {
             </div>
 
             <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center">
-              <Link to="/activate" className="inline-flex" aria-label="Get my credit route">
-                <Button size="md">Get My Credit Route</Button>
+              <Link to="/activate" className="inline-flex" aria-label="Start My CreditRoute">
+                <Button size="md">Start My CreditRoute</Button>
               </Link>
-              <Link to="/preview" className="inline-flex" aria-label="See my credit routes">
+              <Link to="/preview" className="inline-flex" aria-label="View My CreditRoutes">
                 <Button variant="secondary" size="md">
-                  See My Credit Routes
+                  View My CreditRoutes
                 </Button>
               </Link>
             </div>
@@ -200,9 +200,9 @@ const SixSimple = ({ embedded = false }) => {
           </section>
 
           <section className="flex flex-col items-center text-center md:w-1/2">
-            <h2 className="mb-3 text-2xl font-semibold sm:text-3xl">What StackScore analyzes</h2>
+            <h2 className="mb-3 text-2xl font-semibold sm:text-3xl">What CreditRoute analyzes</h2>
             <p className="mb-6 max-w-md text-sm text-neutral-400">
-              These inputs help StackScore decide which levers matter most, what sequence makes the
+              These inputs help CreditRoute decide which levers matter most, what sequence makes the
               most sense, and how to keep your route realistic.
             </p>
 
@@ -238,7 +238,7 @@ const SixSimple = ({ embedded = false }) => {
               <div className="mt-4 space-y-3 text-sm text-neutral-300">
                 <div className="flex items-start gap-2">
                   <span className="mt-0.5 text-lime-300">✓</span>
-                  <span>Your personalized Credit Route</span>
+                  <span>Your personalized CreditRoute</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <span className="mt-0.5 text-lime-300">✓</span>
