@@ -117,8 +117,8 @@ export default function Hero({ embedded = false }) {
               FAQ
             </a>
 
-            <Link to="/activate" aria-label="Start my credit route" className="mt-1 inline-flex md:mt-0">
-              <Button size="sm">Start My Credit Route</Button>
+            <Link to="/activate" aria-label="Start My CreditRoute" className="mt-1 inline-flex md:mt-0">
+              <Button size="sm">Start My CreditRoute</Button>
             </Link>
           </nav>
         </header>
@@ -146,30 +146,25 @@ export default function Hero({ embedded = false }) {
               <path d="M4 10.5h16v3H4z" />
               <path d="M4 17h16v3H4z" />
             </svg>
-            Personalized <span className="font-semibold text-white">Credit Routing</span>
+            Personalized <span className="font-semibold text-white">CreditRoute</span>
           </div>
 
           <h1 className="text-3xl font-light leading-tight tracking-tight sm:text-4xl md:text-5xl lg:text-6xl">
-            No single app fixes credit.
-            <span className="block bg-gradient-to-r from-lime-400 via-emerald-400 to-cyan-400 bg-clip-text font-semibold text-transparent">
-              CreditRoute shows you what actually moves your score.
-            </span>
+            Stop Guessing What to Fix Next
           </h1>
 
           <p className="max-w-2xl text-lg text-slate-300">
-            CreditRoute analyzes your situation and maps the highest-impact moves for your credit profile in the
-            right order. Because improving credit is not about one app. It is about the right actions,
-            sequenced correctly.
+            CreditRoute helps you prioritize the moves that matter most for your situation — so you can stop stacking random apps and follow a plan that actually makes sense.
           </p>
 
           <p className="text-sm text-neutral-400">
-            Personalized credit routing based on your profile, timeline, budget, and goals.
+            Personalized credit planning based on your profile, timeline, budget, and goals.
           </p>
 
           <div className="flex flex-col gap-4 pt-2 sm:flex-row sm:items-center">
             <div className="flex flex-col gap-2">
-              <Button size="lg" onClick={goWizard} aria-label="Start my credit route">
-                Start My Credit Route
+              <Button size="lg" onClick={goWizard} aria-label="Start My CreditRoute">
+                Start My CreditRoute
               </Button>
               <p className="text-xs text-slate-500">
                 Quick questions → personalized routes → unlock when you’re ready
@@ -184,20 +179,18 @@ export default function Hero({ embedded = false }) {
           </div>
 
           <p className="max-w-2xl text-xs text-slate-500">
-            CreditRoute does not guarantee approval. It helps you focus on the moves most likely to strengthen
-            your credit profile based on where you are now.
+            CreditRoute does not guarantee approval. It is an educational planning tool that helps you focus on next steps based on where you are now.
           </p>
 
           <p className="text-xs text-slate-500">
-            No credit pull • No sensitive financial data required • Results vary by credit profile and reporting
-            timelines
+            No credit pull • No sensitive financial data • Takes less than 60 seconds
           </p>
         </div>
 
         <div className="lg:col-span-6">
           <div className="space-y-6 rounded-xl border border-white/10 bg-white/5 p-6 shadow-md backdrop-blur-sm">
             <h3 className="text-center text-lg font-semibold tracking-tight text-white">
-              Credit Routes Built Around Your Situation
+              CreditRoutes Built Around Your Situation
             </h3>
 
             <div className="grid grid-cols-2 gap-3">
@@ -229,7 +222,7 @@ export default function Hero({ embedded = false }) {
                 </div>
                 <div>
                   <p className="text-[11px] uppercase tracking-wider text-slate-500">What we identify</p>
-                  <p className="mt-1 text-sm text-white">The levers most likely to move your profile</p>
+                  <p className="mt-1 text-sm text-white">The levers most likely to matter for your profile</p>
                 </div>
                 <div>
                   <p className="text-[11px] uppercase tracking-wider text-slate-500">What you get</p>
@@ -239,8 +232,8 @@ export default function Hero({ embedded = false }) {
             </div>
 
             <div className="space-y-1 text-center">
-              <p className="text-lime-300">Highest-impact moves first</p>
-              <p className="text-emerald-400">Tools only where they actually help</p>
+              <p className="text-lime-300">Highest-impact next steps first</p>
+              <p className="text-emerald-400">Tools only where they may help</p>
               <p className="text-xs text-slate-500">Results vary by credit profile and reporting timelines.</p>
             </div>
           </div>
