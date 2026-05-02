@@ -11,8 +11,7 @@ export default function PricingSection() {
     return () => clearTimeout(t);
   }, []);
 
-  // tiny logo mark next to CTA
-  const StackScoreLogo = ({ className = "w-6 h-6" }) => (
+  const CreditRouteLogo = ({ className = "w-6 h-6" }) => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 24 24"
@@ -31,7 +30,6 @@ export default function PricingSection() {
 
   return (
     <section id="pricing" className="section py-20 bg-neutral-950 text-neutral-400">
-      {/* Main Pricing */}
       <div
         className={`flex flex-col items-center text-center space-y-6 max-w-xl mx-auto px-4 sm:px-6 transition-all duration-700 ${
           isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
@@ -42,11 +40,11 @@ export default function PricingSection() {
         </h2>
 
         <p className="text-xl md:text-2xl text-white font-medium">
-          One-Time Access — Just $29
+          One-time activation — $29
         </p>
 
         <p className="text-sm text-neutral-400">
-          Your Credit Route plan is tailored to you — and always just{" "}
+          Your CreditRoute plan is tailored to you — and always just{" "}
           <span className="text-lime-400 font-semibold">$29</span>.
         </p>
 
@@ -57,7 +55,6 @@ export default function PricingSection() {
             Your goals, your choice.
           </span>
 
-          {/* Canonical route names */}
           <ul className="flex flex-wrap justify-center gap-4 text-lime-400 font-medium mt-1">
             <li className="flex items-center gap-1">📦 Foundation Route</li>
             <li className="flex items-center gap-1">📈 Growth Route</li>
@@ -66,18 +63,17 @@ export default function PricingSection() {
           </ul>
         </div>
 
-        {/* CTAs with stacked logos (router-agnostic: anchors, not Link) */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-6">
           <div className="hidden sm:block">
-            <StackScoreLogo className="w-5 h-5 sm:w-6 sm:h-6" />
+            <CreditRouteLogo className="w-5 h-5 sm:w-6 sm:h-6" />
           </div>
 
           <a
             href="/wizard?reset=1"
             className="inline-flex"
-            aria-label="Start wizard and get your Credit Route"
+            aria-label="Start My CreditRoute"
           >
-            <Button size="lg">Get Your Credit Route</Button>
+            <Button size="lg">Start My CreditRoute</Button>
           </a>
 
           <a href="/faq" className="inline-flex" aria-label="Learn how it works">
@@ -87,12 +83,11 @@ export default function PricingSection() {
           </a>
 
           <div className="hidden sm:block">
-            <StackScoreLogo className="w-5 h-5 sm:w-6 sm:h-6" />
+            <CreditRouteLogo className="w-5 h-5 sm:w-6 sm:h-6" />
           </div>
         </div>
       </div>
 
-      {/* Post-Purchase Refresh Offer */}
       <div
         className={`mt-16 border-t border-neutral-800 pt-8 text-center space-y-4 max-w-xl mx-auto px-4 sm:px-6 transition-all duration-700 ${
           isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
@@ -105,12 +100,12 @@ export default function PricingSection() {
         </h3>
 
         <p className="text-neutral-400">
-          Life changes — and your plan should evolve with it. Refresh your Credit Route for just{" "}
+          Life changes — and your plan should evolve with it. Refresh your CreditRoute for just{" "}
           <span className="text-lime-400 font-semibold">$14.50</span> starting 120 days after your original purchase.
         </p>
 
         <div className="bg-neutral-900 border border-neutral-700 p-4 rounded-lg text-sm text-neutral-300 italic max-w-xl mx-auto">
-          “Seasons shift. So do your goals. Refresh your Credit Route after 4 months to reflect what’s next — whether it’s
+          “Seasons shift. So do your goals. Refresh your CreditRoute after 4 months to reflect what’s next — whether it’s
           a new move, new job, or a bigger goal.”
         </div>
 
