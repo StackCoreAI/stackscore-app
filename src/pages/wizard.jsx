@@ -4,15 +4,14 @@ import { useNavigate } from "react-router-dom";
 import ResetBanner from "./resetbanner.jsx";
 import Button from "@/components/ui/Button";
 
-// Step model (0..5 are counted as "1..6"; 6 is the summary screen)
 const STEPS = [
-  { key: "housing", type: "radio", required: true },   // 0
-  { key: "subs", type: "checkbox", required: false },   // 1 (optional)
-  { key: "tools", type: "radio", required: true },      // 2
-  { key: "employment", type: "radio", required: true }, // 3
-  { key: "goal", type: "radio", required: true },       // 4
-  { key: "budget", type: "range", required: true },     // 5
-  { key: "ready", type: "none", required: false },      // 6 (summary, not counted)
+  { key: "housing", type: "radio", required: true },
+  { key: "subs", type: "checkbox", required: false },
+  { key: "tools", type: "radio", required: true },
+  { key: "employment", type: "radio", required: true },
+  { key: "goal", type: "radio", required: true },
+  { key: "budget", type: "range", required: true },
+  { key: "ready", type: "none", required: false },
 ];
 
 const BLANK = {
@@ -35,9 +34,8 @@ export default function Wizard() {
   const [resetMsg, setResetMsg] = useState("");
   const [isVisible, setIsVisible] = useState(false);
 
-  const countedSteps = 6; // show "Step X of 6" for idx 0..5
+  const countedSteps = 6;
 
-  // Floating numbers config (randomized once)
   const floatTokens = useMemo(() => {
     const tok = (text, top, side, pos, size, hue, baseDelay) => ({
       text, top, side, pos, size, hue,
@@ -55,62 +53,51 @@ export default function Wizard() {
     ];
   }, []);
 
-  // Initial load: handle ?reset=1 / ?fresh=1, else restore from localStorage
   useEffect(() => {
     const url = new URL(window.location.href);
     const reset = url.searchParams.get("reset");
     const fresh = url.searchParams.get("fresh");
 
-    // 1) Hard reset when coming from Pricing (or any route using ?reset=1)
     if (reset === "1") {
-      hardReset(false); // silent reset (no banner)
+      hardReset(false);
       url.searchParams.delete("reset");
       window.history.replaceState({}, "", url.toString());
       setTimeout(() => setIsVisible(true), 60);
       return;
     }
 
-    // 2) Fresh start (same behavior as before)
     if (fresh === "1") {
-      hardReset(false); // silent reset (no banner)
+      hardReset(false);
       url.searchParams.delete("fresh");
       window.history.replaceState({}, "", url.toString());
       setTimeout(() => setIsVisible(true), 60);
       return;
     }
 
-    // 3) Otherwise, restore from saved state
     try {
       const saved = JSON.parse(localStorage.getItem("stackscoreUserData") || "{}");
       if (saved && typeof saved === "object") {
         setFormData((p) => ({ ...p, ...saved }));
         if (typeof saved.step === "number") setCurrentStep(saved.step);
       }
-    } catch {
-      // ignore storage errors
-    }
+    } catch {}
 
     setTimeout(() => setIsVisible(true), 60);
   }, []);
 
-  // Auto-hide the success banner if/when it is shown
   useEffect(() => {
     if (!resetMsg) return;
     const t = setTimeout(() => setResetMsg(""), 3500);
     return () => clearTimeout(t);
   }, [resetMsg]);
 
-  // Persist helper (also keeps a plain copy at ss_answers for the Preview API)
   const persist = (data, step = currentStep) => {
     try {
       localStorage.setItem("stackscoreUserData", JSON.stringify({ ...data, step }));
       localStorage.setItem("ss_answers", JSON.stringify(data));
-    } catch {
-      // ignore storage errors
-    }
+    } catch {}
   };
 
-  // finalize & go (saves, clears caches, routes to /preview)
   const finalizeAndGo = () => {
     persist(formData, 6);
     try {
@@ -120,7 +107,6 @@ export default function Wizard() {
     navigate("/preview", { replace: true });
   };
 
-  // Controlled inputs
   const handleInputChange = (name, value, isCheckbox = false) => {
     setValidationMsg("");
     setFormData((prev) => {
@@ -137,7 +123,6 @@ export default function Wizard() {
     });
   };
 
-  // Validation
   const stepIsValid = (idx) => {
     const meta = STEPS[idx] || {};
     if (!meta.required) return true;
@@ -146,7 +131,6 @@ export default function Wizard() {
     return true;
   };
 
-  // Navigation helpers
   const goToStep = (idx) => {
     setPrevStep(currentStep);
     setCurrentStep(idx);
@@ -179,24 +163,20 @@ export default function Wizard() {
     if (currentStep > 0) goToStep(currentStep - 1);
   };
 
-  // Reset everything; banner shows only if banner=true
   const hardReset = (banner) => {
     try {
       localStorage.removeItem("stackscoreUserData");
       localStorage.removeItem("ss_answers");
       sessionStorage.removeItem("ss_plan");
       sessionStorage.removeItem("ss_selected");
-    } catch {
-      // ignore
-    }
+    } catch {}
     setFormData(BLANK);
     setPrevStep(-1);
     setCurrentStep(0);
     if (banner) setResetMsg("Your wizard has been reset.");
   };
 
-  const progressPercent =
-  (Math.min(currentStep, countedSteps) / countedSteps) * 100;
+  const progressPercent = (Math.min(currentStep, countedSteps) / countedSteps) * 100;
 
   const budgetLabel = (v) => {
     const n = Number(v || 0);
@@ -208,7 +188,6 @@ export default function Wizard() {
   const Panel = ({ idx, children }) => {
     const isActive = idx === currentStep;
     const isExiting = idx === prevStep;
-
     const cls =
       "wizard-panel " +
       (isActive
@@ -228,7 +207,6 @@ export default function Wizard() {
     <div className="h-full bg-gray-900 text-gray-100 flex items-center justify-center min-h-screen p-4 pt-8">
       {resetMsg && <ResetBanner message={resetMsg} />}
 
-      {/* Brand (now clickable) + Reset */}
       <div className="absolute top-8 left-4 flex items-center gap-3 z-50">
         <button
           type="button"
@@ -252,7 +230,7 @@ export default function Wizard() {
             <path d="M4 17h16v3H4z"></path>
           </svg>
           <span className="text-lg font-semibold tracking-tight text-white">
-            StackScore
+            CreditRoute
           </span>
         </button>
 
@@ -265,7 +243,6 @@ export default function Wizard() {
         </button>
       </div>
 
-      {/* Non-form container */}
       <div
         role="form"
         ref={formRef}
@@ -274,11 +251,10 @@ export default function Wizard() {
         }`}
         autoComplete="off"
       >
-       {/* Route Snapshot (no login) */}
 <div className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3">
   <div className="flex flex-wrap items-center gap-2">
     <span className="inline-flex items-center gap-2 rounded-full border border-lime-400/25 bg-lime-500/10 px-3 py-1 text-xs font-semibold text-lime-300">
-      🧭 Credit Routing
+      🧭 CreditRoute
     </span>
     <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-white/80">
       🧬 Feature Recombination
@@ -289,11 +265,10 @@ export default function Wizard() {
   </div>
 
   <p className="mt-2 text-sm text-white/70">
-    We only analyze your habits and preferences — then recombine the strongest reporting features across apps and sequence them into your Credit Route.
+    We only analyze your habits and preferences — then recombine the strongest reporting features across apps and sequence them into your CreditRoute.
   </p>
 </div>
 
-        {/* Step dots (hide on summary) */}
         <div
           className={`flex justify-center gap-2 mt-4 ${currentStep >= countedSteps ? "invisible" : ""}`}
           aria-hidden="true"
@@ -306,12 +281,10 @@ export default function Wizard() {
           ))}
         </div>
 
-        {/* Progress */}
         <div className="w-full bg-gray-700 rounded-full h-2 overflow-hidden mt-3" aria-hidden="true">
           <div className="bg-lime-500 h-full transition-all duration-500" style={{ width: `${progressPercent}%` }} />
         </div>
 
-        {/* Step label */}
         <p
           className={`text-center text-neutral-400 text-sm ${currentStep >= countedSteps ? "invisible" : ""}`}
           aria-live="polite"
@@ -319,13 +292,9 @@ export default function Wizard() {
           Step {Math.min(currentStep + 1, countedSteps)} of {countedSteps}
         </p>
 
-        {/* Panels ... */}
-
-        {/* Step 0 */}
         <Panel idx={0}>
           <h2 className="text-2xl font-semibold mb-3">Living situation</h2>
 
-          {/* gentle instructions / no-charge notice */}
           <div className="mb-6 rounded-lg border border-neutral-700 bg-neutral-800/60 px-4 py-3 text-sm text-neutral-300">
             <p className="font-medium">How this works</p>
             <ul className="mt-1 ml-5 list-disc space-y-1">
@@ -367,7 +336,6 @@ export default function Wizard() {
           </div>
         </Panel>
 
-        {/* Step 1 (optional) */}
         <Panel idx={1}>
           <h2 className="text-2xl font-semibold mb-6">Entertainment subscriptions</h2>
           <div className="space-y-4">
@@ -403,7 +371,6 @@ export default function Wizard() {
           </div>
         </Panel>
 
-        {/* Step 2 */}
         <Panel idx={2}>
           <h2 className="text-2xl font-semibold mb-6">Tool preference</h2>
           <div className={`space-y-4 p-2 rounded-lg ${validationMsg && currentStep === 2 ? "ring-2 ring-amber-400/70 bg-amber-400/5" : ""}`}>
@@ -440,7 +407,6 @@ export default function Wizard() {
           </div>
         </Panel>
 
-        {/* Step 3 */}
         <Panel idx={3}>
           <h2 className="text-2xl font-semibold mb-6">Employment status</h2>
           <div className={`space-y-4 p-2 rounded-lg ${validationMsg && currentStep === 3 ? "ring-2 ring-amber-400/70 bg-amber-400/5" : ""}`}>
@@ -473,7 +439,6 @@ export default function Wizard() {
           </div>
         </Panel>
 
-        {/* Step 4 */}
         <Panel idx={4}>
           <h2 className="text-2xl font-semibold mb-6">Goal timeline</h2>
           <div className={`space-y-4 p-2 rounded-lg ${validationMsg && currentStep === 4 ? "ring-2 ring-amber-400/70 bg-amber-400/5" : ""}`}>
@@ -510,9 +475,8 @@ export default function Wizard() {
           </div>
         </Panel>
 
-        {/* Step 5 */}
         <Panel idx={5}>
-          <h2 className="text-2xl font-semibold mb-6">What's your StackScore budget?</h2>
+          <h2 className="text-2xl font-semibold mb-6">What's your CreditRoute budget?</h2>
           <p className="mb-8 text-neutral-400">
             Tell us what you can comfortably invest monthly. We'll customize
             your plan to give you the most boost for your budget.
@@ -548,10 +512,8 @@ export default function Wizard() {
           </div>
         </Panel>
 
-        {/* Step 6 (summary / ready) */}
         <Panel idx={6}>
           <div className="mx-auto max-w-md space-y-10 text-center">
-            {/* Floating numbers banner */}
             <div
               className="pointer-events-none relative w-full select-none"
               style={{ margin: "-20px 0", height: "3.5rem" }}
@@ -577,7 +539,7 @@ export default function Wizard() {
               })}
             </div>
 
-            <h1 className="mb-1 -mt-2 text-3xl font-bold">Your Stack is Ready</h1>
+            <h1 className="mb-1 -mt-2 text-3xl font-bold">Your CreditRoute Is Ready</h1>
 <p className="mb-2 text-lg text-gray-400">
   Here's the custom lineup of apps we've prepared to help you boost your credit score.
 </p>
@@ -600,7 +562,7 @@ export default function Wizard() {
 </div>
 
             <Button size="lg" onClick={finalizeAndGo}>
-  🧭 View My Credit Routes
+  🧭 View My CreditRoutes
 </Button>
           </div>
         </Panel>
