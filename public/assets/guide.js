@@ -2,9 +2,6 @@
 
 document.documentElement.classList.add("js");
 
-/** ────────────────────────────────────────────────────────────────────────────
- * Shared helpers
- * ─────────────────────────────────────────────────────────────────────────── */
 function getQueryParam(name, fallback = "") {
   const params = new URLSearchParams(window.location.search);
   return params.get(name) || fallback;
@@ -12,11 +9,11 @@ function getQueryParam(name, fallback = "") {
 
 function titleForPlanKey(planKey = "growth") {
   const k = String(planKey || "growth").toLowerCase().trim();
-  if (k === "foundation") return "Foundation Credit Route";
-  if (k === "growth") return "Growth Credit Route";
-  if (k === "accelerator") return "Accelerator Credit Route";
-  if (k === "elite") return "Elite Credit Route";
-  return `${k.charAt(0).toUpperCase()}${k.slice(1)} Credit Route`;
+  if (k === "foundation") return "Foundation CreditRoute";
+  if (k === "growth") return "Growth CreditRoute";
+  if (k === "accelerator") return "Accelerator CreditRoute";
+  if (k === "elite") return "Elite CreditRoute";
+  return `${k.charAt(0).toUpperCase()}${k.slice(1)} CreditRoute`;
 }
 
 function normalizeArray(value) {
@@ -121,7 +118,7 @@ function fallbackStepsFor(app) {
 function routeSummaryText(plan) {
   return (
     String(plan?.routing_summary || "").trim() ||
-    "We selected a route designed to compound reporting signals with minimal friction — and included reroutes so your plan stays reliable."
+    "We selected a route designed to organize reporting signals with minimal friction — and included fallback options so your plan stays flexible."
   );
 }
 
@@ -132,20 +129,20 @@ function routeStepsList(plan) {
   return [
     "Start with the first tool and finish setup before moving to the next.",
     "Turn on the reporting or credit-building feature recommended inside each app.",
-    "Enable autopay where available to protect on-time reporting.",
+    "Enable autopay where available to support on-time reporting.",
   ];
 }
 
 function whyOverviewText(plan) {
   return (
     String(plan?.why_overview || "").trim() ||
-    "StackScore selected this Credit Route based on your inputs, prioritizing the strongest reporting opportunities for your timeline, budget, and execution style."
+    "CreditRoute selected this route based on your inputs, prioritizing reporting opportunities for your timeline, budget, and execution style."
   );
 }
 
 function planLabelForScorecard(planKey) {
   const t = titleForPlanKey(planKey);
-  return t.replace(/\s+Credit Route$/i, "");
+  return t.replace(/\s+CreditRoute$/i, "");
 }
 
 function computeSignals(apps = []) {
@@ -174,9 +171,23 @@ function computeSignals(apps = []) {
   return signals.slice(0, 4);
 }
 
-/** ────────────────────────────────────────────────────────────────────────────
- * Icons + Reveal
- * ─────────────────────────────────────────────────────────────────────────── */
+function fallbackOptionsHtml() {
+  return `
+    <div class="text-sm text-zinc-100/90 leading-relaxed space-y-3">
+      <p>If a step isn’t available or doesn’t fit your situation, you’ll have alternative paths to continue your CreditRoute.</p>
+      <div>
+        <p class="mb-1">These may include:</p>
+        <ul class="list-disc pl-5 space-y-1">
+          <li>Tools with similar reporting features</li>
+          <li>Adjusted sequencing based on timing or budget</li>
+          <li>Alternative ways to activate the same signal</li>
+        </ul>
+      </div>
+      <p>Your route is designed to stay flexible — not dependent on a single tool or outcome.</p>
+    </div>
+  `;
+}
+
 function initIconsAndAnim() {
   try {
     if (window.lucide && typeof window.lucide.createIcons === "function") {
@@ -194,9 +205,6 @@ function initIconsAndAnim() {
   document.querySelectorAll(".init-opacity").forEach((el) => el.classList.add("show"));
 }
 
-/** ────────────────────────────────────────────────────────────────────────────
- * Local Progress (checkbox persistence)
- * ─────────────────────────────────────────────────────────────────────────── */
 function initLocalProgress() {
   const params = new URLSearchParams(location.search);
   const token = params.get("t") || "anon";
@@ -238,9 +246,6 @@ function initLocalProgress() {
   }
 }
 
-/** ────────────────────────────────────────────────────────────────────────────
- * Plan Rendering
- * ─────────────────────────────────────────────────────────────────────────── */
 function buildSidebarAppItem(app, index) {
   const steps = fallbackStepsFor(app);
   const features = normalizeArray(app.features);
@@ -414,7 +419,6 @@ function renderInstructionPanel(apps, index = 0) {
 
   const steps = fallbackStepsFor(app);
   const executionInsights = normalizeArray(app.execution_insights);
-  const reroutes = normalizeArray(app.reroutes);
   const features = normalizeArray(app.features);
 
   const websiteEl = document.querySelector('[data-hook="inst-website"]');
@@ -422,6 +426,7 @@ function renderInstructionPanel(apps, index = 0) {
   const stepsEl = document.querySelector('[data-hook="inst-steps"]');
   const risksEl = document.querySelector('[data-hook="inst-risks"]');
   const fallbacksEl = document.querySelector('[data-hook="inst-fallbacks"]');
+  const fallbackSummary = fallbacksEl?.closest("details")?.querySelector("summary");
 
   if (websiteEl) {
     websiteEl.href = app.app_url || "#";
@@ -456,11 +461,12 @@ function renderInstructionPanel(apps, index = 0) {
     risksEl.innerHTML = items.map((item) => `<li>${item}</li>`).join("");
   }
 
+  if (fallbackSummary) {
+    fallbackSummary.textContent = "Fallback Options";
+  }
+
   if (fallbacksEl) {
-    const items = reroutes.length
-      ? reroutes
-      : ["If this tool is unavailable, use the reroute recommended elsewhere in your route."];
-    fallbacksEl.innerHTML = items.map((item) => `<li>${item}</li>`).join("");
+    fallbacksEl.innerHTML = fallbackOptionsHtml();
   }
 }
 
@@ -542,9 +548,6 @@ async function initPlanHydration() {
   }
 }
 
-/** ────────────────────────────────────────────────────────────────────────────
- * Instructions Binder
- * ─────────────────────────────────────────────────────────────────────────── */
 function initInstructionsBinder() {
   const params = new URLSearchParams(location.search);
   const token = params.get("t") || "anon";
@@ -561,6 +564,8 @@ function initInstructionsBinder() {
     const whyEl = document.querySelector('[data-hook="inst-why"]');
     const stepsEl = document.querySelector('[data-hook="inst-steps"]');
     const risksEl = document.querySelector('[data-hook="inst-risks"]');
+    const fallbacksEl = document.querySelector('[data-hook="inst-fallbacks"]');
+    const fallbackSummary = fallbacksEl?.closest("details")?.querySelector("summary");
 
     if (websiteEl) {
       websiteEl.href = ds.url || "#";
@@ -586,6 +591,14 @@ function initInstructionsBinder() {
         <li>Turn on the exact reporting feature named in this route.</li>
         <li>Give the account time to report before making extra changes.</li>
       `;
+    }
+
+    if (fallbackSummary) {
+      fallbackSummary.textContent = "Fallback Options";
+    }
+
+    if (fallbacksEl) {
+      fallbacksEl.innerHTML = fallbackOptionsHtml();
     }
 
     if (ds.app) localStorage.setItem(kOpen, ds.app);
@@ -629,9 +642,6 @@ function initInstructionsBinder() {
   }
 }
 
-/** ────────────────────────────────────────────────────────────────────────────
- * Learn more toggles
- * ─────────────────────────────────────────────────────────────────────────── */
 function initLearnMore() {
   document.querySelectorAll("[data-learn-more]").forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -641,9 +651,6 @@ function initLearnMore() {
   });
 }
 
-/** ────────────────────────────────────────────────────────────────────────────
- * Buy button
- * ─────────────────────────────────────────────────────────────────────────── */
 (function () {
   function isEmail(v) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(v || "").trim());
@@ -679,9 +686,6 @@ function initLearnMore() {
   });
 })();
 
-/** ────────────────────────────────────────────────────────────────────────────
- * Boot
- * ─────────────────────────────────────────────────────────────────────────── */
 document.addEventListener("DOMContentLoaded", async () => {
   initIconsAndAnim();
   initLocalProgress();
