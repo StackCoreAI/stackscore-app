@@ -14,7 +14,7 @@ export default function Refund() {
             <li>Duplicate purchases within 7 days.</li>
           </ul>
           <p className="mt-4">To request a review, email <a className="underline" href="mailto:support@stackscore.ai">support@stackscore.ai</a> with your order email and session ID.</p>
-          <p className="mt-4 text-sm opacity-70">StackScore provides educational information only; not financial advice.</p>
+          <p className="mt-4 text-sm opacity-70">CreditRoute provides educational information only; not financial advice.</p>
         </section>
       </main>
     );
