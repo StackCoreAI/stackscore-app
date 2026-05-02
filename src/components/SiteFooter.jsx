@@ -6,7 +6,7 @@ export default function SiteFooter() {
     <footer className="mt-16 border-t border-white/10">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 text-sm">
         <div className="flex flex-wrap items-center justify-between gap-4">
-          <span className="text-white/80">© {y} StackScore. All rights reserved.</span>
+          <span className="text-white/80">© {y} CreditRoute. All rights reserved.</span>
           <nav className="flex flex-wrap gap-4">
             <Link className="text-white/85 hover:text-white" to="/privacy-policy">Privacy</Link>
             <Link className="text-white/85 hover:text-white" to="/terms">Terms of Use</Link>
@@ -22,4 +22,3 @@ export default function SiteFooter() {
     </footer>
   );
 }
-
