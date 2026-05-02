@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-  <title>StackScore — Credit Route Activated</title>
+  <title>CreditRoute — Activated</title>
   <link rel="stylesheet" href="/assets/app.css?v=boot5" />
 </head>
 
@@ -13,11 +13,11 @@
       Purchase confirmed
     </div>
 
-    <h1 class="text-3xl font-semibold mb-3">Your StackScore Credit Route Is Ready</h1>
+    <h1 class="text-3xl font-semibold mb-3">Your CreditRoute Is Ready</h1>
 
     <p class="text-white/80 mb-5">
       Thank you for your purchase. Your personalized
-      <span class="text-lime-400 font-medium">Credit Route</span>
+      <span class="text-lime-400 font-medium">CreditRoute</span>
       is now unlocked and ready.
     </p>
 
@@ -33,7 +33,7 @@
     <div class="mb-6">
       <p class="text-sm font-medium text-white mb-2">You can access it in three ways:</p>
       <ol class="list-decimal pl-5 space-y-2 text-sm text-white/75">
-        <li>Open your online Credit Route using the button below</li>
+        <li>Open your online CreditRoute using the button below</li>
         <li>Open the printable PDF attached to your delivery email</li>
         <li>Print or save your route from inside the online guide</li>
       </ol>
@@ -45,7 +45,7 @@
 
     <div class="flex flex-col sm:flex-row gap-3">
       <button id="go" class="px-4 py-3 rounded-xl bg-lime-500 text-black font-semibold hidden">
-        Access My Credit Route
+        Access My CreditRoute
       </button>
 
       <button id="refresh" class="px-4 py-3 rounded-xl border border-white/15 bg-white/5 text-white font-semibold hidden">
@@ -74,11 +74,11 @@
 
     function titleForPlanKey(planKey) {
       const k = String(planKey || "growth").toLowerCase().trim();
-      if (k === "foundation") return "Foundation Credit Route";
-      if (k === "growth") return "Growth Credit Route";
-      if (k === "accelerator") return "Accelerator Credit Route";
-      if (k === "elite") return "Elite Credit Route";
-      return `${k.charAt(0).toUpperCase()}${k.slice(1)} Credit Route`;
+      if (k === "foundation") return "Foundation CreditRoute";
+      if (k === "growth") return "Growth CreditRoute";
+      if (k === "accelerator") return "Accelerator CreditRoute";
+      if (k === "elite") return "Elite CreditRoute";
+      return `${k.charAt(0).toUpperCase()}${k.slice(1)} CreditRoute`;
     }
 
     function showRefresh(message) {
