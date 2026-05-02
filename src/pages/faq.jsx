@@ -21,29 +21,29 @@ const FAQ = ({ embedded = false }) => {
 
   const faqData = [
     {
-      question: "What is StackScore?",
+      question: "What is CreditRoute?",
       answer:
-        "StackScore is a personalized credit routing system. It helps you identify the moves most likely to strengthen your credit profile based on your situation, then organizes those moves into a practical sequence you can actually follow.",
+        "CreditRoute is a personalized credit routing system. It helps you identify the moves most likely to strengthen your credit profile based on your situation, then organizes those moves into a practical sequence you can actually follow.",
     },
     {
       question: "What is a Credit Route?",
       answer:
-        "A Credit Route is your personalized step-by-step path. Instead of pushing one app or generic advice, StackScore prioritizes the actions most likely to matter for your profile and then shows you where tools may help you execute those steps.",
+        "A Credit Route is your personalized step-by-step path. Instead of pushing one app or generic advice, CreditRoute prioritizes the actions most likely to matter for your profile and then shows you where tools may help you execute those steps.",
     },
     {
-      question: "Is StackScore a credit builder app?",
+      question: "Is CreditRoute a credit builder app?",
       answer:
-        "No. StackScore is not a credit builder app and it is not a marketplace pretending to be a solution. It is a decision engine that helps you understand what to do first, what to do next, and which tools are worth considering only when they actually help.",
+        "No. CreditRoute is not a credit builder app and it is not a marketplace pretending to be a solution. It is a decision engine that helps you understand what to do first, what to do next, and which tools are worth considering only when they actually help.",
     },
     {
       question: "How is my Credit Route created?",
       answer:
-        "Your route is created from your answers about your situation, goals, budget, timeline, and execution style. StackScore uses those inputs to identify the levers most likely to move your credit profile and then sequences them into a smarter route.",
+        "Your route is created from your answers about your situation, goals, budget, timeline, and execution style. CreditRoute uses those inputs to identify the levers most likely to move your credit profile and then sequences them into a smarter route.",
     },
     {
       question: "Do you pull my credit or ask for sensitive financial data?",
       answer:
-        "No. StackScore does not pull your credit report and does not require sensitive financial account data. We use your inputs to build a route around your profile context, budget, and goals.",
+        "No. CreditRoute does not pull your credit report and does not require sensitive financial account data. We use your inputs to build a route around your profile context, budget, and goals.",
     },
     {
       question: "What do I get after I unlock my Credit Route?",
@@ -51,19 +51,19 @@ const FAQ = ({ embedded = false }) => {
         "After activation, you receive your full Credit Route, prioritized next steps, step-by-step execution guidance, tool recommendations where they actually help, reroutes if something is unavailable, and a printable execution blueprint.",
     },
     {
-      question: "How is StackScore different from credit repair?",
+      question: "How is CreditRoute different from credit repair?",
       answer:
-        "StackScore is not a credit repair service. We do not dispute items, negotiate with creditors, or alter your credit report. StackScore is an educational planning and execution tool that helps you focus on the highest-impact actions for your situation.",
+        "CreditRoute is not a credit repair service. We do not dispute items, negotiate with creditors, or alter your credit report. CreditRoute is an educational planning and execution tool that helps you focus on the highest-impact actions for your situation.",
     },
     {
-      question: "Does StackScore guarantee approval or a credit score increase?",
+      question: "Does CreditRoute guarantee approval or a credit score increase?",
       answer:
-        "No. StackScore does not guarantee approval and it does not guarantee a score increase. What it does is help you focus on the moves most likely to strengthen your credit profile based on where you are now. Results always vary by profile, reporting timelines, and execution.",
+        "No. CreditRoute does not guarantee approval and it does not guarantee a score increase. What it does is help you focus on the moves most likely to strengthen your credit profile based on where you are now. Results always vary by profile, reporting timelines, and execution.",
     },
     {
-      question: "Why does StackScore recommend different routes for different people?",
+      question: "Why does CreditRoute recommend different routes for different people?",
       answer:
-        "Because credit improvement is not one-size-fits-all. A person with a thin, clean file may need a very different route than someone rebuilding around late payments, collections, or utilization issues. Sequence matters, and StackScore is designed around that reality.",
+        "Because credit improvement is not one-size-fits-all. A person with a thin, clean file may need a very different route than someone rebuilding around late payments, collections, or utilization issues. Sequence matters, and CreditRoute is designed around that reality.",
     },
     {
       question: "Can I update my Credit Route later?",
@@ -73,7 +73,7 @@ const FAQ = ({ embedded = false }) => {
     {
       question: "Do you offer refunds?",
       answer:
-        "If you experience a technical issue accessing your Credit Route, contact support at resolve@stackscore.ai and we’ll work quickly to resolve it. StackScore is a digital product, so support starts with making sure you can access what you purchased correctly.",
+        "If you experience a technical issue accessing your Credit Route, contact support at resolve@stackscore.ai and we’ll work quickly to resolve it. CreditRoute is a digital product, so support starts with making sure you can access what you purchased correctly.",
     },
   ];
 
@@ -106,7 +106,7 @@ const FAQ = ({ embedded = false }) => {
               <path d="M4 10.5h16v3H4z" />
               <path d="M4 17h16v3H4z" />
             </svg>
-            <span className="text-lg font-semibold tracking-tight">StackScore</span>
+            <span className="text-lg font-semibold tracking-tight">CreditRoute</span>
           </Link>
 
           <button
@@ -132,7 +132,7 @@ const FAQ = ({ embedded = false }) => {
         </h1>
 
         <p className="mt-2 text-sm text-neutral-400">
-          What StackScore is, how it works, and what to expect from your personalized Credit Route.
+          What CreditRoute is, how it works, and what to expect from your personalized Credit Route.
         </p>
       </section>
 
