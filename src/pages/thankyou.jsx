@@ -158,7 +158,7 @@ export default function ThankYou() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `StackScore-Plan-${planKey}.pdf`;
+      a.download = `CreditRoute-Plan-${planKey}.pdf`;
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -213,7 +213,7 @@ export default function ThankYou() {
               </div>
 
               <h1 className="mt-4 text-3xl font-bold sm:text-4xl">
-                Your StackScore Credit Route Is Ready
+                Your CreditRoute Plan Is Ready
               </h1>
 
               <p className="mt-3 text-neutral-300">
