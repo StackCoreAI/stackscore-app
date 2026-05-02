@@ -28,15 +28,15 @@ export default function SiteHeader({ right = null }) {
     (
       <>
         {/* Desktop CTA */}
-        <SmartLink to="/activate" className="hidden sm:block" aria-label="Get my credit route">
-          <Button>Get My Credit Route</Button>
+        <SmartLink to="/activate" className="hidden sm:block" aria-label="Start my CreditRoute">
+          <Button>Start My CreditRoute</Button>
         </SmartLink>
 
         {/* Mobile CTA */}
         <SmartLink
           to="/wizard?fresh=1"
           className="sm:hidden rounded-full border border-white/15 bg-white/5 px-4 py-2 text-xs font-semibold text-white/90 hover:bg-white/10"
-          aria-label="Get my credit route"
+          aria-label="Start my CreditRoute"
         >
           Start
         </SmartLink>
