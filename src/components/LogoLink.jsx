@@ -13,7 +13,7 @@ export default function LogoLink({ className = "" }) {
         <path d="M4 10.5h16v3H4z" />
         <path d="M4 17h16v3H4z" />
       </svg>
-      <span className="text-white font-semibold tracking-tight">StackScore</span>
+      <span className="text-white font-semibold tracking-tight">CreditRoute</span>
     </Link>
   );
 }
