@@ -13,11 +13,11 @@ export default function Header() {
         <Link
           to="/"
           className="group flex items-center gap-2"
-          aria-label="StackScore — Home"
+          aria-label="CreditRoute — Home"
         >
           <span className="inline-block h-5 w-5 rounded-sm bg-lime-400" />
           <span className="font-semibold tracking-tight group-hover:opacity-90">
-            StackScore
+            CreditRoute
           </span>
         </Link>
 
@@ -43,9 +43,9 @@ export default function Header() {
             <Link
               to="/wizard?fresh=1"
               className="hidden md:block"
-              aria-label="Get my credit route"
+              aria-label="Start my credit route"
             >
-              <Button>Get My Credit Route</Button>
+              <Button>Start My Credit Route</Button>
             </Link>
           )}
         </nav>
@@ -55,7 +55,7 @@ export default function Header() {
           <Link
             to="/wizard?fresh=1"
             className="md:hidden rounded-full border border-white/15 bg-white/5 px-4 py-2 text-xs font-semibold text-white/90 hover:bg-white/10"
-            aria-label="Get my credit route"
+            aria-label="Start my credit route"
           >
             Start
           </Link>
