@@ -100,7 +100,7 @@ export default function Hero({ embedded = false }) {
               <path d="M4 10.5h16v3H4z" />
               <path d="M4 17h16v3H4z" />
             </svg>
-            <span className="text-lg font-semibold tracking-tight">StackScore</span>
+            <span className="text-lg font-semibold tracking-tight">CreditRoute</span>
           </button>
 
           <nav className="flex flex-col items-start gap-4 md:flex-row md:items-center md:gap-8">
@@ -117,8 +117,8 @@ export default function Hero({ embedded = false }) {
               FAQ
             </a>
 
-            <Link to="/activate" aria-label="Get my credit route" className="mt-1 inline-flex md:mt-0">
-              <Button size="sm">Get My Credit Route</Button>
+            <Link to="/activate" aria-label="Start my credit route" className="mt-1 inline-flex md:mt-0">
+              <Button size="sm">Start My Credit Route</Button>
             </Link>
           </nav>
         </header>
@@ -152,12 +152,12 @@ export default function Hero({ embedded = false }) {
           <h1 className="text-3xl font-light leading-tight tracking-tight sm:text-4xl md:text-5xl lg:text-6xl">
             No single app fixes credit.
             <span className="block bg-gradient-to-r from-lime-400 via-emerald-400 to-cyan-400 bg-clip-text font-semibold text-transparent">
-              StackScore shows you what actually moves it.
+              CreditRoute shows you what actually moves your score.
             </span>
           </h1>
 
           <p className="max-w-2xl text-lg text-slate-300">
-            StackScore analyzes your situation and maps the highest-impact moves for your credit profile in the
+            CreditRoute analyzes your situation and maps the highest-impact moves for your credit profile in the
             right order. Because improving credit is not about one app. It is about the right actions,
             sequenced correctly.
           </p>
@@ -168,15 +168,15 @@ export default function Hero({ embedded = false }) {
 
           <div className="flex flex-col gap-4 pt-2 sm:flex-row sm:items-center">
             <div className="flex flex-col gap-2">
-              <Button size="lg" onClick={goWizard} aria-label="Get my credit route">
-                Get My Credit Route
+              <Button size="lg" onClick={goWizard} aria-label="Start my credit route">
+                Start My Credit Route
               </Button>
               <p className="text-xs text-slate-500">
                 Quick questions → personalized routes → unlock when you’re ready
               </p>
             </div>
 
-            <a href="#how-it-works" aria-label="See how StackScore works" className="inline-flex">
+            <a href="#how-it-works" aria-label="See how CreditRoute works" className="inline-flex">
               <Button variant="secondary" size="lg">
                 See How It Works
               </Button>
@@ -184,7 +184,7 @@ export default function Hero({ embedded = false }) {
           </div>
 
           <p className="max-w-2xl text-xs text-slate-500">
-            StackScore does not guarantee approval. It helps you focus on the moves most likely to strengthen
+            CreditRoute does not guarantee approval. It helps you focus on the moves most likely to strengthen
             your credit profile based on where you are now.
           </p>
 
