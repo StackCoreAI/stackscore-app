@@ -119,6 +119,8 @@
       body {
         background: #fff !important;
         color: #111 !important;
+        font-size: 10.5pt !important;
+        line-height: 1.35 !important;
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
       }
@@ -217,9 +219,50 @@
         break-before: page;
         page-break-before: always;
       }
+
+      section,
+      details,
+      aside,
+      main {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+
+      h1,
+      h2,
+      h3,
+      h4,
+      summary {
+        break-after: avoid;
+        page-break-after: avoid;
+      }
+
+      ul,
+      ol {
+        margin-top: 4px !important;
+        margin-bottom: 6px !important;
+      }
+
+      li {
+        margin-bottom: 3px !important;
+      }
+
+      a[href]::after {
+        content: "" !important;
+      }
+
+      #compose,
+      #route-scorecard {
+        break-before: page;
+        page-break-before: always;
+      }
+
+      .print-compact {
+        padding: 6px !important;
+      }
     }
 
-    @page { size: Letter; margin: 12mm; }
+    @page { size: Letter; margin: 10mm; }
 
     .no-print {}
     @media print { .no-print { display: none !important; } }
