@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-  <title>StackScore — Your Personalized Credit Route</title>
+  <title>CreditRoute — Your Personalized Credit Route</title>
   <link rel="icon" href="/favicon.ico" />
 
   <link rel="stylesheet" href="/assets/app.css?v=boot3" />
@@ -160,8 +160,6 @@
         background: #fff !important;
         color: #111 !important;
         border: 1px solid #d1d5db !important;
-        break-inside: avoid;
-        page-break-inside: avoid;
       }
 
       .bg-white\/5,
@@ -221,16 +219,8 @@
       }
 
       .page-break {
-        break-before: page;
-        page-break-before: always;
-      }
-
-      section,
-      details,
-      aside,
-      main {
-        break-inside: avoid;
-        page-break-inside: avoid;
+        break-before: auto;
+        page-break-before: auto;
       }
 
       h1,
@@ -254,12 +244,6 @@
 
       a[href]::after {
         content: "" !important;
-      }
-
-      #compose,
-      #route-scorecard {
-        break-before: page;
-        page-break-before: always;
       }
 
       .print-compact {
@@ -288,13 +272,13 @@
   </button>
 
   <header class="max-w-6xl mx-auto px-6 py-3 flex flex-col md:flex-row md:items-center justify-between gap-2 init-opacity" data-anim>
-    <a href="/" class="flex items-center gap-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-lime-400/70" aria-label="StackScore Home">
+    <a href="/" class="flex items-center gap-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-lime-400/70" aria-label="CreditRoute Home">
       <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" class="text-lime-400" aria-hidden="true">
         <path d="M4 4h16v3H4z"></path>
         <path d="M4 10.5h16v3H4z"></path>
         <path d="M4 17h16v3H4z"></path>
       </svg>
-      <span class="text-lg font-semibold tracking-tight text-white">StackScore</span>
+      <span class="text-lg font-semibold tracking-tight text-white">CreditRoute</span>
     </a>
 
     <nav class="flex flex-col md:flex-row items-start md:items-center gap-2 md:gap-4 text-sm">
@@ -317,12 +301,12 @@
       <h1 class="text-3xl sm:text-4xl md:text-5xl font-light leading-tight tracking-tight">
         No single app fixes credit.
         <span class="bg-clip-text text-transparent bg-gradient-to-r from-lime-400 via-emerald-400 to-cyan-400 font-semibold">
-          StackScore shows you what actually moves it.
+          CreditRoute shows you what actually moves it.
         </span>
       </h1>
 
       <p class="text-sm md:text-base text-zinc-200/90 leading-relaxed max-w-3xl">
-        StackScore analyzes your situation and maps the highest-impact moves for your credit profile — in the right order.
+        CreditRoute analyzes your situation and maps the highest-impact moves for your credit profile — in the right order.
         Because improving credit is not about one app. It is about the right actions, sequenced correctly.
       </p>
 
@@ -344,7 +328,7 @@
       </div>
 
       <p class="text-xs md:text-sm text-zinc-400 max-w-3xl pt-1">
-        StackScore does not guarantee approval. It helps you focus on the moves most likely to strengthen your credit profile based on where you are now.
+        CreditRoute does not guarantee approval. It helps you focus on the moves most likely to strengthen your credit profile based on where you are now.
       </p>
     </div>
   </section>
@@ -373,12 +357,12 @@
 
       <div class="mt-2 grid gap-2 md:grid-cols-3 text-sm">
         <div class="rounded-lg border border-white/10 bg-white/5 p-2.5">
-          <div class="text-[11px] tracking-wider uppercase text-zinc-400 mb-1">What StackScore analyzed</div>
+          <div class="text-[11px] tracking-wider uppercase text-zinc-400 mb-1">What CreditRoute analyzed</div>
           <div class="text-zinc-100" data-hook="snap-focus">Your profile, timeline, budget, and goals</div>
         </div>
 
         <div class="rounded-lg border border-white/10 bg-white/5 p-2.5">
-          <div class="text-[11px] tracking-wider uppercase text-zinc-400 mb-1">What StackScore identified</div>
+          <div class="text-[11px] tracking-wider uppercase text-zinc-400 mb-1">What CreditRoute identified</div>
           <div class="text-zinc-100" data-hook="snap-strategy">The levers most likely to move your credit profile</div>
         </div>
 
@@ -389,7 +373,7 @@
       </div>
 
       <div class="mt-2 text-sm text-zinc-100 leading-5" data-hook="snap-summary">
-        StackScore helps you focus on what matters most for your situation first, then surfaces tools only where they actually help you execute the next step.
+        CreditRoute helps you focus on what matters most for your situation first, then surfaces tools only where they actually help you execute the next step.
       </div>
     </div>
   </section>
@@ -412,7 +396,7 @@
               <h4 class="text-amber-200 font-semibold text-sm">How to Use This Route</h4>
             </div>
             <p class="text-xs text-zinc-200/90 leading-relaxed">
-              Follow the steps below in order. StackScore is designed to help you focus on the moves most likely to strengthen your credit profile first.
+              Follow the steps below in order. CreditRoute is designed to help you focus on the moves most likely to strengthen your credit profile first.
             </p>
             <details class="mt-1.5">
               <summary class="cursor-pointer underline text-amber-200 hover:text-amber-100 text-xs">
@@ -425,10 +409,10 @@
           </div>
 
           <div id="how-it-works" class="rounded-xl border border-white/10 bg-black/30 p-3 mb-2.5">
-            <div class="text-[11px] tracking-wider uppercase text-zinc-400 mb-2">How StackScore Works</div>
+            <div class="text-[11px] tracking-wider uppercase text-zinc-400 mb-2">How CreditRoute Works</div>
             <div class="text-xs text-zinc-200/90 leading-relaxed space-y-2">
               <p>
-                Credit improvement is not one-size-fits-all. StackScore helps you identify what matters most in your situation and shows you the smartest order to act.
+                Credit improvement is not one-size-fits-all. CreditRoute helps you identify what matters most in your situation and shows you the smartest order to act.
               </p>
 
               <div class="space-y-2 pt-1">
@@ -439,7 +423,7 @@
 
                 <div>
                   <div class="text-zinc-100 font-medium">2. Identify the levers that matter most</div>
-                  <div class="text-zinc-300">StackScore pinpoints the factors most likely to move your credit profile — such as utilization, payment history, negative items, or profile depth.</div>
+                  <div class="text-zinc-300">CreditRoute pinpoints the factors most likely to move your credit profile — such as utilization, payment history, negative items, or profile depth.</div>
                 </div>
 
                 <div>
@@ -449,7 +433,7 @@
 
                 <div>
                   <div class="text-zinc-100 font-medium">4. Use tools only when they actually help</div>
-                  <div class="text-zinc-300">Where useful, StackScore surfaces marketplace tools and services to help you execute specific steps — without treating any single app as the solution.</div>
+                  <div class="text-zinc-300">Where useful, CreditRoute surfaces marketplace tools and services to help you execute specific steps — without treating any single app as the solution.</div>
                 </div>
               </div>
             </div>
@@ -549,7 +533,7 @@
           <span class="text-[11px] text-zinc-400">Route Intelligence</span>
         </summary>
         <div class="mt-2 text-zinc-200/90 leading-relaxed text-sm" id="why-overview">
-          StackScore selected this Credit Route based on your inputs, prioritizing the strongest reporting opportunities for your timeline, budget, and execution style. This route emphasizes reliable activation, practical setup, and reroutes when a tool or feature is unavailable.
+          CreditRoute selected this Credit Route based on your inputs, prioritizing the strongest reporting opportunities for your timeline, budget, and execution style. This route emphasizes reliable activation, practical setup, and reroutes when a tool or feature is unavailable.
         </div>
         <ul class="mt-2 space-y-2 text-sm text-zinc-300" id="why-assumptions" style="display:none;"></ul>
       </details>

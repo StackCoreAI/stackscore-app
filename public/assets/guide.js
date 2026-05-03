@@ -238,17 +238,17 @@ function buildSidebarAppItem(app, index) {
   const features = normalizeArray(app.features);
   const reroutes = normalizeArray(app.reroutes);
   const details = document.createElement("details");
-  details.className = "group rounded-xl border border-white/10 bg-black/30 overflow-hidden";
+  details.className = "group rounded-xl border border-lime-400/50 bg-lime-400/10 overflow-hidden shadow-[0_10px_24px_rgba(22,226,99,.12)] transition hover:border-lime-300/80 hover:bg-lime-400/15";
 
   const summary = document.createElement("summary");
-  summary.className = "cursor-pointer list-none px-3 py-2 flex items-center justify-between gap-3";
+  summary.className = "cursor-pointer list-none px-3 py-2 flex items-center justify-between gap-3 bg-gradient-to-r from-lime-400 to-emerald-500 text-black transition hover:brightness-110";
   summary.dataset.app = app.app_name || "";
   summary.dataset.url = app.app_url || "";
   summary.dataset.step1 = steps[0] || "";
   summary.dataset.step2 = steps[1] || "";
   summary.dataset.step3 = steps[2] || "";
   summary.dataset.tip = app.tip || "";
-  summary.innerHTML = `<div class="min-w-0"><div class="text-xs text-zinc-400 uppercase tracking-wider mb-0.5">App ${index + 1}</div><div class="text-sm font-medium text-white truncate">${app.app_name || "App"}</div></div><div class="shrink-0 flex items-center gap-2"><span class="text-[11px] px-2 py-1 rounded-full border border-white/10 bg-white/5 text-zinc-300">${features.length ? features[0] : "Route step"}</span><svg class="chev w-4 h-4 text-zinc-400" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m6 9 6 6 6-6"></path></svg></div>`;
+  summary.innerHTML = `<div class="min-w-0"><div class="text-xs text-black/70 uppercase tracking-wider mb-0.5">App ${index + 1}</div><div class="text-sm font-semibold text-black truncate">${app.app_name || "App"}</div></div><div class="shrink-0 flex items-center gap-2"><span class="text-[11px] px-2 py-1 rounded-full border border-black/10 bg-black/10 text-black/80">${features.length ? features[0] : "Route step"}</span><svg class="chev w-4 h-4 text-black/70" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m6 9 6 6 6-6"></path></svg></div>`;
 
   const body = document.createElement("div");
   body.className = "px-3 pb-3 border-t border-white/10";
