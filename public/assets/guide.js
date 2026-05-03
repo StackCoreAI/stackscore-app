@@ -260,7 +260,11 @@ function printableFallbackOptions(apps) {
   ];
 }
 
-function buildPrintableGuideHtml({ routeName, summary, routeSteps, apps, fallbackOptions, disclaimer }) {
+function printableDisclaimerText() {
+  return "Disclaimer: This guide is educational only. CreditRoute is not a financial advisor, credit advisor, credit repair company, or credit counseling provider. This guide does not guarantee credit approval, credit-score increases, or specific financial outcomes. Results vary based on your situation, provider rules, reporting timelines, and your actions.";
+}
+
+function buildPrintableGuideHtml({ routeName, summary, routeSteps, apps, fallbackOptions }) {
   const appSections = apps.map((app, index) => {
     const features = normalizeArray(app.features);
     const steps = fallbackStepsFor(app);
@@ -285,9 +289,21 @@ function buildPrintableGuideHtml({ routeName, summary, routeSteps, apps, fallbac
   <title>${escapeHtml(routeName)} - Printable CreditRoute</title>
   <style>
     @page { size: Letter; margin: 10mm; }
+    html, body { min-height: 100%; overflow: auto; }
     body { margin: 0; background: #fff; color: #000; font-family: Arial, Helvetica, sans-serif; font-size: 12pt; line-height: 1.45; }
-    main { max-width: 760px; margin: 0 auto; }
-    h1 { font-size: 24pt; margin: 0 0 6px; }
+    .toolbar { position: sticky; top: 0; display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-bottom: 1px solid #d7d7d7; background: #f7f7f7; z-index: 10; }
+    .toolbar button { appearance: none; border: 1px solid #111; border-radius: 6px; background: #111; color: #fff; padding: 8px 12px; font: inherit; font-size: 10pt; cursor: pointer; }
+    .toolbar button.secondary { background: #fff; color: #111; }
+    .toolbar .note { color: #333; font-size: 10pt; }
+    main { max-width: 760px; margin: 0 auto; padding: 28px 22px 36px; }
+    .brand { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
+    .brand-mark { width: 30px; height: 30px; border: 2px solid #111; border-radius: 7px; position: relative; box-sizing: border-box; }
+    .brand-mark::before, .brand-mark::after { content: ""; position: absolute; left: 5px; right: 5px; height: 3px; background: #111; border-radius: 999px; }
+    .brand-mark::before { top: 8px; }
+    .brand-mark::after { top: 17px; }
+    .brand-name { font-size: 22pt; font-weight: 700; letter-spacing: .01em; }
+    .subtitle { color: #333; font-size: 11pt; margin-top: 2px; }
+    h1 { font-size: 20pt; margin: 0 0 6px; }
     h2 { font-size: 15pt; margin: 22px 0 8px; border-bottom: 1px solid #ddd; padding-bottom: 4px; }
     h3 { font-size: 13pt; margin: 16px 0 6px; }
     h4 { font-size: 11pt; margin: 10px 0 4px; }
@@ -296,13 +312,29 @@ function buildPrintableGuideHtml({ routeName, summary, routeSteps, apps, fallbac
     li { margin: 0 0 4px; }
     section { margin: 0 0 14px; }
     .muted { color: #444; }
-    .disclaimer { margin-top: 22px; padding-top: 10px; border-top: 1px solid #ddd; font-size: 10pt; color: #333; }
+    .disclaimer { margin-top: 24px; padding: 12px 14px; border: 1px solid #777; border-radius: 6px; background: #fafafa; font-size: 10.5pt; color: #111; }
+    @media print {
+      .toolbar { display: none !important; }
+      main { padding: 0; }
+    }
   </style>
 </head>
 <body>
+  <div class="toolbar">
+    <button type="button" onclick="window.print()">Print / Save PDF</button>
+    <button type="button" class="secondary" onclick="window.close()">Close</button>
+    <span class="note">Use Print / Save PDF to download your CreditRoute.</span>
+  </div>
   <main>
-    <h1>CreditRoute</h1>
-    <p><strong>${escapeHtml(routeName)}</strong></p>
+    <div class="brand" aria-label="CreditRoute">
+      <div class="brand-mark" aria-hidden="true"></div>
+      <div>
+        <div class="brand-name">CreditRoute</div>
+        <div class="subtitle">Personalized CreditRoute Execution Guide</div>
+      </div>
+    </div>
+
+    <h1>${escapeHtml(routeName)}</h1>
     <p>${escapeHtml(summary)}</p>
 
     <h2>Route Steps</h2>
@@ -331,7 +363,7 @@ function buildPrintableGuideHtml({ routeName, summary, routeSteps, apps, fallbac
     <h2>Fallback Options</h2>
     ${printableList(fallbackOptions)}
 
-    <div class="disclaimer">${escapeHtml(disclaimer)}</div>
+    <div class="disclaimer">${escapeHtml(printableDisclaimerText())}</div>
   </main>
 </body>
 </html>`;
@@ -345,14 +377,12 @@ function openPrintableGuide() {
   const routeName = document.getElementById("selected-plan-title")?.textContent?.trim() || titleForPlanKey(planKey);
   const summary = document.querySelector('[data-hook="routing-summary"]')?.textContent?.trim() || document.querySelector('[data-hook="snap-summary"]')?.textContent?.trim() || routeSummaryText(plan);
   const routeSteps = plan ? routeStepsList(plan) : [...document.querySelectorAll('[data-hook="route-steps"] li')].map((li) => li.textContent.trim()).filter(Boolean);
-  const disclaimer = document.querySelector("footer")?.textContent?.replace(/\s+/g, " ").trim() || "This guide is educational only and should not be taken as financial advice, credit advice, or credit counseling advice. Results vary, and there is no guarantee that your credit score will increase.";
   const html = buildPrintableGuideHtml({
     routeName,
     summary,
     routeSteps,
     apps,
     fallbackOptions: printableFallbackOptions(apps),
-    disclaimer,
   });
   const printWindow = window.open("", "_blank");
   if (!printWindow) {
