@@ -214,6 +214,179 @@ function fallbackOptionsHtml() {
     </div>`;
 }
 
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function printableList(items, emptyText = "Not available.") {
+  const clean = normalizeArray(items).map((item) => String(item).trim()).filter(Boolean);
+  if (!clean.length) return `<p class="muted">${escapeHtml(emptyText)}</p>`;
+  return `<ul>${clean.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`;
+}
+
+function readPrintableApps(plan) {
+  const planApps = uniqueApps(extractApps(plan));
+  if (planApps.length) return planApps;
+
+  return [...document.querySelectorAll("#compose details.group summary")].map((summary) => {
+    const ds = summary.dataset || {};
+    const name = String(ds.app || summary.querySelector(".text-sm")?.textContent || "").trim();
+    return {
+      app_name: name || "Route step",
+      app_url: String(ds.url || "").trim(),
+      features: [],
+      step1: String(ds.step1 || "").trim(),
+      step2: String(ds.step2 || "").trim(),
+      step3: String(ds.step3 || "").trim(),
+      tip: String(ds.tip || "").trim(),
+      execution_insights: [],
+      reroutes: [],
+    };
+  }).filter((app) => app.app_name);
+}
+
+function printableFallbackOptions(apps) {
+  const reroutes = [...new Set(apps.flatMap((app) => normalizeArray(app.reroutes).map((item) => String(item).trim())).filter(Boolean))];
+  if (reroutes.length) return reroutes;
+  return [
+    "Use a tool with similar reporting or setup features if one step does not fit your situation.",
+    "Adjust the sequence based on timing, budget, or verification requirements.",
+    "Continue with the next available step once setup is complete.",
+  ];
+}
+
+function buildPrintableGuideHtml({ routeName, summary, routeSteps, apps, fallbackOptions, disclaimer }) {
+  const appSections = apps.map((app, index) => {
+    const features = normalizeArray(app.features);
+    const steps = fallbackStepsFor(app);
+    const insights = normalizeArray(app.execution_insights);
+    return `
+      <section>
+        <h3>${index + 1}. ${escapeHtml(app.app_name || "Route step")}</h3>
+        ${app.app_url ? `<p><strong>Website:</strong> ${escapeHtml(app.app_url)}</p>` : ""}
+        ${features.length ? `<p><strong>Focus:</strong> ${escapeHtml(features.join(", "))}</p>` : ""}
+        <h4>Step Instructions</h4>
+        ${printableList(steps)}
+        ${insights.length ? `<h4>What to Expect</h4>${printableList(insights)}` : ""}
+        ${app.tip ? `<p><strong>Tip:</strong> ${escapeHtml(app.tip)}</p>` : ""}
+      </section>
+    `;
+  }).join("");
+
+  return `<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>${escapeHtml(routeName)} - Printable CreditRoute</title>
+  <style>
+    @page { size: Letter; margin: 10mm; }
+    body { margin: 0; background: #fff; color: #000; font-family: Arial, Helvetica, sans-serif; font-size: 12pt; line-height: 1.45; }
+    main { max-width: 760px; margin: 0 auto; }
+    h1 { font-size: 24pt; margin: 0 0 6px; }
+    h2 { font-size: 15pt; margin: 22px 0 8px; border-bottom: 1px solid #ddd; padding-bottom: 4px; }
+    h3 { font-size: 13pt; margin: 16px 0 6px; }
+    h4 { font-size: 11pt; margin: 10px 0 4px; }
+    p { margin: 0 0 8px; }
+    ul, ol { margin: 4px 0 10px 22px; padding: 0; }
+    li { margin: 0 0 4px; }
+    section { margin: 0 0 14px; }
+    .muted { color: #444; }
+    .disclaimer { margin-top: 22px; padding-top: 10px; border-top: 1px solid #ddd; font-size: 10pt; color: #333; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>CreditRoute</h1>
+    <p><strong>${escapeHtml(routeName)}</strong></p>
+    <p>${escapeHtml(summary)}</p>
+
+    <h2>Route Steps</h2>
+    ${printableList(routeSteps)}
+
+    <h2>Apps in Your Route</h2>
+    ${appSections || '<p class="muted">No route apps are available yet.</p>'}
+
+    <h2>Execution Checklist</h2>
+    ${printableList([
+      "Create your account.",
+      "Turn on the recommended feature.",
+      "Enable autopay or a reminder, if applicable.",
+      "Confirm setup is active.",
+      "Move to the next CreditRoute step.",
+    ])}
+
+    <h2>Checkpoint</h2>
+    <p>You are ready to move forward when:</p>
+    ${printableList([
+      "Setup is complete.",
+      "The recommended feature is active.",
+      "You understand the next step.",
+    ])}
+
+    <h2>Fallback Options</h2>
+    ${printableList(fallbackOptions)}
+
+    <div class="disclaimer">${escapeHtml(disclaimer)}</div>
+  </main>
+</body>
+</html>`;
+}
+
+function openPrintableGuide() {
+  const params = new URLSearchParams(window.location.search);
+  const planKey = String(params.get("stackKey") || localStorage.getItem("ss_route_key") || sessionStorage.getItem("selectedPlanKey") || "growth").toLowerCase().trim();
+  const plan = readCachedPlan();
+  const apps = readPrintableApps(plan);
+  const routeName = document.getElementById("selected-plan-title")?.textContent?.trim() || titleForPlanKey(planKey);
+  const summary = document.querySelector('[data-hook="routing-summary"]')?.textContent?.trim() || document.querySelector('[data-hook="snap-summary"]')?.textContent?.trim() || routeSummaryText(plan);
+  const routeSteps = plan ? routeStepsList(plan) : [...document.querySelectorAll('[data-hook="route-steps"] li')].map((li) => li.textContent.trim()).filter(Boolean);
+  const disclaimer = document.querySelector("footer")?.textContent?.replace(/\s+/g, " ").trim() || "This guide is educational only and should not be taken as financial advice, credit advice, or credit counseling advice. Results vary, and there is no guarantee that your credit score will increase.";
+  const html = buildPrintableGuideHtml({
+    routeName,
+    summary,
+    routeSteps,
+    apps,
+    fallbackOptions: printableFallbackOptions(apps),
+    disclaimer,
+  });
+  const printWindow = window.open("", "_blank");
+  if (!printWindow) {
+    window.alert("Please allow popups to print your CreditRoute.");
+    return;
+  }
+  printWindow.opener = null;
+  let didPrint = false;
+  const printWhenReady = () => {
+    if (didPrint) return;
+    didPrint = true;
+    printWindow.focus();
+    setTimeout(() => {
+      try {
+        printWindow.print();
+      } catch {}
+    }, 100);
+  };
+  printWindow.addEventListener("load", printWhenReady, { once: true });
+  printWindow.document.open();
+  printWindow.document.write(html);
+  printWindow.document.close();
+  setTimeout(printWhenReady, 500);
+}
+
+function initPrintButton() {
+  const printBtn = document.getElementById("print-plan");
+  if (!printBtn) return;
+  printBtn.addEventListener("click", (event) => {
+    event.preventDefault();
+    openPrintableGuide();
+  });
+}
+
 function initIconsAndAnim() {
   try { if (window.lucide && typeof window.lucide.createIcons === "function") window.lucide.createIcons(); } catch {}
   document.querySelectorAll("[data-anim]").forEach((el, i) => {
@@ -465,6 +638,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   initIconsAndAnim();
   initLocalProgress();
   initLearnMore();
+  initPrintButton();
   await initPlanHydration();
   initInstructionsBinder();
 });
