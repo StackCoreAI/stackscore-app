@@ -7,7 +7,7 @@
 
 [functions]
   node_bundler = "esbuild"
-  external_node_modules = ["openai"]
+  external_node_modules = ["openai", "@sparticuz/chromium", "puppeteer-core"]
 
 # -----------------------------
 # Function timeouts
@@ -23,6 +23,10 @@
 
 [functions."preview-copy"]
   timeout = 20
+
+[functions."export-plan-pdf"]
+  timeout = 26
+  included_files = ["pdf/templates/creditroute-guide.html"]
 
 # --------------------------------
 # Disable caching for guide pages

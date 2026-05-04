@@ -730,30 +730,6 @@
     });
   });
 
-  document.addEventListener("DOMContentLoaded", () => {
-    const openMap = new WeakMap();
-
-    const openAll = () =>
-      document.querySelectorAll("details").forEach((details) => {
-        openMap.set(details, details.open);
-        details.open = true;
-      });
-
-    const restoreAll = () =>
-      document.querySelectorAll("details").forEach((details) => {
-        const prior = openMap.get(details);
-        if (prior !== undefined) details.open = prior;
-      });
-
-    document.getElementById("print-plan")?.addEventListener("click", () => {
-      openAll();
-      setTimeout(() => window.print(), 50);
-    });
-
-    window.addEventListener("beforeprint", openAll);
-    window.addEventListener("afterprint", restoreAll);
-  });
-
   async function renderComposedGuide() {
     const sidebar = document.getElementById("sidebar-slot");
     if (!sidebar) return;

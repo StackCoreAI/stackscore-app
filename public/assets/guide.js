@@ -320,11 +320,6 @@ function buildPrintableGuideHtml({ routeName, summary, routeSteps, apps, fallbac
   </style>
 </head>
 <body>
-  <div class="toolbar">
-    <button type="button" onclick="window.print()">Print / Save PDF</button>
-    <button type="button" class="secondary" onclick="window.close()">Close</button>
-    <span class="note">Use Print / Save PDF to download your CreditRoute.</span>
-  </div>
   <main>
     <div class="brand" aria-label="CreditRoute">
       <div class="brand-mark" aria-hidden="true"></div>
@@ -411,6 +406,7 @@ function openPrintableGuide() {
 function initPrintButton() {
   const printBtn = document.getElementById("print-plan");
   if (!printBtn) return;
+  if (printBtn.dataset.serverPdf === "true") return;
   printBtn.addEventListener("click", (event) => {
     event.preventDefault();
     openPrintableGuide();

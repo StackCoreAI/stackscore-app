@@ -154,11 +154,12 @@
 
   <button
     id="print-plan"
+    data-server-pdf="true"
     class="no-print"
-    aria-label="Print this Credit Route"
+    aria-label="Download this Credit Route PDF"
     style="position:fixed; right:16px; top:16px; z-index:9999; padding:10px 14px; border-radius:9999px; background:#16e263; color:#0a0a0a; border:0; font-weight:600; box-shadow:0 8px 20px rgba(0,0,0,.25); cursor:pointer;"
   >
-    Print Route
+    Download PDF
   </button>
 
   <header class="max-w-6xl mx-auto px-6 py-3 flex flex-col md:flex-row md:items-center justify-between gap-2 init-opacity" data-anim>
@@ -613,6 +614,164 @@
     }, { threshold: 0.15 });
 
     sections.forEach((section) => observer.observe(section));
+  </script>
+
+  <script>
+    (function wirePdfDownload() {
+      const button = document.getElementById("print-plan");
+      if (!button) return;
+
+      function parseStored(key) {
+        try {
+          const raw = sessionStorage.getItem(key) || localStorage.getItem(key);
+          return raw ? JSON.parse(raw) : null;
+        } catch {
+          return null;
+        }
+      }
+
+      function parseJson(value, fallback) {
+        try {
+          return value ? JSON.parse(value) : fallback;
+        } catch {
+          return fallback;
+        }
+      }
+
+      function readAnswers() {
+        const raw =
+          parseStored("stackscore_answers") ||
+          parseStored("ss_answers") ||
+          parseStored("stackscoreUserData") ||
+          {};
+
+        return {
+          living: raw.living || raw.housing || "",
+          budget: raw.budget || "",
+          timeline: raw.timeline || raw.goal || "",
+          employment: raw.employment || "",
+          rent_backdate: raw.rent_backdate || ""
+        };
+      }
+
+      function uniqueApps(apps) {
+        const seen = new Set();
+        return (Array.isArray(apps) ? apps : []).filter((app) => {
+          const name = String(app?.app_name || app?.name || "").trim();
+          if (!name) return false;
+          const key = name.toLowerCase();
+          if (seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        }).slice(0, 5);
+      }
+
+      function appsFromPlan(plan) {
+        if (Array.isArray(plan?.apps)) return plan.apps;
+        if (Array.isArray(plan?.plans)) {
+          return plan.plans.flatMap((item) => Array.isArray(item?.apps) ? item.apps : []);
+        }
+        if (Array.isArray(plan?.plan?.apps)) return plan.plan.apps;
+        return [];
+      }
+
+      function appsFromDom() {
+        return Array.from(document.querySelectorAll("#compose details.group summary")).map((summary) => {
+          const data = summary.dataset || {};
+          return {
+            app_name: data.app || summary.textContent.trim(),
+            app_url: data.url || "",
+            step1: data.step1 || "",
+            step2: data.step2 || "",
+            step3: data.step3 || "",
+            tip: data.tip || "",
+            reroutes: parseJson(data.reroutes, [])
+          };
+        });
+      }
+
+      function currentContext() {
+        const params = new URLSearchParams(window.location.search);
+        const stackKey = String(
+          params.get("stackKey") ||
+          localStorage.getItem("ss_route_key") ||
+          sessionStorage.getItem("selectedPlanKey") ||
+          "growth"
+        ).toLowerCase();
+
+        return {
+          stackKey,
+          sessionId:
+            params.get("session_id") ||
+            sessionStorage.getItem("ss_last_session_id") ||
+            localStorage.getItem("ss_last_session_id") ||
+            ""
+        };
+      }
+
+      function filenameFromDisposition(value, stackKey) {
+        const match = /filename="?([^"]+)"?/i.exec(value || "");
+        return match?.[1] || `CreditRoute-Plan-${stackKey}.pdf`;
+      }
+
+      async function downloadPdf(event) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+
+        const { stackKey, sessionId } = currentContext();
+        if (!sessionId) {
+          window.alert("We could not find your paid session. Please reopen your CreditRoute from the success page or email link.");
+          return;
+        }
+
+        const previousText = button.textContent;
+        button.disabled = true;
+        button.textContent = "Preparing PDF...";
+
+        try {
+          const plan = parseStored("ss_plan") || {};
+          const planApps = uniqueApps(appsFromPlan(plan));
+          const apps = planApps.length ? planApps : uniqueApps(appsFromDom());
+
+          const response = await fetch("/.netlify/functions/export-plan-pdf", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/pdf"
+            },
+            body: JSON.stringify({
+              session_id: sessionId,
+              stackKey,
+              answers: readAnswers(),
+              apps
+            })
+          });
+
+          if (!response.ok) {
+            const error = await response.json().catch(() => ({}));
+            throw new Error(error?.error || `PDF export failed (${response.status})`);
+          }
+
+          const blob = await response.blob();
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = filenameFromDisposition(response.headers.get("content-disposition"), stackKey);
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+          URL.revokeObjectURL(url);
+        } catch (err) {
+          console.error("CreditRoute PDF export failed:", err);
+          window.alert("We could not generate your PDF yet. Please try again in a moment.");
+        } finally {
+          button.disabled = false;
+          button.textContent = previousText;
+        }
+      }
+
+      button.addEventListener("click", downloadPdf, true);
+    })();
   </script>
 
 </body>
