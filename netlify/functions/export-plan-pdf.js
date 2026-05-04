@@ -1,16 +1,10 @@
 // netlify/functions/export-plan-pdf.js
 import fs from "node:fs/promises";
 import path from "node:path";
-import { createRequire } from "node:module";
-import { fileURLToPath } from "node:url";
+import chromium from "@sparticuz/chromium";
+import puppeteer from "puppeteer-core";
 import Stripe from "stripe";
 
-const require = createRequire(import.meta.url);
-const chromium = require("@sparticuz/chromium");
-const puppeteer = require("puppeteer-core");
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 let stripeClient;
 
 function json(headers = {}, statusCode, body) {
@@ -25,11 +19,45 @@ function json(headers = {}, statusCode, body) {
   };
 }
 
-function safeParse(v, fallback = null) {
+function logPdfInfo(stage, details = {}) {
+  console.log(
+    "export-plan-pdf stage:",
+    stage,
+    JSON.stringify(details, (_key, value) =>
+      typeof value === "string" && value.length > 400
+        ? `${value.slice(0, 400)}...`
+        : value
+    )
+  );
+}
+
+function logPdfError(stage, err, details = {}) {
+  console.error(
+    "export-plan-pdf stage error:",
+    stage,
+    JSON.stringify({
+      ...details,
+      error: String(err?.message || err),
+      name: err?.name || "",
+      stack: err?.stack || "",
+    })
+  );
+}
+
+function parseRequestBody(rawBody) {
   try {
-    return typeof v === "string" ? JSON.parse(v) : v;
-  } catch {
-    return fallback;
+    if (!rawBody) return {};
+    if (typeof rawBody !== "string") return rawBody;
+    return JSON.parse(rawBody);
+  } catch (err) {
+    logPdfError("parse-request-body", err, {
+      bodyLength: typeof rawBody === "string" ? rawBody.length : null,
+      bodyPreview:
+        typeof rawBody === "string" ? rawBody.slice(0, 200) : typeof rawBody,
+    });
+    const requestError = new Error("Invalid JSON request body");
+    requestError.statusCode = 400;
+    throw requestError;
   }
 }
 
@@ -374,16 +402,30 @@ function renderTemplate(template, values) {
 async function loadTemplate() {
   const candidates = [
     path.join(process.cwd(), "pdf/templates/creditroute-guide.html"),
-    path.join(__dirname, "../../pdf/templates/creditroute-guide.html"),
+    path.join(
+      process.env.LAMBDA_TASK_ROOT || "",
+      "pdf/templates/creditroute-guide.html"
+    ),
+    "/var/task/pdf/templates/creditroute-guide.html",
   ];
+  const tried = [];
 
   for (const candidate of candidates) {
+    if (!candidate || tried.includes(candidate)) continue;
+    tried.push(candidate);
     try {
-      return await fs.readFile(candidate, "utf8");
-    } catch {}
+      const template = await fs.readFile(candidate, "utf8");
+      logPdfInfo("template-loaded", {
+        path: candidate,
+        bytes: Buffer.byteLength(template),
+      });
+      return template;
+    } catch (err) {
+      logPdfError("template-load-candidate", err, { path: candidate });
+    }
   }
 
-  throw new Error("PDF template not found");
+  throw new Error(`PDF template not found. Tried: ${tried.join(", ")}`);
 }
 
 async function verifyPaidSession(sessionId) {
@@ -447,34 +489,88 @@ async function buildPdf({ planKey, answers, apps, email }) {
   let browser;
 
   try {
+    logPdfInfo("build-start", {
+      planKey,
+      appCount: apps.length,
+      hasEmail: Boolean(email),
+    });
+
     const template = await loadTemplate();
     const html = renderTemplate(
       template,
       templateValues({ planKey, answers, apps, email })
     );
 
-    browser = await puppeteer.launch({
-      args: chromium.args,
-      defaultViewport: chromium.defaultViewport,
-      executablePath: await chromium.executablePath(),
-      headless: true,
+    logPdfInfo("html-rendered", {
+      htmlBytes: Buffer.byteLength(html),
     });
+
+    let executablePath;
+    try {
+      executablePath = await chromium.executablePath();
+      logPdfInfo("chromium-executable-path", {
+        executablePath,
+        argCount: chromium.args.length,
+      });
+    } catch (err) {
+      logPdfError("chromium-executable-path", err);
+      throw err;
+    }
+
+    try {
+      logPdfInfo("puppeteer-launch-start");
+      browser = await puppeteer.launch({
+        args: chromium.args,
+        defaultViewport: chromium.defaultViewport,
+        executablePath,
+        headless: true,
+      });
+      logPdfInfo("puppeteer-launch-complete");
+    } catch (err) {
+      logPdfError("puppeteer-launch", err, { executablePath });
+      throw err;
+    }
 
     const page = await browser.newPage();
-    await page.setContent(html, { waitUntil: "networkidle0" });
 
-    return await page.pdf({
-      format: "Letter",
-      printBackground: true,
-      margin: {
-        top: "10mm",
-        bottom: "10mm",
-        left: "10mm",
-        right: "10mm",
-      },
-    });
+    try {
+      logPdfInfo("page-set-content-start");
+      await page.setContent(html, { waitUntil: "networkidle0" });
+      logPdfInfo("page-set-content-complete");
+    } catch (err) {
+      logPdfError("page-set-content", err, {
+        htmlBytes: Buffer.byteLength(html),
+      });
+      throw err;
+    }
+
+    try {
+      logPdfInfo("page-pdf-start");
+      const pdf = await page.pdf({
+        format: "Letter",
+        printBackground: true,
+        margin: {
+          top: "10mm",
+          bottom: "10mm",
+          left: "10mm",
+          right: "10mm",
+        },
+      });
+      logPdfInfo("page-pdf-complete", { pdfBytes: pdf.length });
+      return pdf;
+    } catch (err) {
+      logPdfError("page-pdf", err);
+      throw err;
+    }
   } finally {
-    if (browser) await browser.close();
+    if (browser) {
+      try {
+        await browser.close();
+        logPdfInfo("browser-closed");
+      } catch (err) {
+        logPdfError("browser-close", err);
+      }
+    }
   }
 }
 
@@ -486,8 +582,7 @@ export const handler = async (event) => {
       return json({}, 405, { error: "Method Not Allowed" });
     }
 
-    const body =
-      method === "POST" ? safeParse(event.body || "{}", {}) || {} : {};
+    const body = method === "POST" ? parseRequestBody(event.body) : {};
 
     const query = event.queryStringParameters || {};
 
@@ -574,6 +669,8 @@ export const handler = async (event) => {
     };
   } catch (err) {
     console.error("export-plan-pdf error:", err);
-    return json({}, 500, { error: String(err?.message || err) });
+    return json({}, err?.statusCode || 500, {
+      error: String(err?.message || err),
+    });
   }
 };
