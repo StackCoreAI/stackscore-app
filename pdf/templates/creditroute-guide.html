@@ -50,8 +50,12 @@
       display: block;
       width: 38px;
       height: 32px;
+      padding: 0;
+      background: transparent;
+      border: 0;
+      border-radius: 0;
       object-fit: contain;
-      border-radius: 5px;
+      overflow: visible;
     }
 
     .brand-name {
@@ -213,13 +217,24 @@
     }
 
     .disclaimer {
-      margin-top: 8px;
-      padding: 9px 10px;
-      border-radius: 8px;
-      background: #e8ece4;
-      color: #3f463f;
-      font-size: 8.5px;
+      margin-top: 10px;
+      padding: 10px 12px;
+      border: 1px solid #cbd5e1;
+      border-top: 3px solid #8cff3f;
+      border-radius: 10px;
+      background: #f8fbef;
+      color: #202820;
+      font-size: 10.75px;
+      line-height: 1.45;
       break-inside: avoid;
+    }
+
+    .disclaimer-label {
+      margin-bottom: 4px;
+      color: #111412;
+      font-size: 10px;
+      font-weight: 850;
+      text-transform: uppercase;
     }
   </style>
 </head>
@@ -288,6 +303,7 @@
     </section>
 
     <section class="disclaimer">
+      <div class="disclaimer-label">Important Disclaimer</div>
       CreditRoute is educational only and is not financial, credit, credit repair, or credit counseling advice. Credit outcomes are not guaranteed and depend on your profile, provider rules, reporting timelines, and your actions.
     </section>
   </main>
