@@ -28,6 +28,115 @@
       width: 100%;
     }
 
+    .cover-page {
+      min-height: 720px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      page-break-after: always;
+      break-after: page;
+    }
+
+    .cover-inner {
+      width: 100%;
+      max-width: 560px;
+      padding: 34px 42px;
+      border: 1px solid #d9dfd4;
+      border-radius: 14px;
+      background: #ffffff;
+    }
+
+    .cover-logo {
+      display: block;
+      width: 72px;
+      height: 60px;
+      margin: 0 auto 18px;
+      padding: 0;
+      background: transparent;
+      border: 0;
+      border-radius: 0;
+      object-fit: contain;
+      overflow: visible;
+    }
+
+    .cover-kicker {
+      color: #3e671a;
+      font-size: 12px;
+      font-weight: 850;
+      text-transform: uppercase;
+      letter-spacing: 0;
+    }
+
+    .cover-title {
+      margin: 9px 0 6px;
+      color: #111412;
+      font-size: 44px;
+      line-height: 1;
+      font-weight: 900;
+      letter-spacing: 0;
+    }
+
+    .cover-subtitle {
+      margin: 0 0 30px;
+      color: #3a413b;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .cover-meta {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin: 0 auto 24px;
+      text-align: left;
+    }
+
+    .cover-meta-card {
+      padding: 11px 12px;
+      border: 1px solid #d9dfd4;
+      border-radius: 8px;
+      background: #f8fbef;
+    }
+
+    .cover-meta-card.full {
+      grid-column: 1 / -1;
+      text-align: center;
+      background: #111412;
+      color: #ffffff;
+    }
+
+    .cover-label {
+      color: #596257;
+      font-size: 9px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .cover-meta-card.full .cover-label {
+      color: #c8d7c0;
+    }
+
+    .cover-value {
+      margin-top: 3px;
+      color: #111412;
+      font-size: 14px;
+      font-weight: 850;
+    }
+
+    .cover-meta-card.full .cover-value {
+      color: #a8ed3b;
+      font-size: 18px;
+    }
+
+    .cover-positioning {
+      max-width: 450px;
+      margin: 0 auto;
+      color: #3a413b;
+      font-size: 12px;
+      line-height: 1.48;
+    }
+
     .header {
       display: flex;
       align-items: center;
@@ -177,6 +286,21 @@
       font-weight: 850;
     }
 
+    .score-framing {
+      grid-column: 1 / -1;
+      padding: 11px 12px;
+      border: 1px solid #d9dfd4;
+      border-radius: 8px;
+      background: #ffffff;
+      break-inside: avoid;
+    }
+
+    .score-framing p {
+      margin-bottom: 5px;
+      color: #111412;
+      font-weight: 800;
+    }
+
     .summary-layout {
       display: grid;
       grid-template-columns: 1.1fr 0.9fr;
@@ -236,9 +360,64 @@
       font-weight: 850;
       text-transform: uppercase;
     }
+
+    .execution-tracker {
+      margin-top: 12px;
+      padding: 12px;
+      border: 1px solid #d9dfd4;
+      border-radius: 10px;
+      background: #ffffff;
+      break-inside: avoid;
+    }
+
+    .tracker-list {
+      margin-top: 7px;
+      padding-left: 0;
+      list-style: none;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 5px 14px;
+      font-size: 11px;
+    }
   </style>
 </head>
 <body>
+  <section class="cover-page">
+    <div class="cover-inner">
+      <img class="cover-logo" src="{{LOGO_SRC}}" alt="CreditRoute logo">
+      <div class="cover-kicker">Credit Route Plan</div>
+      <div class="cover-title">CREDIT ROUTE PLAN</div>
+      <div class="cover-subtitle">Personalized Credit Route Guide</div>
+
+      <div class="cover-meta">
+        <div class="cover-meta-card">
+          <div class="cover-label">Prepared for</div>
+          <div class="cover-value">{{EMAIL_LINE}}</div>
+        </div>
+        <div class="cover-meta-card">
+          <div class="cover-label">Date</div>
+          <div class="cover-value">{{GENERATED_AT}}</div>
+        </div>
+        <div class="cover-meta-card full">
+          <div class="cover-label">Route</div>
+          <div class="cover-value">{{TITLE}}</div>
+        </div>
+        <div class="cover-meta-card">
+          <div class="cover-label">Score Potential</div>
+          <div class="cover-value">{{IMPACT}}</div>
+        </div>
+        <div class="cover-meta-card">
+          <div class="cover-label">Timeline</div>
+          <div class="cover-value">{{TIMELINE}}</div>
+        </div>
+      </div>
+
+      <p class="cover-positioning">
+        This plan is designed to guide your credit improvement step-by-step using the highest-impact signals available for your profile.
+      </p>
+    </div>
+  </section>
+
   <main class="page">
     <header class="header">
       <div class="brand">
@@ -276,6 +455,14 @@
         <div class="value">{{ROUTE_STRENGTH}}</div>
         <div class="muted">{{STRATEGY}}</div>
       </div>
+      <div class="score-framing">
+        <p>If executed fully, this route is designed to:</p>
+        <ul>
+          <li>Improve your credit score range</li>
+          <li>Strengthen your credit profile</li>
+          <li>Increase approval probability for future credit</li>
+        </ul>
+      </div>
     </section>
 
     <section class="panel">
@@ -300,6 +487,18 @@
     <section>
       <h2>Action Steps</h2>
       {{ACTION_STEPS_HTML}}
+    </section>
+
+    <section class="execution-tracker">
+      <h2>Execution Tracker</h2>
+      <p class="muted">Use this checklist as you complete each step to stay on track.</p>
+      <ul class="tracker-list">
+        <li>&#9633; Step 1 completed</li>
+        <li>&#9633; Step 2 completed</li>
+        <li>&#9633; Step 3 completed</li>
+        <li>&#9633; Step 4 completed</li>
+        <li>&#9633; Step 5 completed</li>
+      </ul>
     </section>
 
     <section class="disclaimer">
