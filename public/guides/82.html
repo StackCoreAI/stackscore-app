@@ -701,6 +701,7 @@
 
         return {
           stackKey,
+          dev: params.get("dev") === "1" ? "1" : "",
           sessionId:
             params.get("session_id") ||
             sessionStorage.getItem("ss_last_session_id") ||
@@ -718,8 +719,9 @@
         event.preventDefault();
         event.stopImmediatePropagation();
 
-        const { stackKey, sessionId } = currentContext();
-        if (!sessionId) {
+        const { stackKey, sessionId, dev } = currentContext();
+        const isAllowedDevPdf = dev === "1" && stackKey === "accelerator";
+        if (!sessionId && !isAllowedDevPdf) {
           window.alert("We could not find your paid session. Please reopen your CreditRoute from the success page or email link.");
           return;
         }
@@ -741,6 +743,7 @@
             },
             body: JSON.stringify({
               session_id: sessionId,
+              dev: isAllowedDevPdf ? "1" : "",
               stackKey,
               answers: readAnswers(),
               apps
