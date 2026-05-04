@@ -324,7 +324,7 @@ function listHtml(items = [], emptyText = "Not provided.") {
   return `<ul>${clean.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`;
 }
 
-function templateValues({ planKey, answers, apps, email }) {
+function templateValues({ planKey, answers, apps, email, logoSrc }) {
   const score = scorecardForPlanKey(planKey);
   const summary = receiptSummary({ planKey, answers, apps });
   const generatedAt = new Date().toLocaleDateString("en-US", {
@@ -375,6 +375,7 @@ function templateValues({ planKey, answers, apps, email }) {
     .join("");
 
   return {
+    LOGO_SRC: escapeHtml(logoSrc),
     TITLE: escapeHtml(summary.title),
     GENERATED_AT: escapeHtml(generatedAt),
     EMAIL_LINE: email ? `Prepared for ${escapeHtml(email)}` : "Prepared for your CreditRoute account",
@@ -426,6 +427,37 @@ async function loadTemplate() {
   }
 
   throw new Error(`PDF template not found. Tried: ${tried.join(", ")}`);
+}
+
+async function loadLogoSrc() {
+  const fallbackUrl = "https://creditroute.com/assets/creditroute-logo.png";
+  const candidates = [
+    path.join(process.cwd(), "public/assets/creditroute-logo.png"),
+    path.join(
+      process.env.LAMBDA_TASK_ROOT || "",
+      "public/assets/creditroute-logo.png"
+    ),
+    "/var/task/public/assets/creditroute-logo.png",
+  ];
+  const tried = [];
+
+  for (const candidate of candidates) {
+    if (!candidate || tried.includes(candidate)) continue;
+    tried.push(candidate);
+    try {
+      const logo = await fs.readFile(candidate);
+      logPdfInfo("logo-loaded", {
+        path: candidate,
+        bytes: logo.length,
+      });
+      return `data:image/png;base64,${logo.toString("base64")}`;
+    } catch (err) {
+      logPdfError("logo-load-candidate", err, { path: candidate });
+    }
+  }
+
+  logPdfInfo("logo-fallback-url", { fallbackUrl, tried });
+  return fallbackUrl;
 }
 
 async function verifyPaidSession(sessionId) {
@@ -496,9 +528,10 @@ async function buildPdf({ planKey, answers, apps, email }) {
     });
 
     const template = await loadTemplate();
+    const logoSrc = await loadLogoSrc();
     const html = renderTemplate(
       template,
-      templateValues({ planKey, answers, apps, email })
+      templateValues({ planKey, answers, apps, email, logoSrc })
     );
 
     logPdfInfo("html-rendered", {

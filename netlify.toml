@@ -26,7 +26,7 @@
 
 [functions."export-plan-pdf"]
   timeout = 26
-  included_files = ["pdf/templates/creditroute-guide.html"]
+  included_files = ["pdf/templates/creditroute-guide.html", "public/assets/creditroute-logo.png"]
 
 # --------------------------------
 # Disable caching for guide pages

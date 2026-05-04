@@ -32,8 +32,8 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 16px;
-      padding: 16px 18px;
+      gap: 14px;
+      padding: 12px 16px;
       background: #0e120f;
       color: #ffffff;
       border-radius: 8px;
@@ -43,32 +43,19 @@
     .brand {
       display: flex;
       align-items: center;
-      gap: 11px;
+      gap: 10px;
     }
 
-    .route-mark {
-      width: 38px;
-      height: 38px;
-      border-radius: 8px;
-      background: #8cff3f;
-      padding: 7px;
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,.28);
-    }
-
-    .route-mark span {
+    .brand-logo {
       display: block;
-      height: 4px;
-      margin-bottom: 6px;
-      background: #0e120f;
-      border-radius: 1px;
-    }
-
-    .route-mark span:last-child {
-      margin-bottom: 0;
+      width: 38px;
+      height: 32px;
+      object-fit: contain;
+      border-radius: 5px;
     }
 
     .brand-name {
-      font-size: 19px;
+      font-size: 18px;
       font-weight: 850;
       letter-spacing: 0;
     }
@@ -86,14 +73,14 @@
     }
 
     .route-heading {
-      margin: 13px 0 11px;
+      margin: 10px 0 9px;
       padding: 0 1px;
     }
 
     h1 {
       margin: 3px 0 4px;
       color: #111412;
-      font-size: 25px;
+      font-size: 24px;
       line-height: 1.06;
       letter-spacing: 0;
     }
@@ -152,11 +139,11 @@
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 8px;
-      margin: 10px 0;
+      margin: 8px 0 9px;
     }
 
     .panel {
-      margin-bottom: 9px;
+      margin-bottom: 8px;
       padding: 11px 12px;
       border: 1px solid #d9dfd4;
       border-radius: 8px;
@@ -199,8 +186,8 @@
     .action-card {
       break-inside: avoid;
       page-break-inside: avoid;
-      margin: 0 0 8px;
-      padding: 10px 12px;
+      margin: 0 0 7px;
+      padding: 9px 11px;
       border: 1px solid #d9dfd4;
       border-left: 4px solid #8cff3f;
       border-radius: 8px;
@@ -240,11 +227,7 @@
   <main class="page">
     <header class="header">
       <div class="brand">
-        <div class="route-mark" aria-hidden="true">
-          <span></span>
-          <span></span>
-          <span></span>
-        </div>
+        <img class="brand-logo" src="{{LOGO_SRC}}" alt="CreditRoute logo">
         <div>
           <div class="brand-name">CreditRoute</div>
           <div class="brand-subtitle">Personalized Credit Route Guide</div>
