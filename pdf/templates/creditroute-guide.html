@@ -6,7 +6,7 @@
   <style>
     @page {
       size: Letter;
-      margin: 10mm;
+      margin: 9mm;
     }
 
     * {
@@ -15,11 +15,11 @@
 
     body {
       margin: 0;
-      background: #f6f7f2;
-      color: #131614;
+      background: #f7f8f4;
+      color: #121512;
       font-family: Inter, Arial, Helvetica, sans-serif;
-      font-size: 11px;
-      line-height: 1.45;
+      font-size: 10.5px;
+      line-height: 1.38;
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
     }
@@ -32,89 +32,96 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 18px;
-      padding: 22px 24px;
-      background: #111412;
+      gap: 16px;
+      padding: 16px 18px;
+      background: #0e120f;
       color: #ffffff;
       border-radius: 8px;
+      border: 1px solid #202a20;
     }
 
     .brand {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 11px;
     }
 
-    .logo {
-      width: 42px;
-      height: 42px;
-      border-radius: 9px;
-      background: #9be337;
-      padding: 8px;
+    .route-mark {
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      background: #8cff3f;
+      padding: 7px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.28);
     }
 
-    .logo span {
+    .route-mark span {
       display: block;
-      height: 5px;
+      height: 4px;
       margin-bottom: 6px;
-      border-radius: 999px;
-      background: #111412;
+      background: #0e120f;
+      border-radius: 1px;
     }
 
-    .logo span:last-child {
+    .route-mark span:last-child {
       margin-bottom: 0;
     }
 
     .brand-name {
-      font-size: 18px;
-      font-weight: 800;
+      font-size: 19px;
+      font-weight: 850;
       letter-spacing: 0;
     }
 
     .brand-subtitle {
-      color: #c7d1c2;
-      font-size: 10px;
-      margin-top: 2px;
+      color: #c8d7c0;
+      font-size: 9.5px;
+      margin-top: 1px;
     }
 
     .header-meta {
       color: #d9e4d3;
-      font-size: 10px;
+      font-size: 9.5px;
       text-align: right;
     }
 
+    .route-heading {
+      margin: 13px 0 11px;
+      padding: 0 1px;
+    }
+
     h1 {
-      margin: 22px 0 6px;
+      margin: 3px 0 4px;
       color: #111412;
-      font-size: 28px;
-      line-height: 1.05;
+      font-size: 25px;
+      line-height: 1.06;
       letter-spacing: 0;
     }
 
     h2 {
-      margin: 0 0 10px;
+      margin: 0 0 8px;
       color: #111412;
-      font-size: 15px;
+      font-size: 13.5px;
       letter-spacing: 0;
     }
 
     h3 {
-      margin: 4px 0 6px;
+      margin: 3px 0 4px;
       color: #111412;
-      font-size: 14px;
+      font-size: 12.5px;
       letter-spacing: 0;
     }
 
     h4 {
-      margin: 10px 0 4px;
+      margin: 8px 0 3px;
       color: #111412;
-      font-size: 10px;
+      font-size: 9px;
       text-transform: uppercase;
       letter-spacing: 0;
     }
 
     p {
-      margin: 0 0 8px;
+      margin: 0 0 6px;
     }
 
     ul {
@@ -123,12 +130,12 @@
     }
 
     li {
-      margin: 0 0 5px;
+      margin: 0 0 3px;
     }
 
     .eyebrow {
       color: #3e671a;
-      font-size: 10px;
+      font-size: 9px;
       font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 0;
@@ -136,36 +143,38 @@
 
     .intro {
       max-width: 670px;
-      margin-bottom: 16px;
+      margin-bottom: 0;
       color: #3a413b;
-      font-size: 12px;
+      font-size: 11px;
     }
 
     .grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      margin: 16px 0;
+      gap: 8px;
+      margin: 10px 0;
     }
 
     .panel {
-      margin-bottom: 12px;
-      padding: 14px;
+      margin-bottom: 9px;
+      padding: 11px 12px;
       border: 1px solid #d9dfd4;
       border-radius: 8px;
       background: #ffffff;
+      break-inside: avoid;
     }
 
     .score {
-      padding: 14px;
+      padding: 11px 12px;
       border-radius: 8px;
       background: #172017;
       color: #ffffff;
+      break-inside: avoid;
     }
 
     .score .label {
       color: #b9c9b0;
-      font-size: 9px;
+      font-size: 8.5px;
       font-weight: 700;
       text-transform: uppercase;
     }
@@ -173,14 +182,14 @@
     .score .value {
       margin-top: 4px;
       color: #a8ed3b;
-      font-size: 20px;
+      font-size: 18px;
       font-weight: 850;
     }
 
     .summary-layout {
       display: grid;
       grid-template-columns: 1.1fr 0.9fr;
-      gap: 12px;
+      gap: 11px;
     }
 
     .muted {
@@ -189,39 +198,41 @@
 
     .action-card {
       break-inside: avoid;
-      margin: 0 0 12px;
-      padding: 14px;
+      page-break-inside: avoid;
+      margin: 0 0 8px;
+      padding: 10px 12px;
       border: 1px solid #d9dfd4;
-      border-left: 5px solid #9be337;
+      border-left: 4px solid #8cff3f;
       border-radius: 8px;
       background: #ffffff;
     }
 
     .step-label {
       display: inline-block;
-      margin-bottom: 4px;
-      padding: 2px 7px;
+      margin-bottom: 3px;
+      padding: 2px 6px;
       border-radius: 999px;
       background: #e7f8d3;
       color: #25460f;
-      font-size: 9px;
+      font-size: 8.5px;
       font-weight: 800;
       text-transform: uppercase;
     }
 
     .url {
       color: #235315;
-      font-size: 10px;
+      font-size: 9.5px;
       word-break: break-word;
     }
 
     .disclaimer {
-      margin-top: 14px;
-      padding: 12px;
+      margin-top: 8px;
+      padding: 9px 10px;
       border-radius: 8px;
       background: #e8ece4;
       color: #3f463f;
-      font-size: 9px;
+      font-size: 8.5px;
+      break-inside: avoid;
     }
   </style>
 </head>
@@ -229,7 +240,7 @@
   <main class="page">
     <header class="header">
       <div class="brand">
-        <div class="logo" aria-hidden="true">
+        <div class="route-mark" aria-hidden="true">
           <span></span>
           <span></span>
           <span></span>
@@ -245,9 +256,11 @@
       </div>
     </header>
 
-    <div class="eyebrow">Personalized route</div>
-    <h1>{{TITLE}}</h1>
-    <p class="intro">{{SUMMARY_TEXT}}</p>
+    <section class="route-heading">
+      <div class="eyebrow">Personalized Route</div>
+      <h1>{{TITLE}}</h1>
+      <p class="intro">{{SUMMARY_TEXT}}</p>
+    </section>
 
     <section class="grid" aria-label="Score section">
       <div class="score">

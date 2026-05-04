@@ -34,7 +34,7 @@ function getSiteUrl() {
     process.env.SITE_URL ||
     process.env.URL ||
     process.env.DEPLOY_PRIME_URL ||
-    "https://stackscore.ai"
+    "https://creditroute.com"
   ).replace(/\/+$/, "");
 }
 
@@ -129,11 +129,11 @@ function buildEmailHtml({ successUrl, pdfUrl, stackKey }) {
   return `
 <div style="font-family: Inter, Arial, sans-serif; color: #111827; line-height: 1.6; max-width: 640px; margin: 0 auto; padding: 24px 16px;">
   <h2 style="margin: 0 0 8px; font-size: 28px; line-height: 1.2;">
-    Your StackScore Credit Route Is Ready
+    Your CreditRoute Is Ready
   </h2>
 
   <p style="margin: 0 0 16px;">
-    Thank you for your purchase. Your personalized AI-generated Credit Route is now available.
+    Thank you for your purchase. Your personalized Credit Route is now available.
    </p>
 
   <p style="margin: 0 0 8px;">
@@ -183,12 +183,11 @@ function buildEmailHtml({ successUrl, pdfUrl, stackKey }) {
 </div>
 
   <p style="margin: 0 0 12px; color:#4b5563; font-size:14px;">
-    Your printable StackScore guide is attached to this email as a PDF.
+    Your printable CreditRoute guide is attached to this email as a PDF.
   </p>
 
   <p style="margin: 0 0 12px; color:#4b5563; font-size:14px;">
-    If you don’t see this email in your inbox, please check your junk or spam folder for messages from
-    <strong>delivery@stackscore.ai</strong>.
+    If you don’t see this email in your inbox, please check your junk or spam folder for your CreditRoute delivery email.
   </p>
 
   <p style="margin: 0 0 18px; color:#4b5563; font-size:14px;">
@@ -228,9 +227,9 @@ function buildEmailText({ successUrl, pdfUrl, stackKey }) {
   const planTitle = titleForPlanKey(stackKey);
 
   return [
-    "Your StackScore Credit Route Is Ready",
+    "Your CreditRoute Is Ready",
     "",
-    "Thank you for your purchase. Your personalized AI-generated Credit Route is now available.",
+    "Thank you for your purchase. Your personalized Credit Route is now available.",
     "",
     `Route selected: ${planTitle}`,
     "",
@@ -242,8 +241,8 @@ function buildEmailText({ successUrl, pdfUrl, stackKey }) {
     `Access your guide: ${successUrl}`,
     `Fallback PDF link: ${pdfUrl}`,
     "",
-    "Your printable StackScore guide is also attached to this email as a PDF.",
-    "If you don’t see this email in your inbox, please check your junk or spam folder for messages from delivery@stackscore.ai.",
+    "Your printable CreditRoute guide is also attached to this email as a PDF.",
+    "If you don’t see this email in your inbox, please check your junk or spam folder for your CreditRoute delivery email.",
     "",
     "If you have any trouble accessing your purchase, reply to this email for support.",
   ].join("\n");
@@ -260,7 +259,7 @@ async function sendDeliveryEmail({ email, sessionId, stackKey }) {
   const pdfUrl = buildPdfUrl(site, sessionId, stackKey);
 
   const from = process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev";
-  const subject = "Your StackScore Credit Route Is Ready";
+  const subject = "Your CreditRoute Is Ready";
 
   const planPayload = await fetchPlanPayload({ site, stackKey });
   const plans = normalizePlans(planPayload);
@@ -293,7 +292,7 @@ async function sendDeliveryEmail({ email, sessionId, stackKey }) {
     text,
     attachments: [
       {
-        filename: `StackScore-Plan-${stackKey}.pdf`,
+        filename: `CreditRoute-Plan-${stackKey}.pdf`,
         content: pdfBuffer.toString("base64"),
         contentType: "application/pdf",
       },
