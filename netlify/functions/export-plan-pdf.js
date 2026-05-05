@@ -6,6 +6,7 @@ import puppeteer from "puppeteer-core";
 import Stripe from "stripe";
 
 const CUSTOMER_SITE_URL = "https://creditroute.com";
+const DEV_QA_STACK_KEYS = new Set(["foundation", "growth", "accelerator"]);
 
 let stripeClient;
 
@@ -635,7 +636,7 @@ export const handler = async (event) => {
 
     const isAllowedDevPdf =
       String(body.dev || query.dev || "") === "1" &&
-      requestedStackKey === "accelerator";
+      DEV_QA_STACK_KEYS.has(requestedStackKey);
 
     if (!sessionId && !isAllowedDevPdf) {
       return json({}, 400, { error: "Missing session_id" });

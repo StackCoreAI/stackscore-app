@@ -14,8 +14,11 @@
   (function () {
     const params = new URLSearchParams(window.location.search);
     const token = params.get("t") || "";
-    const stackKey = params.get("stackKey") || "growth";
+    const allowedDevStackKeys = new Set(["foundation", "growth", "accelerator"]);
+    const requestedStackKey = String(params.get("stackKey") || "").toLowerCase().trim();
+    const stackKey = requestedStackKey || "growth";
     const sessionId = params.get("session_id") || "";
+    const isAllowedDevGuide = params.get("dev") === "1" && allowedDevStackKeys.has(requestedStackKey);
 
     document.documentElement.style.visibility = "hidden";
 
@@ -33,7 +36,7 @@
 
     async function verify() {
       try {
-        if (!token && !location.search.includes("dev=1")) {
+        if (!token && !isAllowedDevGuide) {
           window.location.replace("/activate");
           return;
         }
@@ -73,7 +76,7 @@
   </script>
 
   <script defer src="/assets/lucide.min.js"></script>
-  <script defer src="/assets/guide.js"></script>
+  <script defer src="/assets/guide.js?v=qa-dev-bypass-1"></script>
   <script defer src="/assets/plan.runtime.js?v=20"></script>
 
   <style>
@@ -697,11 +700,15 @@
           localStorage.getItem("ss_route_key") ||
           sessionStorage.getItem("selectedPlanKey") ||
           "growth"
-        ).toLowerCase();
+        ).toLowerCase().trim();
+        const allowedDevStackKeys = new Set(["foundation", "growth", "accelerator"]);
+        const requestedStackKey = String(params.get("stackKey") || "").toLowerCase().trim();
+        const isAllowedDevPdf =
+          params.get("dev") === "1" && allowedDevStackKeys.has(requestedStackKey);
 
         return {
           stackKey,
-          dev: params.get("dev") === "1" ? "1" : "",
+          dev: isAllowedDevPdf ? "1" : "",
           sessionId:
             params.get("session_id") ||
             sessionStorage.getItem("ss_last_session_id") ||
@@ -720,7 +727,7 @@
         event.stopImmediatePropagation();
 
         const { stackKey, sessionId, dev } = currentContext();
-        const isAllowedDevPdf = dev === "1" && stackKey === "accelerator";
+        const isAllowedDevPdf = dev === "1";
         if (!sessionId && !isAllowedDevPdf) {
           window.alert("We could not find your paid session. Please reopen your CreditRoute from the success page or email link.");
           return;
