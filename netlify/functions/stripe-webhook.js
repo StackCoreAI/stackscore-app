@@ -5,8 +5,17 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
   apiVersion: "2024-06-20",
 });
 
-const resend = new Resend(process.env.RESEND_API_KEY || "");
 const CUSTOMER_SITE_URL = "https://creditroute.com";
+let resendClient;
+
+function formatError(err) {
+  return {
+    name: err?.name || "Error",
+    message: err?.message || String(err),
+    stack: err?.stack || "",
+    response: err?.response || err?.cause || null,
+  };
+}
 
 function getHeader(headers, name) {
   if (!headers) return "";
@@ -32,6 +41,15 @@ function escapeHtml(value) {
 
 function getSiteUrl() {
   return CUSTOMER_SITE_URL;
+}
+
+function getResendClient() {
+  if (!process.env.RESEND_API_KEY) {
+    throw new Error("Missing RESEND_API_KEY. Delivery email was not sent.");
+  }
+
+  resendClient ||= new Resend(process.env.RESEND_API_KEY);
+  return resendClient;
 }
 
 function titleForPlanKey(planKey = "growth") {
@@ -228,27 +246,60 @@ function buildEmailText({ successUrl, pdfUrl, stackKey }) {
 }
 
 async function sendDeliveryEmail({ email, sessionId, stackKey }) {
+  const from = process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev";
+  const subject = "Your Personalized CreditRoute Plan Is Ready";
+
+  console.log("stripe-webhook email send triggered", {
+    recipient: email,
+    subject,
+    from,
+    sessionId,
+    stackKey,
+    hasResendApiKey: Boolean(process.env.RESEND_API_KEY),
+    hasFromEmail: Boolean(process.env.RESEND_FROM_EMAIL),
+  });
+
   if (!process.env.RESEND_API_KEY) {
-    console.warn("RESEND_API_KEY missing. Skipping email send.");
-    return;
+    throw new Error("Missing RESEND_API_KEY. Delivery email was not sent.");
+  }
+
+  if (!process.env.RESEND_FROM_EMAIL) {
+    console.warn(
+      "RESEND_FROM_EMAIL missing. Falling back to onboarding@resend.dev."
+    );
   }
 
   const site = getSiteUrl();
   const successUrl = buildSuccessUrl(site, sessionId, stackKey);
   const pdfUrl = buildPdfUrl(site, sessionId, stackKey);
 
-  const from = process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev";
-  const subject = "Your Personalized CreditRoute Plan Is Ready";
+  console.log("stripe-webhook delivery urls prepared", {
+    successUrl,
+    pdfUrl,
+  });
 
+  console.log("stripe-webhook fetching plan payload", { stackKey });
   const planPayload = await fetchPlanPayload({ site, stackKey });
   const plans = normalizePlans(planPayload);
+  console.log("stripe-webhook plan payload resolved", {
+    stackKey,
+    planCount: plans.length,
+  });
 
+  console.log("stripe-webhook fetching PDF attachment", {
+    sessionId,
+    stackKey,
+  });
   const pdfBuffer = await fetchPdfAttachment({
     site,
     sessionId,
     stackKey,
     plans,
     answers: {},
+  });
+  console.log("stripe-webhook PDF attachment ready", {
+    bytes: pdfBuffer.length,
+    filename: `CreditRoute-Plan-${stackKey}.pdf`,
   });
 
   const html = buildEmailHtml({
@@ -263,38 +314,82 @@ async function sendDeliveryEmail({ email, sessionId, stackKey }) {
     stackKey,
   });
 
-  const result = await resend.emails.send({
-    from,
-    to: email,
-    subject,
-    html,
-    text,
-    attachments: [
-      {
-        filename: `CreditRoute-Plan-${stackKey}.pdf`,
-        content: pdfBuffer.toString("base64"),
-        contentType: "application/pdf",
-      },
-    ],
-  });
+  try {
+    const payloadSummary = {
+      from,
+      to: email,
+      subject,
+      attachmentFilename: `CreditRoute-Plan-${stackKey}.pdf`,
+      attachmentBytes: pdfBuffer.length,
+    };
 
-  console.log("Resend result:", result);
-  return result;
+    console.log("stripe-webhook calling Resend", payloadSummary);
+
+    const result = await getResendClient().emails.send({
+      from,
+      to: email,
+      subject,
+      html,
+      text,
+      attachments: [
+        {
+          filename: `CreditRoute-Plan-${stackKey}.pdf`,
+          content: pdfBuffer.toString("base64"),
+          contentType: "application/pdf",
+        },
+      ],
+    });
+
+    console.log("stripe-webhook email send success", {
+      recipient: email,
+      subject,
+      result,
+    });
+
+    return result;
+  } catch (err) {
+    console.error("stripe-webhook email send failure", {
+      recipient: email,
+      subject,
+      error: formatError(err),
+    });
+    throw err;
+  }
 }
 
 export const handler = async (event) => {
   try {
+    console.log("stripe-webhook triggered", {
+      method: event.httpMethod,
+      hasStripeSignature: Boolean(getHeader(event.headers, "stripe-signature")),
+      isBase64Encoded: Boolean(event.isBase64Encoded),
+    });
+
     if (event.httpMethod !== "POST") {
       return { statusCode: 405, body: "Method Not Allowed" };
     }
 
     if (!process.env.STRIPE_WEBHOOK_SECRET) {
+      console.error("stripe-webhook env missing", {
+        missing: "STRIPE_WEBHOOK_SECRET",
+      });
       return { statusCode: 500, body: "Missing STRIPE_WEBHOOK_SECRET" };
     }
 
     if (!process.env.STRIPE_SECRET_KEY) {
+      console.error("stripe-webhook env missing", {
+        missing: "STRIPE_SECRET_KEY",
+      });
       return { statusCode: 500, body: "Missing STRIPE_SECRET_KEY" };
     }
+
+    console.log("stripe-webhook env check", {
+      hasStripeSecretKey: Boolean(process.env.STRIPE_SECRET_KEY),
+      hasStripeWebhookSecret: Boolean(process.env.STRIPE_WEBHOOK_SECRET),
+      hasResendApiKey: Boolean(process.env.RESEND_API_KEY),
+      hasFromEmail: Boolean(process.env.RESEND_FROM_EMAIL),
+      resendFromEmail: process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev",
+    });
 
     const sig = getHeader(event.headers, "stripe-signature");
     if (!sig) {
@@ -313,11 +408,18 @@ export const handler = async (event) => {
         process.env.STRIPE_WEBHOOK_SECRET
       );
     } catch (err) {
+      console.error("stripe-webhook signature failure", formatError(err));
       return {
         statusCode: 400,
         body: `Bad signature: ${String(err?.message || err)}`,
       };
     }
+
+    console.log("stripe-webhook event parsed", {
+      id: stripeEvent.id,
+      type: stripeEvent.type,
+      livemode: stripeEvent.livemode,
+    });
 
     if (stripeEvent.type === "checkout.session.completed") {
       const session = stripeEvent.data.object;
@@ -339,7 +441,7 @@ export const handler = async (event) => {
 
       const sessionId = String(session?.id || "").trim();
 
-      console.log("Webhook purchase confirmed", {
+      console.log("stripe-webhook checkout.session.completed", {
         email,
         stackKey,
         sessionId,
@@ -359,13 +461,27 @@ export const handler = async (event) => {
       if (email && sessionId) {
         try {
           await sendDeliveryEmail({ email, sessionId, stackKey });
-          console.log("Delivery email sent", {
+          console.log("stripe-webhook delivery email completed", {
             email,
             sessionId,
             stackKey,
           });
         } catch (emailErr) {
-          console.error("Failed to send delivery email:", emailErr);
+          console.error("stripe-webhook delivery email failed", {
+            email,
+            sessionId,
+            stackKey,
+            error: formatError(emailErr),
+          });
+          return {
+            statusCode: 500,
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({
+              ok: false,
+              error: "delivery_email_failed",
+              detail: emailErr?.message || String(emailErr),
+            }),
+          };
         }
       } else {
         console.warn(
@@ -375,9 +491,14 @@ export const handler = async (event) => {
       }
     }
 
+    console.log("stripe-webhook completed", {
+      eventId: stripeEvent.id,
+      eventType: stripeEvent.type,
+    });
+
     return { statusCode: 200, body: "ok" };
   } catch (err) {
-    console.error("Webhook unhandled error:", err);
+    console.error("Webhook unhandled error:", formatError(err));
     return { statusCode: 500, body: String(err?.message || err) };
   }
 };
