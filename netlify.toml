@@ -28,6 +28,9 @@
   timeout = 26
   included_files = ["pdf/templates/creditroute-guide.html", "public/assets/creditroute-logo.png"]
 
+[functions."test-delivery-email"]
+  timeout = 26
+
 # --------------------------------
 # Disable caching for guide pages
 # --------------------------------
