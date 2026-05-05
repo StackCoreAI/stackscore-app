@@ -128,27 +128,29 @@ function buildEmailHtml({ successUrl, pdfUrl, stackKey }) {
 
   return `
 <div style="font-family: Inter, Arial, sans-serif; color: #111827; line-height: 1.6; max-width: 640px; margin: 0 auto; padding: 24px 16px;">
-  <h2 style="margin: 0 0 8px; font-size: 28px; line-height: 1.2;">
-    Your CreditRoute Is Ready
-  </h2>
+  <p style="margin: 0 0 16px;">
+    Hi there,
+  </p>
 
   <p style="margin: 0 0 16px;">
-    Thank you for your purchase. Your personalized CreditRoute is now available.
-   </p>
-
-  <p style="margin: 0 0 8px;">
-    <strong>Route selected:</strong> ${safePlanTitle}
+    You now have a clear path forward.
   </p>
 
-  <p style="margin: 0 0 18px;">
-    You can access it in three ways:
+  <p style="margin: 0 0 16px;">
+    Your personalized CreditRoute Plan is ready.
   </p>
 
-  <ol style="margin: 0 0 18px 20px; padding: 0;">
-    <li style="margin: 0 0 8px;">Open your online CreditRoute using the button below</li>
-    <li style="margin: 0 0 8px;">Open the printable PDF attached to this email</li>
-    <li style="margin: 0;">Print or save your route from inside the online guide</li>
-  </ol>
+  <p style="margin: 0 0 16px;">
+    This plan is designed to guide your credit improvement step-by-step using the highest-impact signals available for your profile.
+  </p>
+
+  <p style="margin: 0 0 16px;">
+    We recommend saving this document and following each step in order. The biggest results come from consistency and completing each action as outlined.
+  </p>
+
+  <p style="margin: 0 0 16px;">
+    Start with Step 1 and move forward only after each step is fully set up and active.
+  </p>
 
  <div style="margin:0 0 18px;">
   <table role="presentation" cellspacing="0" cellpadding="0" border="0">
@@ -162,7 +164,7 @@ function buildEmailHtml({ successUrl, pdfUrl, stackKey }) {
         "
       >
         <a
-          href="${safeSuccessUrl}"
+          href="${safePdfUrl}"
           style="
             display:inline-block;
             padding:14px 22px;
@@ -175,49 +177,27 @@ function buildEmailHtml({ successUrl, pdfUrl, stackKey }) {
             border-radius:10px;
           "
         >
-          <span style="color:#ffffff; text-decoration:none;">Access My CreditRoute</span>
+          <span style="color:#ffffff; text-decoration:none;">Download Your CreditRoute Plan</span>
         </a>
       </td>
     </tr>
   </table>
 </div>
 
-  <p style="margin: 0 0 12px; color:#4b5563; font-size:14px;">
-    Your printable CreditRoute guide is attached to this email as a PDF.
+  <p style="margin: 0 0 16px;">
+    Estimated impact: +80–100 points over 45–60 days when the plan is fully executed (results vary by profile)
   </p>
 
-  <p style="margin: 0 0 12px; color:#4b5563; font-size:14px;">
-    If you don’t see this email in your inbox, please check your junk or spam folder for your CreditRoute delivery email.
+  <p style="margin: 0 0 16px;">
+    If you ever need to revisit your plan, keep this PDF as your reference and execution checklist.
   </p>
 
-  <p style="margin: 0 0 18px; color:#4b5563; font-size:14px;">
-    If your email app does not show attachments properly, you can use the fallback PDF link below to open or download your printable guide.
+  <p style="margin: 0 0 16px;">
+    Consistency is the key to results — follow the plan and track your progress.
   </p>
 
-  <div style="background:#f9fafb; border:1px solid #e5e7eb; border-radius:12px; padding:14px 16px; margin: 0 0 20px;">
-    <p style="margin:0 0 8px; font-size:13px; color:#374151;">
-      <strong>Direct guide link:</strong><br />
-      <a href="${safeSuccessUrl}" style="color:#2563eb; word-break:break-all;">${safeSuccessUrl}</a>
-    </p>
-
-    <p style="margin:0; font-size:13px; color:#374151;">
-      <strong>Fallback PDF link:</strong><br />
-      <a href="${safePdfUrl}" style="color:#2563eb; word-break:break-all;">${safePdfUrl}</a>
-    </p>
-  </div>
-
-  <p style="margin: 0 0 8px; color:#6b7280; font-size:13px;">
-    Internal route key: <strong>${safeStackKey}</strong>
-  </p>
-
-  <p style="margin: 0 0 8px; color:#6b7280; font-size:13px;">
-    For security, your guide access link may be time-limited. We recommend saving this email and downloading your PDF for future reference.
-  </p>
-
-  <hr style="border:none; border-top:1px solid #e5e7eb; margin:24px 0;" />
-
-  <p style="margin: 0; font-size:13px; color:#6b7280;">
-    If you have any trouble accessing your purchase, reply to this email for support.
+  <p style="margin: 0;">
+    — CreditRoute
   </p>
 </div>
 `;
@@ -227,24 +207,27 @@ function buildEmailText({ successUrl, pdfUrl, stackKey }) {
   const planTitle = titleForPlanKey(stackKey);
 
   return [
-    "Your CreditRoute Is Ready",
+    "Hi there,",
     "",
-    "Thank you for your purchase. Your personalized CreditRoute is now available.",
+    "You now have a clear path forward.",
     "",
-    `Route selected: ${planTitle}`,
+    "Your personalized CreditRoute Plan is ready.",
     "",
-    "You can access it in three ways:",
-    "1. Open your online CreditRoute using the guide link below",
-    "2. Open the printable PDF attached to this email",
-    "3. Print or save your route from inside the online guide",
+    "This plan is designed to guide your credit improvement step-by-step using the highest-impact signals available for your profile.",
     "",
-    `Access your guide: ${successUrl}`,
-    `Fallback PDF link: ${pdfUrl}`,
+    "We recommend saving this document and following each step in order. The biggest results come from consistency and completing each action as outlined.",
     "",
-    "Your printable CreditRoute guide is also attached to this email as a PDF.",
-    "If you don’t see this email in your inbox, please check your junk or spam folder for your CreditRoute delivery email.",
+    "Start with Step 1 and move forward only after each step is fully set up and active.",
     "",
-    "If you have any trouble accessing your purchase, reply to this email for support.",
+    "[Download Your CreditRoute Plan]",
+    "",
+    "Estimated impact: +80–100 points over 45–60 days when the plan is fully executed (results vary by profile)",
+    "",
+    "If you ever need to revisit your plan, keep this PDF as your reference and execution checklist.",
+    "",
+    "Consistency is the key to results — follow the plan and track your progress.",
+    "",
+    "— CreditRoute",
   ].join("\n");
 }
 
@@ -259,7 +242,7 @@ async function sendDeliveryEmail({ email, sessionId, stackKey }) {
   const pdfUrl = buildPdfUrl(site, sessionId, stackKey);
 
   const from = process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev";
-  const subject = "Your CreditRoute Is Ready";
+  const subject = "Your Personalized CreditRoute Plan Is Ready";
 
   const planPayload = await fetchPlanPayload({ site, stackKey });
   const plans = normalizePlans(planPayload);
