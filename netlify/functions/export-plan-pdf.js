@@ -5,6 +5,8 @@ import chromium from "@sparticuz/chromium";
 import puppeteer from "puppeteer-core";
 import Stripe from "stripe";
 
+const CUSTOMER_SITE_URL = "https://creditroute.com";
+
 let stripeClient;
 
 function json(headers = {}, statusCode, body) {
@@ -71,12 +73,7 @@ function escapeHtml(value) {
 }
 
 function getSiteUrl() {
-  return (
-    process.env.SITE_URL ||
-    process.env.URL ||
-    process.env.DEPLOY_PRIME_URL ||
-    "https://creditroute.com"
-  ).replace(/\/+$/, "");
+  return CUSTOMER_SITE_URL;
 }
 
 function normalizeAnswers(raw = {}) {

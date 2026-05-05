@@ -1,5 +1,6 @@
 // netlify/functions/create-checkout-session.js
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+const CUSTOMER_SITE_URL = "https://creditroute.com";
 
 exports.handler = async (event) => {
   try {
@@ -18,10 +19,7 @@ exports.handler = async (event) => {
       };
     }
 
-    const site = (process.env.SITE_URL || "http://localhost:8888").replace(
-      /\/+$/,
-      ""
-    );
+    const site = CUSTOMER_SITE_URL;
 
     const key = String(stackKey || "growth").toLowerCase().trim();
 

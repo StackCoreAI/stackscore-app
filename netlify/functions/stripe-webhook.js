@@ -6,6 +6,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
 });
 
 const resend = new Resend(process.env.RESEND_API_KEY || "");
+const CUSTOMER_SITE_URL = "https://creditroute.com";
 
 function getHeader(headers, name) {
   if (!headers) return "";
@@ -30,12 +31,7 @@ function escapeHtml(value) {
 }
 
 function getSiteUrl() {
-  return (
-    process.env.SITE_URL ||
-    process.env.URL ||
-    process.env.DEPLOY_PRIME_URL ||
-    "https://creditroute.com"
-  ).replace(/\/+$/, "");
+  return CUSTOMER_SITE_URL;
 }
 
 function titleForPlanKey(planKey = "growth") {
