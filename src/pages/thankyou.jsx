@@ -218,7 +218,7 @@ export default function ThankYou() {
 
               <p className="mt-3 text-neutral-300">
                 Thank you for your purchase. Your personalized AI-generated
-                Credit Route is now available.
+                CreditRoute is now available.
               </p>
 
               <div className="mt-5 rounded-xl border border-white/10 bg-black/20 p-4">
@@ -235,7 +235,7 @@ export default function ThankYou() {
                   You can access it in three ways:
                 </p>
                 <ol className="mt-3 space-y-2 text-sm text-neutral-300 list-decimal pl-5">
-                  <li>Open your online Credit Route using the button below</li>
+                  <li>Open your online CreditRoute using the button below</li>
                   <li>Download your printable PDF guide</li>
                   <li>Print or save your route from inside the online guide</li>
                 </ol>
@@ -243,7 +243,7 @@ export default function ThankYou() {
 
               <div className="mt-6 flex flex-col gap-3 sm:flex-row">
                 <Button size="lg" onClick={goToGuide}>
-                  Access My Credit Route
+                  Access My CreditRoute
                 </Button>
 
                 <Button

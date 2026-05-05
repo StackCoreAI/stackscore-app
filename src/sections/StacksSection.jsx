@@ -42,7 +42,7 @@ export default function StacksSection() {
   return (
     <section id="plans" className="section py-20 bg-neutral-950 text-white">
       <div className="mx-auto max-w-6xl px-4">
-        <h2 className="text-3xl md:text-4xl font-bold mb-6">Choose your Credit Route</h2>
+        <h2 className="text-3xl md:text-4xl font-bold mb-6">Choose your CreditRoute</h2>
 
         <div className="grid md:grid-cols-4 gap-6">
           {PLANS.map((p) => (

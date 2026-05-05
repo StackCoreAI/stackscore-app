@@ -1,4 +1,4 @@
-export default function Loader({ label = "Building your Credit Route…" }) {
+export default function Loader({ label = "Building your CreditRoute…" }) {
   return (
     <div
       className="flex flex-col items-center justify-center gap-3 p-6"

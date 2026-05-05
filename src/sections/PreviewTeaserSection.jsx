@@ -43,10 +43,10 @@ export default function PreviewTeaserSection() {
   return (
     <section id="results" className="mx-auto max-w-6xl px-6 py-16">
       <h2 className="text-3xl md:text-4xl font-black tracking-tight">
-        Preview Your <span className="text-lime-400">Credit Routes</span>
+        Preview Your <span className="text-lime-400">CreditRoutes</span>
       </h2>
       <p className="mt-2 text-white/70">
-        Here’s a peek at what your AI-assembled credit routes look like. We reveal the first app in the full preview.
+        Here’s a peek at what your AI-assembled CreditRoutes look like. We reveal the first app in the full preview.
       </p>
 
       <div className="mt-8 grid gap-7 md:grid-cols-2 md:gap-6 xl:grid-cols-4">

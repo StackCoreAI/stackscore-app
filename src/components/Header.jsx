@@ -45,7 +45,7 @@ export default function Header() {
               className="hidden md:block"
               aria-label="Start my credit route"
             >
-              <Button>Start My Credit Route</Button>
+              <Button>Start My CreditRoute</Button>
             </Link>
           )}
         </nav>

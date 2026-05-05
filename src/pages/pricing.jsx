@@ -97,7 +97,7 @@ const Pricing = ({ embedded = false }) => {
           </div>
 
           <h1 className="text-3xl font-extrabold tracking-tight md:text-5xl">
-            Unlock Your Personalized <span className="text-lime-400">Credit Route</span>
+            Unlock Your Personalized <span className="text-lime-400">CreditRoute</span>
           </h1>
 
           <p className="mt-4 text-lg text-zinc-300">
@@ -106,7 +106,7 @@ const Pricing = ({ embedded = false }) => {
 
           <p className="mx-auto max-w-3xl text-lg text-neutral-300">
             You’re not paying for a random list of apps. You’re unlocking a{" "}
-            <span className="font-semibold text-white">personalized credit route</span> that
+            <span className="font-semibold text-white">personalized CreditRoute</span> that
             prioritizes your highest-impact next moves and shows you where tools actually help.
           </p>
 
@@ -122,7 +122,7 @@ const Pricing = ({ embedded = false }) => {
 
               <div className="mt-4 grid gap-4 text-sm text-neutral-300 sm:grid-cols-2">
                 <ul className="list-disc space-y-2 pl-5">
-                  <li>Immediate access to your full Credit Route</li>
+                  <li>Immediate access to your full CreditRoute</li>
                   <li>Highest-impact actions prioritized for your profile</li>
                   <li>Step-by-step execution guidance</li>
                 </ul>
@@ -192,7 +192,7 @@ const Pricing = ({ embedded = false }) => {
             <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-6 shadow-xl shadow-lime-500/10">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <div className="text-sm text-neutral-300">Credit Route Activation</div>
+                  <div className="text-sm text-neutral-300">CreditRoute Activation</div>
                   <div className="mt-1 text-4xl font-extrabold">$29</div>
                   <div className="mt-1 text-sm text-neutral-400">One-time payment</div>
                   <div className="mt-2 text-xs text-neutral-500">
@@ -207,7 +207,7 @@ const Pricing = ({ embedded = false }) => {
 
               <div className="mt-5 space-y-2 text-sm text-neutral-300">
                 <div className="flex items-center gap-2">
-                  <span className="text-lime-300">✓</span> Full Credit Route + reroutes
+                  <span className="text-lime-300">✓</span> Full CreditRoute + reroutes
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-lime-300">✓</span> Prioritized next steps for your profile
@@ -226,7 +226,7 @@ const Pricing = ({ embedded = false }) => {
                   className="w-full bg-gradient-to-r from-lime-500 to-emerald-500 shadow-xl shadow-lime-500/40 transition-all duration-200 hover:scale-[1.02]"
                   onClick={goActivateIntro}
                 >
-                  Get My Credit Route
+                  Get My CreditRoute
                 </Button>
 
                 <Button
@@ -236,7 +236,7 @@ const Pricing = ({ embedded = false }) => {
                   onClick={beginCheckout}
                   disabled={unlocking}
                 >
-                  {unlocking ? "Opening Stripe…" : "Unlock My Full Credit Route — $29"}
+                  {unlocking ? "Opening Stripe…" : "Unlock My Full CreditRoute — $29"}
                 </Button>
 
                 {unlockErr && <div className="text-sm text-red-300">{unlockErr}</div>}

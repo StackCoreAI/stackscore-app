@@ -61,7 +61,7 @@ export default function HeroSection() {
           <div className="flex flex-col gap-4 pt-2 sm:flex-row">
             {/* Primary CTA → Wizard */}
             <Link to="/wizard?fresh=1">
-              <Button size="lg">🚀 Start my Credit Route</Button>
+              <Button size="lg">🚀 Start my CreditRoute</Button>
             </Link>
 
             {/* Secondary CTA → FAQ */}
@@ -77,7 +77,7 @@ export default function HeroSection() {
         <div className="lg:col-span-6">
           <div className="space-y-6 rounded-xl border border-white/10 bg-white/5 p-6 shadow-md backdrop-blur-sm">
             <h3 className="text-center text-lg font-semibold tracking-tight text-white">
-              Credit Route Gains
+              CreditRoute Gains
             </h3>
 
             <div className="grid grid-cols-2 gap-3">

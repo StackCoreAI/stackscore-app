@@ -133,7 +133,7 @@ function buildEmailHtml({ successUrl, pdfUrl, stackKey }) {
   </h2>
 
   <p style="margin: 0 0 16px;">
-    Thank you for your purchase. Your personalized Credit Route is now available.
+    Thank you for your purchase. Your personalized CreditRoute is now available.
    </p>
 
   <p style="margin: 0 0 8px;">
@@ -145,7 +145,7 @@ function buildEmailHtml({ successUrl, pdfUrl, stackKey }) {
   </p>
 
   <ol style="margin: 0 0 18px 20px; padding: 0;">
-    <li style="margin: 0 0 8px;">Open your online Credit Route using the button below</li>
+    <li style="margin: 0 0 8px;">Open your online CreditRoute using the button below</li>
     <li style="margin: 0 0 8px;">Open the printable PDF attached to this email</li>
     <li style="margin: 0;">Print or save your route from inside the online guide</li>
   </ol>
@@ -175,7 +175,7 @@ function buildEmailHtml({ successUrl, pdfUrl, stackKey }) {
             border-radius:10px;
           "
         >
-          <span style="color:#ffffff; text-decoration:none;">Access My Credit Route</span>
+          <span style="color:#ffffff; text-decoration:none;">Access My CreditRoute</span>
         </a>
       </td>
     </tr>
@@ -229,12 +229,12 @@ function buildEmailText({ successUrl, pdfUrl, stackKey }) {
   return [
     "Your CreditRoute Is Ready",
     "",
-    "Thank you for your purchase. Your personalized Credit Route is now available.",
+    "Thank you for your purchase. Your personalized CreditRoute is now available.",
     "",
     `Route selected: ${planTitle}`,
     "",
     "You can access it in three ways:",
-    "1. Open your online Credit Route using the guide link below",
+    "1. Open your online CreditRoute using the guide link below",
     "2. Open the printable PDF attached to this email",
     "3. Print or save your route from inside the online guide",
     "",

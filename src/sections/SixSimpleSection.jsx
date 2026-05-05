@@ -46,7 +46,7 @@ export default function SixSimpleSection() {
         {/* Left — Checklist */}
         <div className="md:w-1/2">
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold leading-tight tracking-tight mb-8">
-            Your Credit Route, in <span className="text-cyan-400">6&nbsp;Simple&nbsp;Clicks</span>
+            Your CreditRoute, in <span className="text-cyan-400">6&nbsp;Simple&nbsp;Clicks</span>
           </h2>
 
           <ul className="space-y-6 text-lg">
@@ -83,7 +83,7 @@ export default function SixSimpleSection() {
 
         {/* Right — Bars + legend */}
         <div className="md:w-1/2 flex flex-col items-center text-center">
-          <h3 className="text-2xl sm:text-3xl font-semibold mb-6">Smart Credit Route Preview</h3>
+          <h3 className="text-2xl sm:text-3xl font-semibold mb-6">Smart CreditRoute Preview</h3>
 
           <div className="flex justify-center items-end gap-3 h-64 w-full max-w-md">
             {barData.map((bar, i) => (

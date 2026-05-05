@@ -16,15 +16,15 @@ export default function WizardIntro() {
         <div className="max-w-2xl text-center space-y-8">
 
           <div className="inline-flex items-center gap-2 rounded-full border border-lime-400/30 bg-lime-500/10 px-3 py-1 text-xs text-lime-300">
-            Credit Route Mapping
+            CreditRoute Mapping
           </div>
 
           <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight">
-            Let’s Map Your <span className="text-lime-400">Credit Route</span>
+            Let’s Map Your <span className="text-lime-400">CreditRoute</span>
           </h1>
 
           <p className="text-neutral-300 text-lg">
-            In under 60 seconds, we’ll identify the strongest combination of reporting features across multiple apps — and show you your four possible Credit Routes.
+            In under 60 seconds, we’ll identify the strongest combination of reporting features across multiple apps — and show you your four possible CreditRoutes.
           </p>
 
           <div className="space-y-3 text-sm text-neutral-400">

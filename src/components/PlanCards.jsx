@@ -71,7 +71,7 @@ export default function PlanCards({ plan }) {
     <div className="space-y-6">
       {gains && (
         <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 shadow-sm">
-          <h2 className="text-xl font-semibold text-white">Credit Route Outlook</h2>
+          <h2 className="text-xl font-semibold text-white">CreditRoute Outlook</h2>
           <p className="mt-1 text-sm text-slate-300">
             Foundation {gains.lite} · Growth {gains.core} · Accelerator {gains.boosted} · Elite{" "}
             {gains.max}
@@ -118,7 +118,7 @@ export default function PlanCards({ plan }) {
 
         {selected.length === 0 ? (
           <p className="mt-1 text-sm text-slate-400">
-            Add tools here as you evaluate which options best support your Credit Route.
+            Add tools here as you evaluate which options best support your CreditRoute.
           </p>
         ) : (
           <ul className="mt-2 flex flex-wrap gap-2">
