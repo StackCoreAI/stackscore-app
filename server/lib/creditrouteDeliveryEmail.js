@@ -207,6 +207,15 @@ function buildEmailHtml({ pdfUrl, stackKey }) {
     Consistency is the key to results - follow the plan and track your progress.
   </p>
 
+  <div style="margin: 0 0 16px; padding: 14px 16px; background: #f3f4f6; border: 1px solid #d1d5db; border-radius: 8px; color: #374151; font-size: 13px; line-height: 1.5;">
+    <p style="margin: 0 0 6px; font-weight: 700; color: #111827;">
+      IMPORTANT DISCLAIMER
+    </p>
+    <p style="margin: 0;">
+      CreditRoute provides educational information only and is not financial, legal, credit repair, or credit counseling advice. Credit score improvements are not guaranteed and depend on your individual profile, reporting timelines, lender policies, and actions taken.
+    </p>
+  </div>
+
   <p style="margin: 0;">
     - CreditRoute
   </p>
@@ -237,6 +246,9 @@ function buildEmailText({ stackKey }) {
     "If you ever need to revisit your plan, keep this PDF as your reference and execution checklist.",
     "",
     "Consistency is the key to results - follow the plan and track your progress.",
+    "",
+    "IMPORTANT DISCLAIMER",
+    "CreditRoute provides educational information only and is not financial, legal, credit repair, or credit counseling advice. Credit score improvements are not guaranteed and depend on your individual profile, reporting timelines, lender policies, and actions taken.",
     "",
     "- CreditRoute",
     "",
