@@ -28,6 +28,10 @@
   timeout = 26
   included_files = ["pdf/templates/creditroute-guide.html", "public/assets/creditroute-logo.png"]
 
+[functions."serve-guide"]
+  timeout = 20
+  included_files = ["public/guides/82.html"]
+
 [functions."test-delivery-email"]
   timeout = 26
 
@@ -56,6 +60,19 @@
 # -----------------------------
 # Redirects (order matters)
 # -----------------------------
+
+# Protected paid guide
+[[redirects]]
+  from = "/guides/82.html"
+  to   = "/.netlify/functions/serve-guide"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/guide/82"
+  to   = "/.netlify/functions/serve-guide"
+  status = 200
+  force = true
 
 # Guide deep links
 [[redirects]]
