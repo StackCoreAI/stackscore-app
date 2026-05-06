@@ -119,6 +119,12 @@ async function fetchPdfAttachment({
     headers: {
       "Content-Type": "application/json",
       Accept: "application/pdf",
+      ...(devPdf && process.env.TEST_DELIVERY_EMAIL_SECRET
+        ? {
+            "x-creditroute-dev-pdf-secret":
+              process.env.TEST_DELIVERY_EMAIL_SECRET,
+          }
+        : {}),
     },
     body: JSON.stringify(body),
   });

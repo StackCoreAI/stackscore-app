@@ -109,13 +109,18 @@
       return data;
     }
 
-    function setRouteContext({ email, stackKey }) {
+    function setRouteContext({ email, stackKey, sessionId }) {
       try {
         const key = String(stackKey || "growth").toLowerCase().trim();
 
         localStorage.setItem("stackscore_paid", "1");
         localStorage.setItem("ss_access", "1");
         localStorage.setItem("ss_route_key", key);
+
+        if (sessionId) {
+          localStorage.setItem("ss_last_session_id", sessionId);
+          sessionStorage.setItem("ss_last_session_id", sessionId);
+        }
 
         if (email) {
           localStorage.setItem("stackscore_paid_email", email);
@@ -132,9 +137,9 @@
       } catch {}
     }
 
-    function showContinue(stackKey, token) {
+    function showContinue(stackKey, token, verifiedSessionId) {
       const key = String(stackKey || "growth").toLowerCase().trim();
-      const target = `/guides/82.html?stackKey=${encodeURIComponent(key)}&t=${encodeURIComponent(token)}`;
+      const target = `/guides/82.html?stackKey=${encodeURIComponent(key)}&t=${encodeURIComponent(token)}&session_id=${encodeURIComponent(verifiedSessionId || sessionId)}`;
 
       goBtn.classList.remove("hidden");
       goBtn.onclick = () => {
@@ -168,17 +173,18 @@
           return;
         }
 
-        setRouteContext({ email, stackKey });
+        setRouteContext({ email, stackKey, sessionId });
 
         statusEl.textContent = "Creating secure access…";
 
         const tokenData = await getGuideToken();
         const token = tokenData.token;
+        const verifiedSessionId = tokenData.session_id || sessionId;
 
-        const target = `/guides/82.html?stackKey=${encodeURIComponent(stackKey)}&t=${encodeURIComponent(token)}`;
+        const target = `/guides/82.html?stackKey=${encodeURIComponent(stackKey)}&t=${encodeURIComponent(token)}&session_id=${encodeURIComponent(verifiedSessionId)}`;
 
         statusEl.textContent = "Activated. Redirecting to your route…";
-        showContinue(stackKey, token);
+        showContinue(stackKey, token, verifiedSessionId);
 
         setTimeout(() => {
           location.href = target;
@@ -186,7 +192,7 @@
 
         setTimeout(() => {
           statusEl.textContent = "If you are not redirected automatically, click below.";
-          showContinue(stackKey, token);
+          showContinue(stackKey, token, verifiedSessionId);
         }, 2500);
       } catch (e) {
         console.error(e);

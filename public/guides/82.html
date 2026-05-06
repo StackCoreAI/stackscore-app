@@ -18,18 +18,24 @@
     const requestedStackKey = String(params.get("stackKey") || "").toLowerCase().trim();
     const stackKey = requestedStackKey || "growth";
     const sessionId = params.get("session_id") || "";
-    const isAllowedDevGuide = params.get("dev") === "1" && allowedDevStackKeys.has(requestedStackKey);
+    const isDeployPreview =
+      /^deploy-preview-\d+--/.test(window.location.hostname) &&
+      window.location.hostname.endsWith(".netlify.app");
+    const isAllowedDevGuide =
+      params.get("dev") === "1" &&
+      allowedDevStackKeys.has(requestedStackKey) &&
+      isDeployPreview;
 
     document.documentElement.style.visibility = "hidden";
 
-    function persistRouteContext() {
+    function persistRouteContext(verifiedSessionId) {
       try {
         localStorage.setItem("ss_route_key", String(stackKey || "growth").toLowerCase());
         sessionStorage.setItem("selectedPlanKey", String(stackKey || "growth").toLowerCase());
         sessionStorage.setItem("ss_selected", JSON.stringify(String(stackKey || "growth").toLowerCase()));
-        if (sessionId) {
-          localStorage.setItem("ss_last_session_id", sessionId);
-          sessionStorage.setItem("ss_last_session_id", sessionId);
+        if (verifiedSessionId) {
+          localStorage.setItem("ss_last_session_id", verifiedSessionId);
+          sessionStorage.setItem("ss_last_session_id", verifiedSessionId);
         }
       } catch {}
     }
@@ -37,11 +43,16 @@
     async function verify() {
       try {
         if (!token && !isAllowedDevGuide) {
+          console.warn("CreditRoute guide access denied: missing guide token", {
+            stackKey,
+            hasSessionId: Boolean(sessionId)
+          });
           window.location.replace("/activate");
           return;
         }
 
         if (!token) {
+          persistRouteContext(sessionId);
           document.documentElement.style.visibility = "visible";
           return;
         }
@@ -54,19 +65,37 @@
         const data = await res.json().catch(() => ({}));
 
         if (!res.ok || !data?.ok) {
+          console.warn("CreditRoute guide token verification failed", {
+            status: res.status,
+            error: data?.error || "Unknown verification error",
+            stackKey,
+            hasSessionId: Boolean(sessionId)
+          });
           window.location.replace("/activate");
           return;
         }
 
-        persistRouteContext();
+        const verifiedSessionId = String(data?.session_id || sessionId || "").trim();
+        if (!verifiedSessionId) {
+          console.warn("CreditRoute guide token verified without session_id", {
+            stackKey
+          });
+        }
+
+        persistRouteContext(verifiedSessionId);
 
         const cleanParams = new URLSearchParams();
         cleanParams.set("stackKey", stackKey);
-        if (sessionId) cleanParams.set("session_id", sessionId);
+        if (verifiedSessionId) cleanParams.set("session_id", verifiedSessionId);
 
         history.replaceState({}, "", `/guides/82.html?${cleanParams.toString()}`);
         document.documentElement.style.visibility = "visible";
-      } catch {
+      } catch (err) {
+        console.warn("CreditRoute guide token verification error", {
+          error: err?.message || String(err),
+          stackKey,
+          hasSessionId: Boolean(sessionId)
+        });
         window.location.replace("/activate");
       }
     }
@@ -703,8 +732,11 @@
         ).toLowerCase().trim();
         const allowedDevStackKeys = new Set(["foundation", "growth", "accelerator"]);
         const requestedStackKey = String(params.get("stackKey") || "").toLowerCase().trim();
+        const isDeployPreview =
+          /^deploy-preview-\d+--/.test(window.location.hostname) &&
+          window.location.hostname.endsWith(".netlify.app");
         const isAllowedDevPdf =
-          params.get("dev") === "1" && allowedDevStackKeys.has(requestedStackKey);
+          params.get("dev") === "1" && allowedDevStackKeys.has(requestedStackKey) && isDeployPreview;
 
         return {
           stackKey,
@@ -729,6 +761,12 @@
         const { stackKey, sessionId, dev } = currentContext();
         const isAllowedDevPdf = dev === "1";
         if (!sessionId && !isAllowedDevPdf) {
+          console.warn("CreditRoute PDF download blocked: missing paid session", {
+            stackKey,
+            hasUrlSessionId: new URLSearchParams(window.location.search).has("session_id"),
+            hasSessionStorageSessionId: Boolean(sessionStorage.getItem("ss_last_session_id")),
+            hasLocalStorageSessionId: Boolean(localStorage.getItem("ss_last_session_id"))
+          });
           window.alert("We could not find your paid session. Please reopen your CreditRoute from the success page or email link.");
           return;
         }

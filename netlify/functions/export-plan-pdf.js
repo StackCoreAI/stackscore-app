@@ -1,6 +1,7 @@
 // netlify/functions/export-plan-pdf.js
 import fs from "node:fs/promises";
 import path from "node:path";
+import { timingSafeEqual } from "node:crypto";
 import chromium from "@sparticuz/chromium";
 import puppeteer from "puppeteer-core";
 import Stripe from "stripe";
@@ -45,6 +46,44 @@ function logPdfError(stage, err, details = {}) {
       stack: err?.stack || "",
     })
   );
+}
+
+function getHeader(headers, name) {
+  const lower = String(name || "").toLowerCase();
+  for (const key of Object.keys(headers || {})) {
+    if (String(key).toLowerCase() === lower) return headers[key];
+  }
+  return "";
+}
+
+function safeEqual(a, b) {
+  const left = Buffer.from(String(a || ""));
+  const right = Buffer.from(String(b || ""));
+  return left.length === right.length && timingSafeEqual(left, right);
+}
+
+function idTail(value = "") {
+  return String(value || "").slice(-8);
+}
+
+function isDeployPreviewRequest(event) {
+  const context = String(process.env.CONTEXT || "").toLowerCase();
+  const host = String(
+    getHeader(event.headers, "x-forwarded-host") ||
+      getHeader(event.headers, "host") ||
+      ""
+  ).toLowerCase();
+
+  return (
+    context === "deploy-preview" ||
+    (/^deploy-preview-\d+--/.test(host) && host.endsWith(".netlify.app"))
+  );
+}
+
+function hasAuthorizedDevPdfSecret(event) {
+  const secret = process.env.TEST_DELIVERY_EMAIL_SECRET || "";
+  const provided = getHeader(event.headers, "x-creditroute-dev-pdf-secret");
+  return Boolean(secret && provided && safeEqual(provided, secret));
 }
 
 function parseRequestBody(rawBody) {
@@ -459,7 +498,14 @@ async function loadLogoSrc() {
 }
 
 async function verifyPaidSession(sessionId) {
-  if (!sessionId) throw new Error("Missing session_id");
+  if (!sessionId) {
+    const err = new Error("Missing session_id");
+    logPdfError("verify-paid-session", err, {
+      reason: "missing_session_id",
+    });
+    throw err;
+  }
+
   if (!process.env.STRIPE_SECRET_KEY) {
     throw new Error("Missing STRIPE_SECRET_KEY");
   }
@@ -468,10 +514,25 @@ async function verifyPaidSession(sessionId) {
     apiVersion: "2024-06-20",
   });
 
-  const session = await stripeClient.checkout.sessions.retrieve(sessionId);
+  let session;
+  try {
+    session = await stripeClient.checkout.sessions.retrieve(sessionId);
+  } catch (err) {
+    logPdfError("verify-paid-session", err, {
+      reason: "stripe_retrieve_failed",
+      sessionIdTail: idTail(sessionId),
+    });
+    throw err;
+  }
 
   if (session.payment_status !== "paid") {
-    throw new Error("Session not paid");
+    const err = new Error("Session not paid");
+    logPdfError("verify-paid-session", err, {
+      reason: "session_not_paid",
+      sessionIdTail: idTail(sessionId),
+      paymentStatus: session.payment_status || "",
+    });
+    throw err;
   }
 
   return session;
@@ -634,11 +695,26 @@ export const handler = async (event) => {
       .toLowerCase()
       .trim();
 
-    const isAllowedDevPdf =
+    const requestedDevPdf =
       String(body.dev || query.dev || "") === "1" &&
       DEV_QA_STACK_KEYS.has(requestedStackKey);
+    const isAllowedDevPdf =
+      requestedDevPdf &&
+      (isDeployPreviewRequest(event) || hasAuthorizedDevPdfSecret(event));
 
     if (!sessionId && !isAllowedDevPdf) {
+      logPdfInfo("session-verification-missing", {
+        method,
+        requestedStackKey,
+        requestedDevPdf,
+        isDeployPreview: isDeployPreviewRequest(event),
+        hasAuthorizedDevPdfSecret: hasAuthorizedDevPdfSecret(event),
+      });
+      if (requestedDevPdf) {
+        return json({}, 403, {
+          error: "Dev PDF bypass is only available on deploy previews.",
+        });
+      }
       return json({}, 400, { error: "Missing session_id" });
     }
 
