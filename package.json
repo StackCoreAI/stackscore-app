@@ -93,5 +93,9 @@
   "engines": {
     "node": ">=18.18",
     "npm": ">=9"
+  },
+  "overrides": {
+    "rollup": "^4.60.3",
+    "picomatch": "^2.3.2"
   }
 }
