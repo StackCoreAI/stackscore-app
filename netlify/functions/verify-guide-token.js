@@ -38,6 +38,17 @@ function b64urlDecode(value = "") {
   return Buffer.from(padded, "base64").toString("utf8");
 }
 
+function tokenTail(token = "") {
+  return String(token || "").slice(-8);
+}
+
+function logTokenRejection(reason, details = {}) {
+  console.warn("verify-guide-token rejected:", {
+    reason,
+    ...details,
+  });
+}
+
 export const handler = async (event) => {
   try {
     if (!process.env.GUIDE_TOKEN_SECRET) {
@@ -77,6 +88,10 @@ export const handler = async (event) => {
       .trim();
 
     if (!token || !token.includes(".")) {
+      logTokenRejection("missing_or_invalid_token", {
+        hasToken: Boolean(token),
+        requestedStackKey,
+      });
       return json(401, {
         ok: false,
         error: "Missing or invalid token",
@@ -85,6 +100,10 @@ export const handler = async (event) => {
 
     const [encoded, signature] = token.split(".");
     if (!encoded || !signature) {
+      logTokenRejection("malformed_token", {
+        tokenTail: tokenTail(token),
+        requestedStackKey,
+      });
       return json(401, {
         ok: false,
         error: "Malformed token",
@@ -94,6 +113,10 @@ export const handler = async (event) => {
     const expected = sign(encoded, process.env.GUIDE_TOKEN_SECRET);
 
     if (signature !== expected) {
+      logTokenRejection("bad_signature", {
+        tokenTail: tokenTail(token),
+        requestedStackKey,
+      });
       return json(401, {
         ok: false,
         error: "Bad signature",
@@ -104,6 +127,10 @@ export const handler = async (event) => {
     try {
       payload = JSON.parse(b64urlDecode(encoded));
     } catch {
+      logTokenRejection("invalid_payload", {
+        tokenTail: tokenTail(token),
+        requestedStackKey,
+      });
       return json(401, {
         ok: false,
         error: "Invalid token payload",
@@ -113,6 +140,12 @@ export const handler = async (event) => {
     const now = Math.floor(Date.now() / 1000);
 
     if (!payload?.exp || now > payload.exp) {
+      logTokenRejection("token_expired", {
+        tokenTail: tokenTail(token),
+        requestedStackKey,
+        exp: payload?.exp || 0,
+        now,
+      });
       return json(401, {
         ok: false,
         error: "Token expired",
@@ -124,6 +157,11 @@ export const handler = async (event) => {
       payload?.stackKey &&
       String(payload.stackKey).toLowerCase().trim() !== requestedStackKey
     ) {
+      logTokenRejection("stack_mismatch", {
+        tokenTail: tokenTail(token),
+        requestedStackKey,
+        tokenStackKey: String(payload.stackKey).toLowerCase().trim(),
+      });
       return json(401, {
         ok: false,
         error: "Stack mismatch",
