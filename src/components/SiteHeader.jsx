@@ -31,7 +31,7 @@ export default function SiteHeader({ right = null }) {
         <Button
           as={SmartLink}
           to="/wizard?fresh=1"
-          className="hidden sm:inline-flex"
+          className="hidden sm:inline-flex !text-black"
           aria-label="Start my CreditRoute"
         >
           Start My CreditRoute
