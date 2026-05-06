@@ -46,17 +46,17 @@
     "postinstall": "npm run tw:bin && npm run tw:verify"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.873.0",
-    "@aws-sdk/s3-request-presigner": "^3.873.0",
+    "@aws-sdk/client-s3": "^3.1044.0",
+    "@aws-sdk/s3-request-presigner": "^3.1044.0",
     "@sparticuz/chromium": "^138.0.2",
     "@xata.io/client": "^0.30.1",
     "compression": "^1.8.1",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^17.2.1",
-    "express": "^4.21.2",
-    "express-rate-limit": "^8.0.1",
-    "handlebars": "^4.7.8",
+    "express": "^4.22.1",
+    "express-rate-limit": "^8.5.1",
+    "handlebars": "^4.7.9",
     "helmet": "^8.1.0",
     "lucide": "^0.542.0",
     "lucide-react": "^0.540.0",
@@ -69,10 +69,10 @@
     "puppeteer-core": "^24.17.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^7.8.0",
+    "react-router-dom": "^7.15.0",
     "resend": "^6.9.3",
     "stripe": "^18.4.0",
-    "uuid": "^11.1.0",
+    "uuid": "^11.1.1",
     "zod": "^3.25.76"
   },
   "devDependencies": {
@@ -85,10 +85,10 @@
     "concurrently": "^9.2.1",
     "esbuild": "^0.25.10",
     "nodemon": "^3.1.10",
-    "postcss": "^8.5.6",
+    "postcss": "^8.5.14",
     "puppeteer": "^24.17.0",
     "tailwindcss": "^4.1.13",
-    "vite": "^5.4.19"
+    "vite": "^5.4.21"
   },
   "engines": {
     "node": ">=18.18",
