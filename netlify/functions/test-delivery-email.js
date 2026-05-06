@@ -1,9 +1,11 @@
 import { timingSafeEqual } from "node:crypto";
-import { Resend } from "resend";
+import {
+  formatDeliveryError,
+  sendCreditRouteDeliveryEmail,
+} from "../../server/lib/creditrouteDeliveryEmail.js";
 
-const CUSTOMER_SITE_URL = "https://creditroute.com";
-const ALLOWED_STACK_KEYS = new Set(["foundation", "growth", "accelerator"]);
-const SUBJECT = "Your Personalized CreditRoute Plan Is Ready";
+const DEV_QA_STACK_KEYS = new Set(["foundation", "growth", "accelerator"]);
+const SITE_OWNER_TEST_EMAIL = "resolve@stackscore.ai";
 
 function json(statusCode, body) {
   return {
@@ -16,26 +18,9 @@ function json(statusCode, body) {
   };
 }
 
-function formatError(err) {
-  return {
-    name: err?.name || "Error",
-    message: err?.message || String(err),
-    stack: err?.stack || "",
-    response: err?.response || err?.cause || null,
-  };
-}
-
-function escapeHtml(value) {
-  return String(value ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
-}
-
 function parseBody(event) {
   if (!event.body) return {};
+
   try {
     const raw = event.isBase64Encoded
       ? Buffer.from(event.body, "base64").toString("utf8")
@@ -63,162 +48,77 @@ function safeEqual(a, b) {
   return left.length === right.length && timingSafeEqual(left, right);
 }
 
-function buildEmailHtml({ pdfUrl }) {
-  const safePdfUrl = escapeHtml(pdfUrl);
-
-  return `
-<div style="font-family: Inter, Arial, sans-serif; color: #111827; line-height: 1.6; max-width: 640px; margin: 0 auto; padding: 24px 16px;">
-  <p style="margin: 0 0 16px;">
-    Hi there,
-  </p>
-
-  <p style="margin: 0 0 16px;">
-    You now have a clear path forward.
-  </p>
-
-  <p style="margin: 0 0 16px;">
-    Your personalized CreditRoute Plan is ready.
-  </p>
-
-  <p style="margin: 0 0 16px;">
-    This plan is designed to guide your credit improvement step-by-step using the highest-impact signals available for your profile.
-  </p>
-
-  <p style="margin: 0 0 16px;">
-    We recommend saving this document and following each step in order. The biggest results come from consistency and completing each action as outlined.
-  </p>
-
-  <p style="margin: 0 0 16px;">
-    Start with Step 1 and move forward only after each step is fully set up and active.
-  </p>
-
- <div style="margin:0 0 18px;">
-  <table role="presentation" cellspacing="0" cellpadding="0" border="0">
-    <tr>
-      <td
-        bgcolor="#111827"
-        style="
-          background:#111827;
-          border:1px solid #374151;
-          border-radius:10px;
-        "
-      >
-        <a
-          href="${safePdfUrl}"
-          style="
-            display:inline-block;
-            padding:14px 22px;
-            font-family:Inter, Arial, sans-serif;
-            font-size:16px;
-            font-weight:700;
-            line-height:1;
-            color:#ffffff;
-            text-decoration:none;
-            border-radius:10px;
-          "
-        >
-          <span style="color:#ffffff; text-decoration:none;">Download Your CreditRoute Plan</span>
-        </a>
-      </td>
-    </tr>
-  </table>
-</div>
-
-  <p style="margin: 0 0 16px;">
-    Estimated impact: +80–100 points over 45–60 days when the plan is fully executed (results vary by profile)
-  </p>
-
-  <p style="margin: 0 0 16px;">
-    If you ever need to revisit your plan, keep this PDF as your reference and execution checklist.
-  </p>
-
-  <p style="margin: 0 0 16px;">
-    Consistency is the key to results — follow the plan and track your progress.
-  </p>
-
-  <p style="margin: 0;">
-    — CreditRoute
-  </p>
-</div>
-`;
+function configuredTestRecipient() {
+  return String(
+    process.env.TEST_DELIVERY_EMAIL ||
+      process.env.TEST_DELIVERY_EMAIL_TO ||
+      process.env.RESEND_TEST_EMAIL ||
+      ""
+  )
+    .toLowerCase()
+    .trim();
 }
 
-function buildEmailText() {
-  return [
-    "Hi there,",
-    "",
-    "You now have a clear path forward.",
-    "",
-    "Your personalized CreditRoute Plan is ready.",
-    "",
-    "This plan is designed to guide your credit improvement step-by-step using the highest-impact signals available for your profile.",
-    "",
-    "We recommend saving this document and following each step in order. The biggest results come from consistency and completing each action as outlined.",
-    "",
-    "Start with Step 1 and move forward only after each step is fully set up and active.",
-    "",
-    "[Download Your CreditRoute Plan]",
-    "",
-    "Estimated impact: +80–100 points over 45–60 days when the plan is fully executed (results vary by profile)",
-    "",
-    "If you ever need to revisit your plan, keep this PDF as your reference and execution checklist.",
-    "",
-    "Consistency is the key to results — follow the plan and track your progress.",
-    "",
-    "— CreditRoute",
-  ].join("\n");
-}
+function resolveTestRecipient({ body, query }) {
+  const configuredRecipient = configuredTestRecipient();
+  const fallbackRecipient = configuredRecipient || SITE_OWNER_TEST_EMAIL;
+  const requestedRecipient = String(body.email || query.email || "")
+    .toLowerCase()
+    .trim();
+  const recipient = requestedRecipient || fallbackRecipient;
 
-async function fetchQaPdf({ stackKey }) {
-  const params = new URLSearchParams({
-    dev: "1",
-    stackKey,
-  });
-  const pdfUrl = `${CUSTOMER_SITE_URL}/.netlify/functions/export-plan-pdf?${params.toString()}`;
-
-  console.log("test-delivery-email fetching PDF attachment", {
-    stackKey,
-    pdfUrl,
-  });
-
-  const res = await fetch(pdfUrl, {
-    method: "GET",
-    headers: { Accept: "application/pdf" },
-  });
-
-  if (!res.ok) {
-    const body = await res.text().catch(() => "");
-    throw new Error(
-      `export-plan-pdf failed (${res.status}): ${body.slice(0, 500)}`
-    );
+  if (!recipient) {
+    return {
+      error: json(400, {
+        ok: false,
+        error: "missing_test_recipient",
+        detail:
+          "Set TEST_DELIVERY_EMAIL, TEST_DELIVERY_EMAIL_TO, or RESEND_TEST_EMAIL.",
+      }),
+    };
   }
 
-  const contentType = res.headers.get("content-type") || "";
-  const pdfBuffer = Buffer.from(await res.arrayBuffer());
+  if (requestedRecipient && requestedRecipient !== fallbackRecipient) {
+    return {
+      error: json(403, {
+        ok: false,
+        error: "recipient_not_allowed",
+        detail:
+          "The test endpoint only sends to the configured test recipient.",
+      }),
+    };
+  }
 
-  console.log("test-delivery-email PDF attachment ready", {
-    stackKey,
-    bytes: pdfBuffer.length,
-    contentType,
-    filename: `CreditRoute-Plan-${stackKey}.pdf`,
-  });
+  return {
+    recipient,
+    source: configuredRecipient ? "env" : "site_owner_fallback",
+  };
+}
 
-  return { pdfUrl, pdfBuffer };
+function resolveStackKey({ body, query }) {
+  const requestedStackKey = String(body.stackKey || query.stackKey || "growth")
+    .toLowerCase()
+    .trim();
+
+  return DEV_QA_STACK_KEYS.has(requestedStackKey) ? requestedStackKey : "growth";
 }
 
 export const handler = async (event) => {
   try {
+    const method = String(event.httpMethod || "").toUpperCase();
+    const isJsonBody =
+      method === "POST" || method === "PUT" || method === "PATCH";
+
     console.log("test-delivery-email triggered", {
-      method: event.httpMethod,
+      method,
       hasTestSecret: Boolean(process.env.TEST_DELIVERY_EMAIL_SECRET),
       hasResendApiKey: Boolean(process.env.RESEND_API_KEY),
       hasFromEmail: Boolean(process.env.RESEND_FROM_EMAIL),
-      hasTestRecipient: Boolean(
-        process.env.TEST_DELIVERY_EMAIL_TO || process.env.RESEND_TEST_EMAIL
-      ),
+      hasTestRecipient: Boolean(configuredTestRecipient()),
+      hasSiteOwnerFallback: Boolean(SITE_OWNER_TEST_EMAIL),
     });
 
-    if (event.httpMethod !== "POST") {
+    if (method !== "GET" && method !== "POST") {
       return json(405, { ok: false, error: "Method Not Allowed" });
     }
 
@@ -229,10 +129,11 @@ export const handler = async (event) => {
       return json(403, {
         ok: false,
         error: "test_delivery_email_disabled",
+        detail: "Set TEST_DELIVERY_EMAIL_SECRET to enable this endpoint.",
       });
     }
 
-    const body = parseBody(event);
+    const body = isJsonBody ? parseBody(event) : {};
     const query = event.queryStringParameters || {};
     const providedSecret =
       getHeader(event.headers, "x-creditroute-test-secret") ||
@@ -249,96 +150,36 @@ export const handler = async (event) => {
       throw new Error("Missing RESEND_API_KEY. Test email was not sent.");
     }
 
-    const configuredRecipient = String(
-      process.env.TEST_DELIVERY_EMAIL_TO || process.env.RESEND_TEST_EMAIL || ""
-    )
-      .toLowerCase()
-      .trim();
-    const recipient = String(body.email || query.email || configuredRecipient)
-      .toLowerCase()
-      .trim();
+    const recipientResult = resolveTestRecipient({ body, query });
+    if (recipientResult.error) return recipientResult.error;
 
-    if (!recipient) {
-      return json(400, {
-        ok: false,
-        error: "missing_test_recipient",
-        detail:
-          "Provide email in the request body or set TEST_DELIVERY_EMAIL_TO.",
-      });
-    }
+    const stackKey = resolveStackKey({ body, query });
 
-    if (configuredRecipient && recipient !== configuredRecipient) {
-      return json(403, {
-        ok: false,
-        error: "recipient_not_allowed",
-      });
-    }
-
-    const requestedStackKey = String(body.stackKey || query.stackKey || "growth")
-      .toLowerCase()
-      .trim();
-    const stackKey = ALLOWED_STACK_KEYS.has(requestedStackKey)
-      ? requestedStackKey
-      : "growth";
-    const from = process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev";
-
-    if (!process.env.RESEND_FROM_EMAIL) {
-      console.warn(
-        "RESEND_FROM_EMAIL missing. Falling back to onboarding@resend.dev."
-      );
-    }
-
-    console.log("test-delivery-email send triggered", {
-      recipient,
-      subject: SUBJECT,
-      from,
+    console.log("test-delivery-email send requested", {
+      recipient: recipientResult.recipient,
+      recipientSource: recipientResult.source,
       stackKey,
       hasResendApiKey: Boolean(process.env.RESEND_API_KEY),
       hasFromEmail: Boolean(process.env.RESEND_FROM_EMAIL),
     });
 
-    const { pdfUrl, pdfBuffer } = await fetchQaPdf({ stackKey });
-
-    console.log("test-delivery-email calling Resend", {
-      from,
-      to: recipient,
-      subject: SUBJECT,
-      attachmentFilename: `CreditRoute-Plan-${stackKey}.pdf`,
-      attachmentBytes: pdfBuffer.length,
-    });
-
-    const result = await new Resend(process.env.RESEND_API_KEY).emails.send({
-      from,
-      to: recipient,
-      subject: SUBJECT,
-      html: buildEmailHtml({ pdfUrl }),
-      text: buildEmailText(),
-      attachments: [
-        {
-          filename: `CreditRoute-Plan-${stackKey}.pdf`,
-          content: pdfBuffer.toString("base64"),
-          contentType: "application/pdf",
-        },
-      ],
-    });
-
-    console.log("test-delivery-email email send success", {
-      recipient,
-      subject: SUBJECT,
-      result,
+    const result = await sendCreditRouteDeliveryEmail({
+      email: recipientResult.recipient,
+      stackKey,
+      devPdf: true,
+      logPrefix: "test-delivery-email",
     });
 
     return json(200, {
       ok: true,
-      recipient,
-      subject: SUBJECT,
-      stackKey,
-      pdfBytes: pdfBuffer.length,
-      pdfUrl,
-      result,
+      message: "Test delivery email sent",
+      to: result.to,
+      resendId: result.resendId,
+      stackKey: result.stackKey,
+      pdfBytes: result.pdfBytes,
     });
   } catch (err) {
-    console.error("test-delivery-email failed", formatError(err));
+    console.error("test-delivery-email failed", formatDeliveryError(err));
     return json(err?.statusCode || 500, {
       ok: false,
       error: "test_delivery_email_failed",
