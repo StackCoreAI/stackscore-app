@@ -30,8 +30,8 @@ const Support = () => {
 
         <div className="text-sm">
           <p className="mb-1 text-neutral-400">📧 Email us:</p>
-          <a href="mailto:resolve@stackscore.ai" className="text-lime-400 font-medium hover:underline hover:text-white transition duration-150" aria-label="Email CreditRoute support">
-            resolve@stackscore.ai
+          <a href="mailto:route@creditroute.com" className="text-lime-400 font-medium hover:underline hover:text-white transition duration-150" aria-label="Email CreditRoute support">
+            route@creditroute.com
           </a>
         </div>
 

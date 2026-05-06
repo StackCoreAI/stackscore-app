@@ -28,7 +28,7 @@ export default function SiteHeader({ right = null }) {
     (
       <>
         {/* Desktop CTA */}
-        <SmartLink to="/activate" className="hidden sm:block" aria-label="Start my CreditRoute">
+        <SmartLink to="/wizard?fresh=1" className="hidden sm:block" aria-label="Start my CreditRoute">
           <Button>Start My CreditRoute</Button>
         </SmartLink>
 
