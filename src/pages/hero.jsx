@@ -32,21 +32,21 @@ export default function Hero({ embedded = false }) {
     {
       key: "growth",
       name: "Growth Route",
-      focus: "Balanced next moves",
+      focus: "Balanced tool mix",
       tone: "amber",
       badge: { icon: "🔥", label: "Recommended" },
     },
     {
       key: "accelerator",
       name: "Accelerator Route",
-      focus: "Higher-impact sequencing",
+      focus: "Higher-impact combination",
       tone: "cyan",
       badge: { icon: "🚀", label: "Power Boost" },
     },
     {
       key: "elite",
       name: "Elite Route",
-      focus: "Maximum route depth",
+      focus: "Deeper route options",
       tone: "yellow",
       badge: { icon: "💎", label: "Premium" },
     },
@@ -150,15 +150,15 @@ export default function Hero({ embedded = false }) {
           </div>
 
           <h1 className="text-3xl font-light leading-tight tracking-tight sm:text-4xl md:text-5xl lg:text-6xl">
-            Stop Guessing What to Fix Next
+            Your best credit score increase may not come from just one app.
           </h1>
 
           <p className="max-w-2xl text-lg text-slate-300">
-            CreditRoute helps you prioritize the moves that matter most for your situation — so you can stop stacking random apps and follow a plan that actually makes sense.
+            CreditRoute helps organize the highest-impact combination of tools, features, and next steps into one intelligent route.
           </p>
 
-          <p className="text-sm text-neutral-400">
-            Personalized credit planning based on your profile, timeline, budget, and goals.
+          <p className="max-w-2xl text-sm text-neutral-400">
+            Like having dozens of credit improvement apps intelligently working together in one system.
           </p>
 
           <div className="flex flex-col gap-4 pt-2 sm:flex-row sm:items-center">
@@ -167,7 +167,7 @@ export default function Hero({ embedded = false }) {
                 Start My CreditRoute
               </Button>
               <p className="text-xs text-slate-500">
-                Quick questions → personalized routes → unlock when you’re ready
+                Quick questions → intelligent route → unlock when you’re ready
               </p>
             </div>
 
@@ -190,7 +190,7 @@ export default function Hero({ embedded = false }) {
         <div className="lg:col-span-6">
           <div className="space-y-6 rounded-xl border border-white/10 bg-white/5 p-6 shadow-md backdrop-blur-sm">
             <h3 className="text-center text-lg font-semibold tracking-tight text-white">
-              CreditRoutes Built Around Your Situation
+              Intelligent Routes Built Around Your Situation
             </h3>
 
             <div className="grid grid-cols-2 gap-3">
@@ -222,18 +222,18 @@ export default function Hero({ embedded = false }) {
                 </div>
                 <div>
                   <p className="text-[11px] uppercase tracking-wider text-slate-500">What we identify</p>
-                  <p className="mt-1 text-sm text-white">The levers most likely to matter for your profile</p>
+                  <p className="mt-1 text-sm text-white">High-impact combinations of tools, features, and next steps</p>
                 </div>
                 <div>
                   <p className="text-[11px] uppercase tracking-wider text-slate-500">What you get</p>
-                  <p className="mt-1 text-sm text-white">A prioritized route, not a random stack of apps</p>
+                  <p className="mt-1 text-sm text-white">An intelligent route, not random app stacking</p>
                 </div>
               </div>
             </div>
 
             <div className="space-y-1 text-center">
-              <p className="text-lime-300">Highest-impact next steps first</p>
-              <p className="text-emerald-400">Tools only where they may help</p>
+              <p className="text-lime-300">Highest-impact combinations first</p>
+              <p className="text-emerald-400">Tools and features only where they may help</p>
               <p className="text-xs text-slate-500">Results vary by credit profile and reporting timelines.</p>
             </div>
           </div>
