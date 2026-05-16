@@ -41,8 +41,8 @@ function FounderBridge() {
           className="aspect-square h-24 w-24 shrink-0 overflow-hidden rounded-full border border-lime-400/40 bg-cover shadow-[0_0_28px_rgba(163,255,18,0.18)] md:h-28 md:w-28"
           style={{
             backgroundImage: "url('/assets/founder-e-joseph-martin.jpg')",
-            backgroundPosition: "78% 18%",
-            backgroundSize: "cover",
+            backgroundPosition: "50% 18%",
+            backgroundSize: "185%",
           }}
         />
 
