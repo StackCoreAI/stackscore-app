@@ -128,7 +128,7 @@ const FAQ = ({ embedded = false }) => {
         </div>
 
         <h1 className="mt-4 text-3xl font-semibold tracking-tight text-lime-400">
-          Questions about Credit Routing
+          Questions about CreditRoute
         </h1>
 
         <p className="mt-2 text-sm text-neutral-400">

@@ -34,19 +34,14 @@ function TrustStrip() {
 function FounderBridge() {
   return (
     <section className="bg-neutral-950 px-4 py-8 md:py-12">
-      <div className="mx-auto grid max-w-6xl items-center gap-8 rounded-2xl border border-white/10 bg-white/[0.055] p-5 shadow-xl shadow-black/20 md:grid-cols-5 md:p-8">
-        <div className="md:col-span-2">
-          <div
-            className="flex aspect-[4/5] w-full items-center justify-center rounded-xl border border-white/10 bg-gradient-to-br from-neutral-800 to-neutral-900 shadow-inner"
-            aria-label="Founder photo placeholder"
-          >
-            <div className="flex h-24 w-24 items-center justify-center rounded-full border border-lime-400/20 bg-lime-500/10 text-2xl font-semibold tracking-tight text-lime-300">
-              EJM
-            </div>
-          </div>
-        </div>
+      <div className="mx-auto flex max-w-6xl flex-col items-center gap-6 rounded-2xl border border-white/10 bg-white/[0.055] p-6 text-center shadow-xl shadow-black/20 md:flex-row md:items-center md:gap-8 md:p-8 md:text-left">
+        <img
+          src="/assets/founder-e-joseph-martin.jpg"
+          alt="E. Joseph Martin, founder of CreditRoute"
+          className="aspect-square h-[88px] w-[88px] shrink-0 rounded-full border border-lime-400/25 object-cover object-top shadow-lg shadow-lime-500/10 md:h-24 md:w-24"
+        />
 
-        <div className="md:col-span-3">
+        <div>
           <blockquote className="text-2xl font-light leading-snug tracking-tight text-white md:text-3xl">
             “I went from being told ‘no’ by a three-digit number to here. I built CreditRoute so
             you wouldn’t have to figure it out alone.”

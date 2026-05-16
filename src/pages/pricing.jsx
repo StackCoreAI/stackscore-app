@@ -1,14 +1,11 @@
 // src/pages/pricing.jsx
 import React, { useEffect, useRef, useState } from "react";
-import { Lock, RotateCcw } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import SiteHeader from "../components/SiteHeader.jsx";
 import SiteFooter from "../components/SiteFooter.jsx";
 import Button from "@/components/ui/Button";
 import RouteTierPanel from "../components/RouteTierPanel.jsx";
 
 const Pricing = ({ embedded = false }) => {
-  const navigate = useNavigate();
   const [isVisible, setIsVisible] = useState(false);
 
   const [unlocking, setUnlocking] = useState(false);
@@ -40,15 +37,6 @@ const Pricing = ({ embedded = false }) => {
       document.removeEventListener("visibilitychange", onVisibility);
     };
   }, []);
-
-  const goActivateIntro = () => {
-    try {
-      localStorage.setItem("entryPoint", "pricing");
-    } catch {
-      // ignore storage errors
-    }
-    navigate("/activate", { state: { from: "pricing" } });
-  };
 
   async function beginCheckout() {
     if (checkoutInFlight.current) return;
@@ -168,7 +156,7 @@ const Pricing = ({ embedded = false }) => {
               </div>
 
               <div className="mt-4 text-xs text-neutral-500">
-                StackScore does not guarantee approval. It helps you focus on the moves most likely
+                CreditRoute does not guarantee approval. It helps you focus on the moves most likely
                 to strengthen your credit profile based on your situation.
               </div>
             </div>
@@ -229,15 +217,6 @@ const Pricing = ({ embedded = false }) => {
                 <Button
                   size="lg"
                   className="w-full bg-gradient-to-r from-lime-500 to-emerald-500 shadow-xl shadow-lime-500/40 transition-all duration-200 hover:scale-[1.02]"
-                  onClick={goActivateIntro}
-                >
-                  Get My CreditRoute
-                </Button>
-
-                <Button
-                  size="md"
-                  variant="secondary"
-                  className="w-full"
                   onClick={beginCheckout}
                   disabled={unlocking}
                 >
