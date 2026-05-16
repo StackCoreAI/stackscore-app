@@ -7,6 +7,65 @@ import SixSimple from "../pages/sixsimple.jsx";
 import Pricing from "../pages/pricing.jsx";
 import FAQ from "../pages/faq.jsx";
 
+function TrustStrip() {
+  const items = [
+    "Built by a founder who lived this",
+    "100% private — no credit pull required",
+    "Educational planning, not financial advice",
+    "No credit card to begin",
+  ];
+
+  return (
+    <div className="border-y border-white/[0.06] bg-neutral-950">
+      <div className="mx-auto flex max-w-6xl flex-col items-center justify-center gap-2 px-4 py-3 text-center text-xs text-neutral-500 sm:flex-row sm:flex-wrap sm:gap-3">
+        {items.map((item, index) => (
+          <React.Fragment key={item}>
+            {index > 0 && (
+              <span className="hidden h-3 w-px bg-white/10 sm:inline-block" aria-hidden="true" />
+            )}
+            <span>{item}</span>
+          </React.Fragment>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function FounderBridge() {
+  return (
+    <section className="bg-neutral-950 px-4 py-8 md:py-12">
+      <div className="mx-auto grid max-w-6xl items-center gap-8 rounded-2xl border border-white/10 bg-white/[0.055] p-5 shadow-xl shadow-black/20 md:grid-cols-5 md:p-8">
+        <div className="md:col-span-2">
+          <div
+            className="flex aspect-[4/5] w-full items-center justify-center rounded-xl border border-white/10 bg-gradient-to-br from-neutral-800 to-neutral-900 shadow-inner"
+            aria-label="Founder photo placeholder"
+          >
+            <div className="flex h-24 w-24 items-center justify-center rounded-full border border-lime-400/20 bg-lime-500/10 text-2xl font-semibold tracking-tight text-lime-300">
+              EJM
+            </div>
+          </div>
+        </div>
+
+        <div className="md:col-span-3">
+          <blockquote className="text-2xl font-light leading-snug tracking-tight text-white md:text-3xl">
+            “I went from being told ‘no’ by a three-digit number to here. I built CreditRoute so
+            you wouldn’t have to figure it out alone.”
+          </blockquote>
+
+          <p className="mt-5 text-sm font-semibold text-neutral-300">E. Joseph Martin, Founder</p>
+
+          <a
+            href="#founder-story"
+            className="mt-5 inline-flex text-sm font-semibold text-lime-300 transition-colors hover:text-lime-200"
+          >
+            Read my full story →
+          </a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 class SectionBoundary extends React.Component {
   constructor(p) {
     super(p);
@@ -91,6 +150,14 @@ export default function Landing() {
           <section id="hero" className="scroll-mt-24 pb-8 md:pb-12">
             <Hero embedded />
           </section>
+        </SectionBoundary>
+
+        <SectionBoundary label="TrustStrip">
+          <TrustStrip />
+        </SectionBoundary>
+
+        <SectionBoundary label="FounderBridge">
+          <FounderBridge />
         </SectionBoundary>
 
         <SectionBoundary label="SixSimple">

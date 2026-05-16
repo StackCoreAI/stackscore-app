@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import SiteHeader from "../components/SiteHeader.jsx";
 import SiteFooter from "../components/SiteFooter.jsx";
 import Button from "@/components/ui/Button";
+import RouteTierPanel from "../components/RouteTierPanel.jsx";
 
 const Pricing = ({ embedded = false }) => {
   const navigate = useNavigate();
@@ -114,6 +115,10 @@ const Pricing = ({ embedded = false }) => {
             No credit pull • No sensitive financial data required • Instant access after checkout
           </p>
         </div>
+
+        <section className="mx-auto mt-10 max-w-5xl">
+          <RouteTierPanel />
+        </section>
 
         <div className="mt-10 grid gap-8 lg:grid-cols-12 lg:items-start">
           <div className="space-y-6 lg:col-span-7">

@@ -21,58 +21,6 @@ export default function Hero({ embedded = false }) {
     navigate("/activate");
   };
 
-  const ROUTES = [
-    {
-      key: "foundation",
-      name: "Foundation Route",
-      focus: "Build your base",
-      tone: "lime",
-      badge: { icon: "💰", label: "Best Value" },
-    },
-    {
-      key: "growth",
-      name: "Growth Route",
-      focus: "Balanced tool mix",
-      tone: "amber",
-      badge: { icon: "🔥", label: "Recommended" },
-    },
-    {
-      key: "accelerator",
-      name: "Accelerator Route",
-      focus: "Higher-impact combination",
-      tone: "cyan",
-      badge: { icon: "🚀", label: "Power Boost" },
-    },
-    {
-      key: "elite",
-      name: "Elite Route",
-      focus: "Deeper route options",
-      tone: "yellow",
-      badge: { icon: "💎", label: "Premium" },
-    },
-  ];
-
-  const toneBorder = {
-    lime: "border-lime-400/30",
-    amber: "border-amber-400/30",
-    cyan: "border-cyan-400/30",
-    yellow: "border-yellow-300/30",
-  };
-
-  const toneText = {
-    lime: "text-lime-300",
-    amber: "text-amber-300",
-    cyan: "text-cyan-300",
-    yellow: "text-yellow-300",
-  };
-
-  const toneBadge = {
-    lime: "border-lime-400/20 bg-lime-500/15 text-lime-300",
-    amber: "border-amber-400/20 bg-amber-500/15 text-amber-300",
-    cyan: "border-cyan-400/20 bg-cyan-500/15 text-cyan-300",
-    yellow: "border-yellow-300/20 bg-yellow-400/10 text-yellow-300",
-  };
-
   return (
     <div className="bg-gradient-to-br from-[#101012] via-[#0c0d0e] to-[#08090a] antialiased text-white">
       {!embedded && (
@@ -150,7 +98,7 @@ export default function Hero({ embedded = false }) {
           </div>
 
           <h1 className="text-3xl font-light leading-tight tracking-tight sm:text-4xl md:text-5xl lg:text-6xl">
-            Your best credit score increase may not come from just one app.
+            Your personalized route to a higher credit score.
           </h1>
 
           <p className="max-w-2xl text-lg text-slate-300">
@@ -158,7 +106,7 @@ export default function Hero({ embedded = false }) {
           </p>
 
           <p className="max-w-2xl text-sm text-neutral-400">
-            Like having dozens of credit improvement apps intelligently working together in one system.
+            We tell you which credit-building apps to use, in what order, and when.
           </p>
 
           <div className="flex flex-col gap-4 pt-2 sm:flex-row sm:items-center">
@@ -167,7 +115,7 @@ export default function Hero({ embedded = false }) {
                 Start My CreditRoute
               </Button>
               <p className="text-xs text-slate-500">
-                Quick questions → intelligent route → unlock when you’re ready
+                Quick questions → personalized route → see your plan
               </p>
             </div>
 
@@ -188,53 +136,50 @@ export default function Hero({ embedded = false }) {
         </div>
 
         <div className="lg:col-span-6">
-          <div className="space-y-6 rounded-xl border border-white/10 bg-white/5 p-6 shadow-md backdrop-blur-sm">
-            <h3 className="text-center text-lg font-semibold tracking-tight text-white">
-              Intelligent Routes Built Around Your Situation
-            </h3>
+          <div className="rounded-xl border border-dashed border-lime-400/25 bg-white/[0.055] p-6 shadow-xl shadow-lime-500/10 backdrop-blur-sm">
+            <div className="mb-5 flex items-center justify-between gap-4">
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wider text-lime-300">
+                  Sample route preview
+                </p>
+                <h3 className="mt-2 text-xl font-semibold tracking-tight text-white">
+                  Example next-step sequence
+                </h3>
+              </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              {ROUTES.map((route) => (
+              <span className="rounded-full border border-white/10 bg-black/30 px-3 py-1 text-xs text-slate-400">
+                Illustrative only
+              </span>
+            </div>
+
+            <div className="space-y-3">
+              {[
+                "Optimize utilization on card X",
+                "Add a credit-builder loan",
+                "Time your reporting cycle",
+              ].map((step, index) => (
                 <div
-                  key={route.key}
-                  className={`rounded-lg border p-4 text-center transition hover:bg-white/10 ${toneBorder[route.tone]}`}
+                  key={step}
+                  className="flex items-start gap-3 rounded-lg border border-white/10 bg-black/25 p-4"
                 >
-                  <p className={`font-semibold ${toneText[route.tone]}`}>{route.name}</p>
-                  <p className="mt-1 text-xs text-slate-300">{route.focus}</p>
-
-                  <span
-                    className={`mt-3 inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium ${toneBadge[route.tone]}`}
-                  >
-                    <span aria-hidden="true" className="text-sm leading-none">
-                      {route.badge.icon}
-                    </span>
-                    <span className="leading-none">{route.badge.label}</span>
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-lime-400/25 bg-lime-500/10 text-sm font-semibold text-lime-300">
+                    {index + 1}
                   </span>
+                  <div>
+                    <p className="text-sm font-medium text-white">{step}</p>
+                    <p className="mt-1 text-xs text-slate-500">
+                      Your real route depends on your inputs and credit profile.
+                    </p>
+                  </div>
                 </div>
               ))}
             </div>
 
-            <div className="rounded-lg border border-white/10 bg-black/30 p-4">
-              <div className="grid gap-3 sm:grid-cols-3">
-                <div>
-                  <p className="text-[11px] uppercase tracking-wider text-slate-500">What we analyze</p>
-                  <p className="mt-1 text-sm text-white">Profile, timeline, budget, goals</p>
-                </div>
-                <div>
-                  <p className="text-[11px] uppercase tracking-wider text-slate-500">What we identify</p>
-                  <p className="mt-1 text-sm text-white">High-impact combinations of tools, features, and next steps</p>
-                </div>
-                <div>
-                  <p className="text-[11px] uppercase tracking-wider text-slate-500">What you get</p>
-                  <p className="mt-1 text-sm text-white">An intelligent route, not random app stacking</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-1 text-center">
-              <p className="text-lime-300">Highest-impact combinations first</p>
-              <p className="text-emerald-400">Tools and features only where they may help</p>
-              <p className="text-xs text-slate-500">Results vary by credit profile and reporting timelines.</p>
+            <div className="mt-5 rounded-lg border border-white/10 bg-black/30 p-4">
+              <p className="text-sm text-slate-300">
+                CreditRoute sequences practical moves so you know what to do first, what to do next,
+                and where tools may help.
+              </p>
             </div>
           </div>
         </div>
