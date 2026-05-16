@@ -35,18 +35,16 @@ function FounderBridge() {
   return (
     <section className="bg-neutral-950 px-4 py-8 md:py-12">
       <div className="mx-auto flex max-w-6xl flex-col items-center gap-6 rounded-2xl border border-white/10 bg-white/[0.055] p-6 text-center shadow-xl shadow-black/20 md:flex-row md:items-center md:gap-8 md:p-8 md:text-left">
-        <div className="aspect-square h-24 w-24 shrink-0 overflow-hidden rounded-full border border-lime-400/25 shadow-lg shadow-lime-500/10 md:h-28 md:w-28">
-          <img
-            src="/assets/founder-e-joseph-martin.jpg"
-            alt="E. Joseph Martin, founder of CreditRoute"
-            className="h-full w-full object-cover"
-            style={{
-              objectPosition: "78% 18%",
-              transform: "scale(1.9)",
-              transformOrigin: "78% 22%",
-            }}
-          />
-        </div>
+        <div
+          role="img"
+          aria-label="E. Joseph Martin, founder of CreditRoute"
+          className="aspect-square h-24 w-24 shrink-0 overflow-hidden rounded-full border border-lime-400/40 bg-cover shadow-[0_0_28px_rgba(163,255,18,0.18)] md:h-28 md:w-28"
+          style={{
+            backgroundImage: "url('/assets/founder-e-joseph-martin.jpg')",
+            backgroundPosition: "78% 18%",
+            backgroundSize: "cover",
+          }}
+        />
 
         <div>
           <blockquote className="text-2xl font-light leading-snug tracking-tight text-white md:text-3xl">
